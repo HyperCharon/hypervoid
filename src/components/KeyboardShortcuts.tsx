@@ -138,8 +138,8 @@ export function KeyboardShortcuts() {
         if (e.target === e.currentTarget) setHelpOpen(false);
       }}
     >
-      <div className="absolute inset-0 bg-black/64 backdrop-blur-sm" />
-      <div className="relative z-10 w-full max-w-md overflow-hidden border border-border bg-card/94 shadow-[0_28px_90px_rgba(0,0,0,0.48),0_0_48px_var(--accent-glow)] backdrop-blur-2xl">
+      <div className="absolute inset-0 bg-[var(--overlay-backdrop)] backdrop-blur-sm" />
+      <div className="relative z-10 w-full max-w-md overflow-hidden border border-border bg-card/94 shadow-[0_28px_90px_var(--shadow-heavy),0_0_48px_var(--accent-glow)] backdrop-blur-2xl">
         <div className="flex items-center justify-between border-b border-border bg-card px-5 py-3">
           <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-accent">键盘快捷键</h3>
           <button
@@ -153,7 +153,7 @@ export function KeyboardShortcuts() {
         <div className="flex flex-col gap-4 p-5">
           {SHORTCUTS.map((section) => (
             <section key={section.group}>
-              <h4 className="mb-2 font-mono text-[10px] font-semibold uppercase tracking-widest text-accent-soft">
+              <h4 className="mb-2 font-mono text-xs font-semibold uppercase tracking-widest text-accent-soft">
                 {section.group}
               </h4>
               <ul className="flex flex-col gap-1.5">

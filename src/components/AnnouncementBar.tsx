@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useT } from "@/components/LocaleProvider";
 
 const DISMISS_KEY = "hypervoid:announce:dismissed";
 
@@ -15,6 +16,7 @@ export function AnnouncementBar({
   linkText?: string;
   id?: string;
 }) {
+  const t = useT();
   const [hidden, setHidden] = useState(true);
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export function AnnouncementBar({
                 href={linkHref}
                 className="ml-2 font-medium text-primary underline-offset-2 hover:underline"
               >
-                {linkText ?? "了解更多"}
+                {linkText ?? t.common.learnMore}
               </a>
             </>
           ) : null}
@@ -58,7 +60,7 @@ export function AnnouncementBar({
         <button
           type="button"
           onClick={dismiss}
-          aria-label="关闭公告"
+          aria-label={t.widget.closeNotice}
           className="shrink-0 rounded p-1 text-muted hover:bg-card hover:text-foreground"
         >
           ✕

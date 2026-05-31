@@ -25,13 +25,13 @@ export function GlitchText({
   enableShadows = true,
   enableOnHover = false,
   className = "",
-  bgColor = "rgb(8,15,30)",
+  bgColor = "var(--glitch-bg)",
 }: GlitchTextProps) {
   const inlineStyles: GlitchCSSProperties = {
     "--after-duration": `${speed * 3}s`,
     "--before-duration": `${speed * 2}s`,
-    "--after-shadow": enableShadows ? "-5px 0 #f472b6" : "none",
-    "--before-shadow": enableShadows ? "5px 0 #8b5cf6" : "none",
+    "--after-shadow": enableShadows ? "-5px 0 var(--glitch-pink)" : "none",
+    "--before-shadow": enableShadows ? "5px 0 var(--glitch-violet)" : "none",
     "--glitch-bg": bgColor,
   };
 

@@ -15,7 +15,7 @@ export function RelatedPosts({ posts }: { posts: Post[] }) {
             Related_Orbit
           </h2>
         </div>
-        <span className="inline-flex items-center gap-1.5 border border-border bg-card px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-accent-soft" style={{ clipPath: 'polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%)' }}>
+        <span className="inline-flex items-center gap-1.5 border border-border bg-card px-2.5 py-0.5 font-mono text-xs uppercase tracking-wider text-accent-soft" style={{ clipPath: 'polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%)' }}>
           <span className="h-1 w-1 rounded-full bg-accent-soft" />
           {posts.length} Nodes
         </span>
@@ -41,7 +41,7 @@ export function RelatedPosts({ posts }: { posts: Post[] }) {
                 {p.frontmatter.description}
               </p>
             ) : null}
-            <span className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-2 font-mono text-[10px] uppercase tracking-wider text-muted-soft">
+            <span className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-2 font-mono text-xs uppercase tracking-wider text-muted-soft">
               <span>{p.frontmatter.date}</span>
               <span>{p.frontmatter.readingMinutes}m</span>
             </span>

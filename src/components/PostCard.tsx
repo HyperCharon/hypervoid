@@ -12,6 +12,7 @@ export function PostCard({ post }: { post: PostMeta }) {
       colors={["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#ec4899"]}
       glowColor="99 102 241"
       backgroundColor="rgba(12,18,36,0.9)"
+      lightBackgroundColor="#fffcf5"
       borderRadius={16}
       edgeSensitivity={20}
       glowRadius={30}
@@ -31,11 +32,11 @@ export function PostCard({ post }: { post: PostMeta }) {
               className="object-cover opacity-[0.82] saturate-[0.85] transition duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100"
             />
           ) : (
-            <div className="grid h-full min-h-24 place-items-center bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,.18),transparent_48%),linear-gradient(135deg,rgba(255,255,255,.055),transparent)]">
+            <div className="grid h-full min-h-24 place-items-center bg-[radial-gradient(circle_at_50%_50%,var(--accent-glow),transparent_48%)]">
               <Radio className="h-8 w-8 text-accent/60" aria-hidden />
             </div>
           )}
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,.38))]" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,var(--overlay-dark))]" />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -43,12 +44,12 @@ export function PostCard({ post }: { post: PostMeta }) {
             {frontmatter.pinned ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5" title="置顶">
                 <Pin className="h-3 w-3 text-accent" aria-hidden />
-                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-muted">Pinned</span>
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-muted">Pinned</span>
               </span>
             ) : null}
             <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5">
               <BookOpenText className="h-3 w-3 text-accent/60" aria-hidden />
-              <span className="font-mono text-[10px] uppercase tracking-wider text-muted">Article</span>
+              <span className="font-mono text-xs uppercase tracking-wider text-muted">Article</span>
             </span>
             <ReadBadge slug={slug} />
           </div>
@@ -63,7 +64,7 @@ export function PostCard({ post }: { post: PostMeta }) {
             </p>
           ) : null}
 
-          <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border pt-2 font-mono text-[10px] uppercase tracking-wider text-muted">
+          <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border pt-2 font-mono text-xs uppercase tracking-wider text-muted">
             <time className="inline-flex items-center gap-1.5">
               <span className="h-1 w-1 rounded-full bg-accent" />
               {frontmatter.date}

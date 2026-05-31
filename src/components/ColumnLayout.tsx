@@ -38,7 +38,7 @@ export function ColumnToggleButton({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="inline-flex items-center border border-border bg-card p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl">
+    <div className="inline-flex items-center border border-border bg-card p-1 shadow-[inset_0_1px_0_var(--inset-highlight)] backdrop-blur-xl">
       <button
         type="button"
         onClick={() => onChange(false)}
@@ -47,7 +47,7 @@ export function ColumnToggleButton({
         title="单列"
         className={`grid h-9 w-9 place-items-center transition ${
           !twoCol
-            ? "bg-foreground text-black"
+            ? "bg-foreground text-primary-foreground"
             : "text-muted-soft hover:bg-card-hover hover:text-foreground"
         }`}
       >
@@ -61,7 +61,7 @@ export function ColumnToggleButton({
         title="双列"
         className={`grid h-9 w-9 place-items-center transition ${
           twoCol
-            ? "bg-foreground text-black"
+            ? "bg-foreground text-primary-foreground"
             : "text-muted-soft hover:bg-card-hover hover:text-foreground"
         }`}
       >

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, type CSSProperties } from "rea
 import { ArrowRight, Layers3, Radio } from "lucide-react";
 import { gsap } from "gsap";
 import type { PublicSeries } from "@/lib/series-public";
+import { useT } from "@/components/LocaleProvider";
 
 const GLOW_COLOR = "167, 139, 250";
 const PARTICLE_COUNT = 10;
@@ -174,7 +175,7 @@ function TopicCard({ item, index }: { item: PublicSeries; index: number }) {
         <div className="mt-auto">
           <h3 className={featured ? "text-xl font-black text-foreground sm:text-2xl" : "text-sm font-bold text-foreground sm:text-base"}>{item.name}</h3>
           {item.description ? <p className="mt-1.5 line-clamp-2 text-sm leading-snug text-muted">{item.description}</p> : null}
-          <span className="mt-3 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-accent-soft">
+          <span className="mt-3 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-accent-soft">
             Open route <ArrowRight className="h-3 w-3" aria-hidden />
           </span>
         </div>
@@ -184,6 +185,7 @@ function TopicCard({ item, index }: { item: PublicSeries; index: number }) {
 }
 
 export function TopicMagicBento({ series }: { series: PublicSeries[] }) {
+  const t = useT();
   const sectionRef = useRef<HTMLElement | null>(null);
   const items = useMemo(() => series.slice(0, 6), [series]);
 
@@ -232,10 +234,10 @@ export function TopicMagicBento({ series }: { series: PublicSeries[] }) {
           <div className="grid h-7 w-7 place-items-center border border-accent/30 bg-card text-accent" style={{ clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%)" }}>
             <Layers3 className="h-3.5 w-3.5" aria-hidden />
           </div>
-          <h2 className="font-mono text-lg font-bold uppercase tracking-tight text-foreground sm:text-xl">Topic_Series</h2>
+          <h2 className="font-mono text-lg font-bold uppercase tracking-tight text-foreground sm:text-xl">{t.home.topicSeries}</h2>
         </div>
         <Link href="/series" className="hv-action-compact group inline-flex items-center gap-1.5 border border-border bg-card px-3 py-1.5 font-mono text-xs font-medium uppercase tracking-wider text-accent-soft transition hover:border-accent/40 hover:bg-card-hover hover:text-accent">
-          View_All
+          {t.home.seeAll}
           <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5" aria-hidden />
         </Link>
       </div>

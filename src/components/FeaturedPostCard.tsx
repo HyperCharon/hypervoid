@@ -1,17 +1,22 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BookOpenText, Clock3, Pin, Radio } from "lucide-react";
 import type { PostMeta } from "@/lib/posts";
 import { ReadBadge } from "@/components/ReadBadge";
 import { BorderGlow } from "@/components/BorderGlow";
+import { useT } from "@/components/LocaleProvider";
 
 export function FeaturedPostCard({ post }: { post: PostMeta }) {
+  const t = useT();
   const { slug, frontmatter } = post;
   return (
     <BorderGlow
       colors={["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#ec4899"]}
       glowColor="99 102 241"
       backgroundColor="rgba(12,18,36,0.9)"
+      lightBackgroundColor="#fffcf5"
       borderRadius={16}
       edgeSensitivity={20}
       glowRadius={36}
@@ -36,24 +41,24 @@ export function FeaturedPostCard({ post }: { post: PostMeta }) {
               className="object-cover opacity-[0.85] saturate-[0.9] transition duration-500 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100"
             />
           ) : (
-            <div className="grid h-full min-h-40 place-items-center bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,.2),transparent_48%)]">
+            <div className="grid h-full min-h-40 place-items-center bg-[radial-gradient(circle_at_50%_50%,var(--accent-glow),transparent_48%)]">
               <Radio className="h-10 w-10 text-muted" aria-hidden />
             </div>
           )}
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,.4))]" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,var(--overlay-dark))]" />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-2.5 pt-3 sm:pt-1">
           <div className="flex flex-wrap items-center gap-2">
             {frontmatter.pinned ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5" title="置顶">
+              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5" title={t.post.pinnedTooltip}>
                 <Pin className="h-3 w-3 text-accent" aria-hidden />
-                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-muted">Pinned</span>
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-muted">{t.post.pinned}</span>
               </span>
             ) : null}
             <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5">
               <BookOpenText className="h-3 w-3 text-accent/60" aria-hidden />
-              <span className="font-mono text-[10px] uppercase tracking-wider text-muted">Featured</span>
+              <span className="font-mono text-xs uppercase tracking-wider text-muted">{t.post.featured}</span>
             </span>
             <ReadBadge slug={slug} />
           </div>
@@ -68,7 +73,7 @@ export function FeaturedPostCard({ post }: { post: PostMeta }) {
             </p>
           ) : null}
 
-          <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border pt-2.5 font-mono text-[10px] uppercase tracking-wider text-muted">
+          <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border pt-2.5 font-mono text-xs uppercase tracking-wider text-muted">
             <time className="inline-flex items-center gap-1.5">
               <span className="h-1 w-1 rounded-full bg-accent" />
               {frontmatter.date}
@@ -79,7 +84,7 @@ export function FeaturedPostCard({ post }: { post: PostMeta }) {
             </span>
             <span className="inline-flex items-center gap-1">
               <Clock3 className="h-3 w-3" aria-hidden />
-              {frontmatter.readingMinutes}m
+              {frontmatter.readingMinutes}{t.post.readingTimeSuffix}
             </span>
             {frontmatter.tags?.length ? (
               <span className="flex flex-wrap gap-1.5">

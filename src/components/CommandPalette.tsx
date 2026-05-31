@@ -191,8 +191,8 @@ export function CommandPalette({ index }: { index: CommandIndexItem[] }) {
         if (e.target === e.currentTarget) setOpen(false);
       }}
     >
-      <div className="absolute inset-0 bg-black/64 backdrop-blur-sm" />
-      <div className="relative z-10 w-full max-w-xl overflow-hidden border border-border bg-card/94 shadow-[0_28px_90px_rgba(0,0,0,0.48),0_0_48px_var(--accent-glow)] backdrop-blur-2xl">
+      <div className="absolute inset-0 bg-[var(--overlay-backdrop)] backdrop-blur-sm" />
+      <div className="relative z-10 w-full max-w-xl overflow-hidden border border-border bg-card/94 shadow-[0_28px_90px_var(--shadow-heavy),0_0_48px_var(--accent-glow)] backdrop-blur-2xl">
         <div className="flex items-center gap-2 border-b border-border bg-card px-4 py-3">
           <Search className="h-4 w-4 shrink-0 text-accent-soft" aria-hidden />
           <input
@@ -204,7 +204,7 @@ export function CommandPalette({ index }: { index: CommandIndexItem[] }) {
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-soft"
             aria-label="命令面板搜索"
           />
-          <kbd className="hidden font-mono text-[10px] text-muted-soft sm:inline">
+          <kbd className="hidden font-mono text-xs text-muted-soft sm:inline">
             ESC
           </kbd>
         </div>
@@ -221,7 +221,7 @@ export function CommandPalette({ index }: { index: CommandIndexItem[] }) {
             <>
               {groupByType(filtered).map(([type, items]) => (
                 <section key={type} className="mb-1">
-                  <h4 className="px-3 pt-2 pb-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-accent-soft">
+                  <h4 className="px-3 pt-2 pb-1 font-mono text-xs font-semibold uppercase tracking-widest text-accent-soft">
                     {LABEL[type]}
                   </h4>
                   {items.map(({ item, gi }) => {

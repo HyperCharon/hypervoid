@@ -43,9 +43,8 @@ function AcgCarouselInline({ wallpapers }: { wallpapers: string[] }) {
 }
 
 export function BannerStrip() {
-  const { background, displayMode } = useSettings();
+  const { background } = useSettings();
 
-  if (displayMode !== "banner") return null;
   if (background === "plain") return null;
 
   const stripClass =

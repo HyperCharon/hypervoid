@@ -37,7 +37,7 @@ export function GuestbookAdminControls({ id }: { id: string }) {
         type="button"
         onClick={onDelete}
         disabled={pending}
-        className="text-red-500 hover:text-red-700 disabled:opacity-50"
+        className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
       >
         删除
       </button>

@@ -183,11 +183,7 @@ function AcgCarousel({ wallpapers }: { wallpapers: string[] }) {
 }
 
 export function Backdrop() {
-  const { background, displayMode } = useSettings();
-
-  // banner mode handles visual backdrops via <BannerStrip/> in the layout;
-  // simple mode hides everything; only fullscreen uses this fixed backdrop.
-  if (displayMode !== "fullscreen") return null;
+  const { background } = useSettings();
 
   if (background === "plain") return null;
 

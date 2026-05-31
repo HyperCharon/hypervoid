@@ -23,8 +23,11 @@ export default async function MoviesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-3xl font-bold tracking-tight">影视</h1>
+      <header className="hv-panel relative overflow-hidden p-5 sm:p-7">
+        <p className="hv-kicker">Films / Bangumi_Theater</p>
+        <h1 className="hv-title mt-2 text-3xl font-black uppercase tracking-tight sm:text-4xl">
+          影视
+        </h1>
         <p className="mt-2 text-sm text-muted">
           {merged.length > 0 ? (
             <>

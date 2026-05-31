@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { TOCItem } from "@/lib/toc";
+import { useT } from "@/components/LocaleProvider";
 
 export function TableOfContents({ items }: { items: TOCItem[] }) {
+  const t = useT();
   const [activeId, setActiveId] = useState<string>("");
 
   useEffect(() => {
@@ -34,10 +36,10 @@ export function TableOfContents({ items }: { items: TOCItem[] }) {
   const minDepth = Math.min(...items.map((i) => i.depth));
 
   return (
-    <nav aria-label="目录" className="text-sm">
+    <nav aria-label={t.common.tableOfContents} className="text-sm">
       <div className="mb-3 flex items-center gap-2">
         <span className="h-1 w-1 rounded-full bg-accent-soft" />
-        <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-accent-soft">
+        <p className="font-mono text-xs font-semibold uppercase tracking-widest text-accent-soft">
           Navigation_Matrix
         </p>
       </div>

@@ -260,7 +260,7 @@ export function MascotChat({
             <button
               type="button"
               onClick={clear}
-              className="rounded-md px-1.5 py-0.5 text-[10px] text-muted hover:bg-background hover:text-foreground"
+              className="rounded-md px-1.5 py-0.5 text-xs text-muted hover:bg-background hover:text-foreground"
               title="清空对话"
             >
               清空

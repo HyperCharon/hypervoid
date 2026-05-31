@@ -12,9 +12,12 @@ export default async function AlbumsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-3xl font-bold tracking-tight">相册</h1>
-        <p className="mt-2 text-muted">照片、旅行记录、生活瞬间。</p>
+      <header className="hv-panel relative overflow-hidden p-5 sm:p-7">
+        <p className="hv-kicker">Gallery / Photo_Wall</p>
+        <h1 className="hv-title mt-2 text-3xl font-black uppercase tracking-tight sm:text-4xl">
+          相册
+        </h1>
+        <p className="mt-2 text-sm text-muted">照片、旅行记录、生活瞬间。</p>
       </header>
       {albums.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border p-8 text-center text-muted">

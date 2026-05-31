@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import { auth, ADMIN_LOGIN } from "@/auth";
 import { listVisibleMessages } from "@/db/guestbook";
@@ -6,6 +5,7 @@ import { GuestbookForm } from "@/components/GuestbookForm";
 import { GuestbookAdminControls } from "@/components/GuestbookAdminControls";
 import { formatDateTimeCN } from "@/lib/datetime";
 import { renderMentionsHtml } from "@/lib/mentions";
+import { getMessages } from "@/lib/i18n-server";
 import {
   signInForGuestbook,
   signOutFromGuestbook,
@@ -13,32 +13,26 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "留言板",
-  description: "给 Charon 留个言。",
-};
-
 const formatDate = formatDateTimeCN;
 
 export default async function GuestbookPage() {
-  const session = await auth();
-  const messages = await listVisibleMessages();
+  const [session, messages, t] = await Promise.all([auth(), listVisibleMessages(), getMessages()]);
   const currentLogin =
     (session?.user as { login?: string } | undefined)?.login ?? null;
   const isAdmin = currentLogin === ADMIN_LOGIN;
 
   return (
-    <div className="mx-auto flex  flex-col gap-6">
+    <div className="mx-auto flex flex-col gap-6">
       <header className="hv-panel relative overflow-hidden p-5 sm:p-7">
         <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
         <div aria-hidden className="absolute left-0 top-0 h-8 w-8 border-l border-t border-accent/40" />
         <div aria-hidden className="absolute right-0 top-0 h-2 w-2 rounded-full bg-accent animate-pulse" />
-        <p className="hv-kicker">Message_Board / Public_Channel</p>
+        <p className="hv-kicker">{t.guestbook.kicker}</p>
         <h1 className="hv-title mt-2 text-3xl font-black uppercase tracking-tight sm:text-4xl">
-          留言板
+          {t.nav.guestbook}
         </h1>
         <p className="mt-3 text-sm text-muted">
-          欢迎随便留言。用 GitHub 登录后发布，留言会同时显示你的头像和昵称。
+          {t.guestbook.description}
         </p>
       </header>
 
@@ -47,7 +41,7 @@ export default async function GuestbookPage() {
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between gap-3 text-sm">
               <span className="text-muted">
-                已登录：
+                {t.guestbook.loggedIn}
                 <span className="font-mono font-medium text-foreground">@{currentLogin ?? "?"}</span>
               </span>
               <form action={signOutFromGuestbook}>
@@ -55,7 +49,7 @@ export default async function GuestbookPage() {
                   type="submit"
                   className="text-xs text-muted-soft hover:text-foreground transition"
                 >
-                  退出
+                  {t.guestbook.signOut}
                 </button>
               </form>
             </div>
@@ -66,7 +60,7 @@ export default async function GuestbookPage() {
             action={signInForGuestbook}
             className="flex flex-col items-start gap-3"
           >
-            <p className="text-sm text-muted">登录后即可留言。</p>
+            <p className="text-sm text-muted">{t.guestbook.loginPrompt}</p>
             <button
               type="submit"
               className="dark-locked inline-flex items-center gap-2 border border-border bg-[#24292f] px-4 py-2 text-sm font-medium text-foreground transition hover:border-border hover:bg-[#1f2329] clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)]"
@@ -84,7 +78,7 @@ export default async function GuestbookPage() {
                   d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"
                 />
               </svg>
-              用 GitHub 登录
+              {t.guestbook.loginGithub}
             </button>
           </form>
         )}
@@ -92,11 +86,11 @@ export default async function GuestbookPage() {
 
       <section className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
-          <span className="hv-chip">{messages.length} messages</span>
+          <span className="hv-chip">{messages.length} {t.guestbook.messagesCount}</span>
         </div>
         {messages.length === 0 ? (
           <p className="hv-panel border-dashed p-8 text-center text-muted">
-            还没有留言。第一个留言的是你？
+            {t.guestbook.empty}
           </p>
         ) : (
           <ul className="flex flex-col gap-3">

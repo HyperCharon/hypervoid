@@ -1,5 +1,6 @@
 import { getSiteStats } from "@/lib/stats";
 import { StatsCarousel, type StatsCarouselItem } from "@/components/StatsCarousel";
+import { getMessages } from "@/lib/i18n-server";
 
 function formatNumber(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -8,35 +9,35 @@ function formatNumber(n: number): string {
 }
 
 export async function SiteStats() {
-  const stats = await getSiteStats();
+  const [stats, t] = await Promise.all([getSiteStats(), getMessages()]);
 
   const items: StatsCarouselItem[] = [
     {
       id: "posts",
-      title: "Articles",
+      title: t.stats.articles,
       value: stats.posts.toLocaleString(),
-      description: "已发布的公开文章",
+      description: t.stats.articlesDesc,
       tone: "cyan",
     },
     {
       id: "views",
-      title: "Page Views",
+      title: t.stats.pageViews,
       value: formatNumber(stats.views),
-      description: "累计阅读和访问信号",
+      description: t.stats.pageViewsDesc,
       tone: "cyan",
     },
     {
       id: "likes",
-      title: "Reactions",
+      title: t.stats.reactions,
       value: formatNumber(stats.likes),
-      description: "读者留下的互动反馈",
+      description: t.stats.reactionsDesc,
       tone: "cyan",
     },
     {
       id: "uptime",
-      title: "Uptime",
-      value: `${stats.daysOnline.toLocaleString()} 天`,
-      description: "Hypervoid 已在线运行",
+      title: t.stats.uptime,
+      value: `${stats.daysOnline.toLocaleString()} ${t.stats.daysSuffix}`,
+      description: t.stats.uptimeDesc,
       tone: "cyan",
     },
   ];
@@ -48,11 +49,11 @@ export async function SiteStats() {
 
       <div className="flex items-center justify-between">
         <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-foreground/80">
-          Site_Stats
+          {t.stats.siteStats}
         </h3>
         <div className="flex items-center gap-1">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-          <span className="font-mono text-[9px] uppercase tracking-wider text-accent/70">Live</span>
+          <span className="font-mono text-xs uppercase tracking-wider text-accent/70">{t.stats.live}</span>
         </div>
       </div>
 

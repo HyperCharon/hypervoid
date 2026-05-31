@@ -57,9 +57,9 @@ export default async function SeriesDetailPage(
               alt=""
               fill
               sizes="(max-width: 768px) 100vw, 768px"
-              className="object-cover opacity-[0.26] saturate-[0.8]"
+              className="hv-cover-img object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/55 to-black/30" />
+            <div className="hv-cover-overlay absolute inset-0" />
           </>
         ) : null}
         <div className="relative z-10">

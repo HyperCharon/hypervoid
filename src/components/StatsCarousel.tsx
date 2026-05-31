@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { motion, useMotionValue, useTransform, type MotionValue, type PanInfo } from "motion/react";
 import { Activity, CalendarDays, Eye, FileText, Heart } from "lucide-react";
+import { useT } from "@/components/LocaleProvider";
 
 export type StatsCarouselItem = {
   id: string;
@@ -78,6 +79,7 @@ export function StatsCarousel({
   pauseOnHover?: boolean;
   loop?: boolean;
 }) {
+  const t = useT();
   const [containerWidth, setContainerWidth] = useState(baseWidth);
   const containerPadding = 12;
   const measuredWidth = containerWidth || baseWidth;
@@ -248,13 +250,13 @@ export function StatsCarousel({
         </motion.div>
       </div>
 
-      <div className="stats-carousel-indicators" aria-label="站点统计轮播分页">
+      <div className="stats-carousel-indicators" aria-label={t.stats.carouselLabel}>
         {normalizedItems.map((item, index) => (
           <button
             key={item.id}
             type="button"
             className={`stats-carousel-indicator ${activeIndex === index ? "active" : "inactive"}`}
-            aria-label={`查看${item.title}`}
+            aria-label={`${t.stats.viewItem}${item.title}`}
             aria-current={activeIndex === index}
             onClick={() => setPosition(loop ? index + 1 : index)}
           />

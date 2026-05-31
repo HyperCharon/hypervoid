@@ -62,7 +62,7 @@ const SparkleEffect = dynamic(
 
 /** Routes where floating UI (mascot, back-to-top, etc.) should be hidden. */
 const HIDE_FLOATING_UI_PREFIXES = ["/sign-in"];
-const HIDE_FLOATING_UI_EXACT = ["/"];
+const HIDE_FLOATING_UI_EXACT: string[] = [];
 
 export function DeferredClientUI() {
   const pathname = usePathname();

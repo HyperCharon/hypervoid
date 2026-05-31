@@ -16,6 +16,7 @@ export function Providers({
     <ThemeProvider
       attribute="class"
       defaultTheme="dark"
+      themes={["dark", "light", "cyberpunk"]}
       enableSystem
       disableTransitionOnChange
       nonce={nonce}

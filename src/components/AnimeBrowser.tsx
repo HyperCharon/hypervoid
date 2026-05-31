@@ -118,7 +118,7 @@ export function AnimeBrowser({
               >
                 {displayLabel[s]}
                 <span
-                  className={`rounded-full px-1.5 text-[10px] tabular-nums ${
+                  className={`rounded-full px-1.5 text-xs tabular-nums ${
                     active ? "bg-primary/20" : "bg-background"
                   }`}
                 >
@@ -239,11 +239,11 @@ function AnimeCard({
           </div>
         )}
         {item.myRating > 0 ? (
-          <span className="dark-locked absolute right-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-mono text-white backdrop-blur">
+          <span className="dark-locked absolute right-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black/70 px-1.5 py-0.5 text-xs font-mono text-white backdrop-blur">
             ★ {item.myRating}
           </span>
         ) : null}
-        <span className="dark-locked absolute left-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black/65 px-1.5 py-0.5 text-[9px] text-white backdrop-blur">
+        <span className="dark-locked absolute left-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black/65 px-1.5 py-0.5 text-xs text-white backdrop-blur">
           {statusLabel}
         </span>
       </div>
@@ -254,7 +254,7 @@ function AnimeCard({
         >
           {title}
         </p>
-        <p className="mt-1 flex items-center justify-between gap-1 text-[10px] text-muted">
+        <p className="mt-1 flex items-center justify-between gap-1 text-xs text-muted">
           {year ? <span className="font-mono">{year}</span> : <span />}
           {item.bgmScore ? (
             <span className="font-mono">bgm {item.bgmScore.toFixed(1)}</span>

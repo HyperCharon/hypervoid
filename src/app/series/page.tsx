@@ -1,18 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Layers3 } from "lucide-react";
-import type { Metadata } from "next";
 import { getPublicSeriesList } from "@/lib/series-public";
+import { getMessages } from "@/lib/i18n-server";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "专题合集",
-  description: "围绕同一主题的系列文章",
-};
-
 export default async function SeriesIndexPage() {
-  const series = await getPublicSeriesList();
+  const [series, t] = await Promise.all([getPublicSeriesList(), getMessages()]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -24,28 +19,28 @@ export default async function SeriesIndexPage() {
 
         <div className="flex items-center gap-2">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-          <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-accent">
-            Series_Clusters / Long_Form_Routes
+          <p className="font-mono text-xs font-semibold uppercase tracking-widest text-accent">
+            {t.series.kicker}
           </p>
         </div>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <h1 className="flex items-center gap-3 font-mono text-3xl font-black uppercase leading-tight tracking-tight text-foreground sm:text-5xl">
             <Layers3 className="h-8 w-8 text-accent-soft sm:h-10 sm:w-10" aria-hidden />
-            Series
+            {t.series.title}
           </h1>
           <span className="inline-flex items-center gap-1.5 border border-border bg-accent/15 px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-foreground" style={{ clipPath: 'polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 0 100%)' }}>
             <span className="h-1 w-1 rounded-full bg-accent" />
-            {series.length} Clusters
+            {series.length} {t.series.clusters}
           </span>
         </div>
-        <p className="mt-3  text-sm leading-7 text-muted">
-          围绕同一主题展开的多篇文章，以更长的阅读路径组织。
+        <p className="mt-3 text-sm leading-7 text-muted">
+          {t.series.description}
         </p>
       </header>
 
       {series.length === 0 ? (
         <p className="border border-dashed border-border bg-card p-8 text-center font-mono text-sm uppercase tracking-wider text-muted" style={{ clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)' }}>
-          No_Series_Yet
+          {t.series.empty}
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -80,8 +75,8 @@ export default async function SeriesIndexPage() {
                   <h2 className="text-lg font-bold tracking-tight text-foreground transition group-hover:text-foreground">
                     {s.name}
                   </h2>
-                  <span className="inline-flex shrink-0 items-center gap-1 border border-border bg-card px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted" style={{ clipPath: 'polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%)' }}>
-                    {s.count} Posts
+                  <span className="inline-flex shrink-0 items-center gap-1 border border-border bg-card px-2 py-0.5 font-mono text-xs uppercase tracking-wider text-muted" style={{ clipPath: 'polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%)' }}>
+                    {s.count} {t.archive.postsCount}
                   </span>
                 </div>
                 {s.description ? (
@@ -89,8 +84,8 @@ export default async function SeriesIndexPage() {
                     {s.description}
                   </p>
                 ) : null}
-                <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-accent-soft transition group-hover:text-accent-soft">
-                  Open_Route <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5" aria-hidden />
+                <span className="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-accent-soft transition group-hover:text-accent-soft">
+                  {t.series.openRoute} <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5" aria-hidden />
                 </span>
               </div>
             </Link>

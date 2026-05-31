@@ -175,7 +175,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
       >
         <Bell className="h-4 w-4" aria-hidden />
         {unreadCount > 0 ? (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center border border-accent/40 bg-foreground px-1 font-mono text-[10px] font-bold text-black">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center border border-accent/40 bg-foreground px-1 font-mono text-xs font-bold text-black">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         ) : null}
@@ -185,14 +185,14 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
         ? createPortal(
             <div
               id="hv-notif-panel"
-              className="fixed right-4 top-[60px] z-[80] w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden border border-border bg-card/94 shadow-[0_28px_90px_rgba(0,0,0,0.48),0_0_48px_var(--accent-glow)] backdrop-blur-2xl"
+              className="fixed right-4 top-[60px] z-[80] w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden border border-border bg-card/94 shadow-[0_28px_90px_var(--shadow-heavy),0_0_48px_var(--accent-glow)] backdrop-blur-2xl"
             >
               <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2.5">
                 <div className="flex items-baseline gap-2">
                   <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-accent">
                     {isAdmin ? "互动与更新" : "通知"}
                   </h3>
-                  <span className="font-mono text-[10px] text-muted-soft">
+                  <span className="font-mono text-xs text-muted-soft">
                     {loading ? "…" : `${notifications.length} 条`}
                   </span>
                 </div>
@@ -245,7 +245,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
                                 {n.body}
                               </p>
                             ) : null}
-                            <p className="mt-1 font-mono text-[10px] text-muted-soft">
+                            <p className="mt-1 font-mono text-xs text-muted-soft">
                               {timeAgo(n.at)}
                             </p>
                           </div>

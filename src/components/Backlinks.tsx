@@ -23,7 +23,7 @@ export function Backlinks({ posts }: { posts: Post[] }) {
             <p className="line-clamp-1 text-sm font-medium tracking-tight text-foreground transition group-hover:text-accent">
               {p.frontmatter.title}
             </p>
-            <p className="text-[10px] text-muted-soft">
+            <p className="text-xs text-muted-soft">
               {p.frontmatter.date}
               {p.frontmatter.tags.length > 0 ? (
                 <>

@@ -56,7 +56,7 @@ export function FriendApplyForm() {
     <div className="hv-panel p-5">
       <h3 className="font-mono text-sm font-semibold uppercase tracking-wide text-accent">申请友链</h3>
       {done ? (
-        <p className="mt-2 rounded-lg border border-green-400/30 bg-green-400/10 p-3 text-sm text-green-300">
+        <p className="mt-2 rounded-lg border border-green-400/30 bg-green-400/10 p-3 text-sm text-green-700 dark:text-green-300">
           {done}
         </p>
       ) : (
@@ -111,7 +111,7 @@ export function FriendApplyForm() {
             />
           </label>
           {error && (
-            <p className="rounded-lg border border-red-400/30 bg-red-400/10 p-2 text-sm text-red-300">
+            <p className="rounded-lg border border-red-400/30 bg-red-400/10 p-2 text-sm text-red-700 dark:text-red-300">
               {error}
             </p>
           )}

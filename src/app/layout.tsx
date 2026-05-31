@@ -147,7 +147,7 @@ export default async function RootLayout({
                   <SiteHeader />
                   <BannerStrip />
                 </div>
-                <main id="main-content" tabIndex={-1} className="page-fade hv-main-shell w-full flex-1 px-0 py-0 sm:px-0 lg:px-0">
+                <main id="main-content" tabIndex={-1} className="page-fade hv-main-shell w-full flex-1">
                   {children}
                 </main>
                 <div className="hv-chrome-only contents">

@@ -9,6 +9,7 @@ import {
   useTransform,
   useSpring,
 } from "framer-motion";
+import { useT } from "@/components/LocaleProvider";
 
 type Photo = {
   id: string;
@@ -29,6 +30,7 @@ function seededRandom(seed: string) {
 
 /* ── main component ── */
 export function PhotoWall({ photos }: { photos: Photo[] }) {
+  const t = useT();
   const [lightbox, setLightbox] = useState<Photo | null>(null);
 
   useEffect(() => {
@@ -59,8 +61,8 @@ export function PhotoWall({ photos }: { photos: Photo[] }) {
       <div
         data-slot="photo-wall"
         role="region"
-        aria-roledescription="照片墙"
-        aria-label="照片画廊"
+        aria-roledescription={t.gallery.wall}
+        aria-label={t.gallery.gallery}
         className="columns-2 gap-4 sm:columns-3 lg:columns-4"
       >
         {photos.map((p, i) => (
@@ -92,6 +94,7 @@ function PhotoCard({
   index: number;
   onClick: (p: Photo) => void;
 }) {
+  const t = useT();
   const cardRef = useRef<HTMLButtonElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -129,8 +132,8 @@ function PhotoCard({
       ref={cardRef}
       type="button"
       role="group"
-      aria-roledescription="幻灯片"
-      aria-label={photo.caption ?? `照片 ${index + 1}`}
+      aria-roledescription={t.gallery.slide}
+      aria-label={photo.caption ?? `${t.gallery.photo} ${index + 1}`}
       onClick={() => onClick(photo)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

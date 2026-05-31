@@ -49,14 +49,12 @@ export default async function MusicPage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <header>
-        <p className="text-xs uppercase tracking-widest text-primary">
-          Music · 音乐
-        </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+      <header className="hv-panel relative overflow-hidden p-5 sm:p-7">
+        <p className="hv-kicker">Music / Loop_Station</p>
+        <h1 className="hv-title mt-2 text-3xl font-black uppercase tracking-tight sm:text-4xl">
           在循环里
         </h1>
-        <p className="mt-3  text-muted">
+        <p className="mt-2 text-sm text-muted">
           这里收集最近反复听的专辑、愿意分享的播放列表，以及偏爱的曲风。
           音乐是另一种穿过虚空的方式。
         </p>

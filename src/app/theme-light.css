@@ -1,0 +1,668 @@
+/* ═══════════════════════════════════════════════════════════
+   LIGHT THEME — Component-level overrides
+   Variables are defined in globals.css .light block
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Background Options ──────────────────────────────────── */
+.light {
+  --bg-image: none;
+  --bg-color: #faf8f4;
+  --bg-size: cover;
+  --bg-position: center;
+  --bg-repeat: no-repeat;
+  --background: var(--bg-color);
+}
+
+.light[data-bg="parchment"] { --bg-color: #f5f0e8; }
+.light[data-bg="linen"] { --bg-color: #faf6f0; }
+.light[data-bg="cream"] { --bg-color: #fffef7; }
+.light[data-bg="warm-gray"] { --bg-color: #f2f0ed; }
+.light[data-bg="photo-1"] { --bg-image: url("/bg/light-1.jpg"); --bg-color: #f5f0e8; }
+.light[data-bg="photo-2"] { --bg-image: url("/bg/light-2.jpg"); --bg-color: #f5f0e8; }
+.light[data-bg="photo-3"] { --bg-image: url("/bg/light-3.jpg"); --bg-color: #f5f0e8; }
+
+/* ── Body ────────────────────────────────────────────────── */
+.light body {
+  background-color: var(--bg-color);
+  background-image: var(--bg-image);
+  background-size: var(--bg-size);
+  background-position: var(--bg-position);
+  background-repeat: var(--bg-repeat);
+  background-attachment: fixed;
+  color: var(--text-body);
+}
+
+/* Subtle warm ambient overlay */
+.light body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -20;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 20%, rgba(194,112,22,0.04), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 80% 30%, rgba(168,93,16,0.03), transparent 45%),
+    radial-gradient(ellipse 70% 50% at 50% 85%, rgba(140,122,106,0.03), transparent 50%);
+  opacity: var(--fx-ambient, 0.3);
+}
+
+/* ── Images — restore full vibrancy in light ──────────────── */
+.light img {
+  opacity: 1 !important;
+  filter: none !important;
+  saturate: 1 !important;
+}
+.light [class*="saturate-\[0"],
+.light [class*="saturate-\[0\.8"],
+.light [class*="saturate-\[0\.9"] {
+  filter: none !important;
+  saturate: 1 !important;
+}
+.light .hv-magic-bento-card img {
+  opacity: 0.6 !important;
+  filter: none !important;
+}
+.light .hv-magic-bento-card:hover img {
+  opacity: 0.8 !important;
+}
+
+/* Player widget — soften dark overlay */
+.light .hv-grad-player img {
+  opacity: 0.12 !important;
+  filter: blur(2rem) !important;
+}
+.light .hv-grad-player .bg-gradient-to-b {
+  background: linear-gradient(to bottom, rgba(255,252,245,0.3), rgba(255,252,245,0.95)) !important;
+}
+
+/* Light mode image overlays — soften */
+.light [class*="bg-gradient-to-t"][class*="from-black"] {
+  background: linear-gradient(to top, rgba(44,24,16,0.12), transparent) !important;
+}
+.light [class*="bg-\[linear-gradient(180deg,transparent"] {
+  background: linear-gradient(180deg, transparent, rgba(44,24,16,0.08)) !important;
+}
+
+/* ── Text visibility boost ────────────────────────────────── */
+.light .text-muted {
+  color: #6b5b4d !important;
+}
+.light .text-muted-soft {
+  color: #8c7a6a !important;
+}
+.light .text-foreground\/80 {
+  color: var(--foreground) !important;
+}
+.light .text-foreground\/60 {
+  color: rgba(44, 24, 16, 0.75) !important;
+}
+.light .text-accent\/70,
+.light .text-accent\/75,
+.light .text-accent\/76,
+.light .text-accent\/80 {
+  color: var(--accent) !important;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.light .hv-site-header {
+  background: var(--grad-header) !important;
+  border-bottom: 1px solid var(--divider) !important;
+  backdrop-filter: blur(20px) saturate(1.3) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.3) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+.light footer {
+  background: var(--grad-footer) !important;
+  border-top: 1px solid var(--divider) !important;
+}
+
+/* ── Cards ───────────────────────────────────────────────── */
+.light .hv-card {
+  background: var(--grad-card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: var(--shadow-md) !important;
+  transition: box-shadow 200ms ease, transform 200ms ease !important;
+}
+.light .hv-card:hover {
+  background: var(--grad-card-hover) !important;
+  box-shadow: var(--shadow-lg), var(--shadow-glow) !important;
+}
+
+/* ── Panels ──────────────────────────────────────────────── */
+.light .hv-panel {
+  background: var(--grad-panel) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: var(--shadow-md) !important;
+  backdrop-filter: blur(16px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.2) !important;
+}
+.light .hv-panel:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-glow) !important;
+}
+
+.light .hv-panel-sci {
+  background: var(--grad-panel) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: var(--shadow-md) !important;
+  backdrop-filter: blur(16px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.2) !important;
+}
+.light .hv-panel-sci:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-glow) !important;
+}
+
+/* ── Hero Section ────────────────────────────────────────── */
+.light .hv-hero-section {
+  background: var(--grad-hero) !important;
+  border-top: 1px solid var(--divider) !important;
+  border-bottom: 1px solid var(--divider) !important;
+}
+
+/* ── Daily Pick ──────────────────────────────────────────── */
+.light .hv-daily-pick {
+  background: var(--grad-card) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+.light .hv-daily-pick:hover {
+  background: var(--grad-card-hover) !important;
+  box-shadow: var(--shadow-lg), var(--shadow-glow) !important;
+}
+.light .hv-daily-sparkle-h {
+  background: linear-gradient(270deg, rgba(194,112,22,0.15), rgba(168,93,16,0.1), transparent) !important;
+}
+.light .hv-daily-sparkle-v {
+  background: linear-gradient(180deg, rgba(194,112,22,0.12), rgba(168,93,16,0.08), transparent) !important;
+}
+.light .hv-daily-icon {
+  background: var(--grad-chip) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--accent) !important;
+}
+
+/* ── Chips ───────────────────────────────────────────────── */
+.light .hv-chip {
+  background: var(--grad-chip) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-muted) !important;
+}
+.light .hv-chip-strong {
+  background: var(--grad-card) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-body) !important;
+}
+.light .hv-chip-sci {
+  background: var(--grad-chip) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--accent) !important;
+}
+.light .hv-chip-sci:hover {
+  background: var(--grad-card-hover) !important;
+  box-shadow: var(--shadow-md), var(--shadow-glow) !important;
+}
+.light .hv-chip-sci-dim {
+  background: var(--grad-chip) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-muted) !important;
+}
+
+/* ── Action Buttons ──────────────────────────────────────── */
+.light .hv-action {
+  background: var(--grad-button) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-body) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.light .hv-action:hover {
+  background: var(--grad-button-hover) !important;
+  color: var(--accent) !important;
+  box-shadow: var(--shadow-md), var(--shadow-glow) !important;
+}
+
+/* ── Inputs ──────────────────────────────────────────────── */
+.light .hv-input {
+  background: var(--grad-input) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-body) !important;
+}
+.light .hv-input::placeholder {
+  color: var(--muted-soft) !important;
+}
+.light .hv-input:focus {
+  background: var(--grad-card) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(194,112,22,0.1), var(--shadow-glow) !important;
+  outline: none !important;
+}
+
+/* ── Terminal ────────────────────────────────────────────── */
+.light .hv-grad-terminal {
+  background: var(--grad-chip) !important;
+  border-color: var(--border) !important;
+}
+
+/* ── Player ──────────────────────────────────────────────── */
+.light .hv-grad-player {
+  background: var(--grad-card) !important;
+}
+
+/* ── Profile Card ────────────────────────────────────────── */
+.light .hv-grad-profile {
+  background: var(--grad-card) !important;
+}
+.light .hv-profile-name {
+  background: linear-gradient(135deg, var(--text-heading), var(--accent)) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+.light .hv-profile-glow {
+  background: radial-gradient(circle, rgba(194,112,22,0.15), rgba(168,93,16,0.08), transparent) !important;
+}
+.light .hv-profile-line-tl {
+  background: linear-gradient(90deg, var(--accent), var(--accent-soft), transparent) !important;
+  opacity: 0.3 !important;
+}
+.light .hv-profile-line-bl {
+  background: linear-gradient(180deg, var(--accent), var(--accent-soft), transparent) !important;
+  opacity: 0.3 !important;
+}
+.light .hv-profile-line-tr {
+  background: linear-gradient(270deg, var(--accent), var(--accent-soft), transparent) !important;
+  opacity: 0.3 !important;
+}
+.light .hv-profile-line-br {
+  background: linear-gradient(0deg, var(--accent), var(--accent-soft), transparent) !important;
+  opacity: 0.3 !important;
+}
+/* Dark mode profile */
+.dark .hv-profile-name {
+  background: linear-gradient(135deg, #f0f4ff, #e0e8ff) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+.dark .hv-profile-glow {
+  background: radial-gradient(circle, rgba(59,130,246,0.25), rgba(139,92,246,0.15), rgba(236,72,153,0.1), transparent) !important;
+}
+.dark .hv-profile-line-tl {
+  background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, transparent) !important;
+}
+.dark .hv-profile-line-bl {
+  background: linear-gradient(180deg, #ef4444, #3b82f6, #8b5cf6, transparent) !important;
+}
+.dark .hv-profile-line-tr {
+  background: linear-gradient(270deg, #ec4899, #d946ef, #8b5cf6, #3b82f6, transparent) !important;
+}
+.dark .hv-profile-line-br {
+  background: linear-gradient(0deg, #ec4899, #8b5cf6, #06b6d4, transparent) !important;
+}
+
+/* ── Social Icons ────────────────────────────────────────── */
+.light .hv-grad-social {
+  background: var(--grad-chip) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--accent) !important;
+}
+
+/* ── Tab Bar ─────────────────────────────────────────────── */
+.light .hv-grad-tabbar {
+  background: var(--grad-header) !important;
+  border-top: 1px solid var(--divider) !important;
+  box-shadow: 0 -2px 12px rgba(44,24,16,0.06) !important;
+}
+
+/* ── Messages ────────────────────────────────────────────── */
+.light .hv-grad-message {
+  background: var(--grad-chip) !important;
+}
+
+/* ── Gradient Utilities ──────────────────────────────────── */
+.light .gradient-fill {
+  background: var(--grad-card) !important;
+  border: 1px solid var(--border) !important;
+}
+.light .gradient-fill-glass {
+  background: var(--grad-panel) !important;
+  border: 1px solid var(--border) !important;
+  backdrop-filter: blur(16px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.2) !important;
+}
+.light .gradient-text {
+  background: var(--accent-gradient) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+.light .gradient-glow {
+  box-shadow: var(--shadow-glow) !important;
+}
+.light .gradient-line {
+  background: var(--accent-gradient) !important;
+  opacity: 0.25 !important;
+}
+.light .gradient-line-thick {
+  background: var(--accent-gradient) !important;
+  opacity: 0.3 !important;
+}
+
+/* ── Text Readability ────────────────────────────────────── */
+.light .text-readable {
+  color: var(--text-body) !important;
+  text-shadow: none !important;
+}
+.light .text-readable-light {
+  color: var(--text-body) !important;
+  text-shadow: none !important;
+}
+.light .text-readable-gradient {
+  background: var(--text-heading) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  filter: none !important;
+}
+
+/* ── Shiny Text ──────────────────────────────────────────── */
+.light .shiny-text {
+  background: linear-gradient(135deg, #c27016, #d4882a, #e8a84c, #d4882a, #c27016) !important;
+  background-size: 300% 300% !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+.light .shiny-text::after {
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(194,112,22,0.08) 45%,
+    rgba(194,112,22,0.12) 50%,
+    rgba(194,112,22,0.08) 55%,
+    transparent 60%
+  ) !important;
+  background-size: 200% 100% !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* ── Spectrum Lines ──────────────────────────────────────── */
+.light .hv-spectrum-line {
+  background: linear-gradient(90deg, var(--accent), var(--accent-soft), rgba(168,93,16,0.5), transparent) !important;
+  opacity: 0.4 !important;
+}
+.light .hv-spectrum-line-fade {
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-soft), transparent) !important;
+  opacity: 0.3 !important;
+}
+
+/* ── Aurora Blob ─────────────────────────────────────────── */
+.light .hv-aurora-blob {
+  background: radial-gradient(circle, rgba(194,112,22,0.08), rgba(168,93,16,0.04), transparent 70%) !important;
+}
+
+/* ── Hero Grid ───────────────────────────────────────────── */
+.light .hv-hero-grid {
+  background-image:
+    linear-gradient(rgba(140,122,106,0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(140,122,106,0.3) 1px, transparent 1px) !important;
+  background-size: 60px 60px !important;
+  opacity: 0.06 !important;
+}
+
+/* ── Hero Orb ────────────────────────────────────────────── */
+.light .hv-orb-ring {
+  background: conic-gradient(from 0deg, var(--accent), var(--accent-soft), rgba(168,93,16,0.6), var(--accent)) !important;
+  opacity: 0.12 !important;
+}
+.light .hv-orb-glow {
+  background: radial-gradient(circle at 40% 35%, rgba(194,112,22,0.12), transparent 60%) !important;
+}
+.light .hv-orb-ring-inner {
+  border-color: rgba(194,112,22,0.12) !important;
+  box-shadow: 0 0 30px rgba(194,112,22,0.06), inset 0 0 20px rgba(194,112,22,0.04) !important;
+}
+
+/* ── Glitch Title ────────────────────────────────────────── */
+.light .hv-compact-title {
+  color: var(--accent) !important;
+  text-shadow: none !important;
+}
+.light .hv-compact-card:hover .hv-compact-title {
+  text-shadow: 0 0 8px rgba(194,112,22,0.2) !important;
+}
+.light .hv-compact-glow {
+  background: radial-gradient(ellipse at 50% 50%, rgba(194,112,22,0.04), transparent 70%) !important;
+}
+
+/* ── Scroll Progress ─────────────────────────────────────── */
+.light .hv-scroll-progress {
+  background: var(--accent-gradient) !important;
+}
+
+/* ── Navigation ──────────────────────────────────────────── */
+.light .hv-brand-orbit {
+  background: var(--grad-chip) !important;
+  border: 1px solid var(--border) !important;
+}
+.light .hv-pill-nav-track {
+  background: var(--grad-chip) !important;
+  border: 1px solid var(--border) !important;
+}
+.light .hv-pill-menu-panel {
+  background: var(--grad-panel) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+.light .hv-mobile-pill-popover {
+  background: var(--grad-panel) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+.light .hv-dock-panel {
+  background: var(--grad-chip) !important;
+  border: 1px solid var(--border) !important;
+}
+.light .hv-dock-label {
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* ── Magic Bento ─────────────────────────────────────────── */
+.light .hv-magic-bento-card {
+  background: var(--grad-card) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+.light .hv-magic-bento-card:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-glow) !important;
+}
+.light .hv-magic-bento-label,
+.light .hv-magic-bento-count {
+  background: var(--grad-chip) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* ── Stats Carousel ──────────────────────────────────────── */
+.light .stats-carousel-shell {
+  background: var(--grad-chip) !important;
+  border: 1px solid var(--border) !important;
+}
+.light .stats-carousel-item {
+  background: var(--grad-card) !important;
+  border-color: var(--border) !important;
+}
+.light .stats-carousel-icon {
+  background: rgba(194,112,22,0.08) !important;
+  color: var(--accent) !important;
+  border-color: rgba(194,112,22,0.15) !important;
+}
+.light .stats-carousel-value {
+  background: var(--accent-gradient) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* ── Glow Underline ──────────────────────────────────────── */
+.light .glow-underline::after {
+  background: var(--accent-gradient) !important;
+  box-shadow: 0 0 6px rgba(194,112,22,0.15) !important;
+}
+
+/* ── Kicker ──────────────────────────────────────────────── */
+.light .hv-kicker {
+  color: var(--muted-soft) !important;
+}
+
+/* ── Title ───────────────────────────────────────────────── */
+.light .hv-title {
+  color: var(--text-heading) !important;
+}
+
+/* ── Dividers ────────────────────────────────────────────── */
+.light [class*="border-border"] {
+  border-color: var(--border) !important;
+}
+
+/* ── Shadows Override ────────────────────────────────────── */
+.light [class*="shadow-md"],
+.light [class*="shadow-lg"],
+.light [class*="shadow-xl"],
+.light [class*="shadow-2xl"] {
+  box-shadow: var(--shadow-md) !important;
+}
+.light [class*="hover:shadow-md"]:hover,
+.light [class*="hover:shadow-lg"]:hover {
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* ── Hover States ────────────────────────────────────────── */
+.light [class*="bg-card-hover"]:hover {
+  background: var(--grad-card-hover) !important;
+}
+
+/* ── Backdrop Filter ─────────────────────────────────────── */
+.light [style*="backdrop-filter"] {
+  backdrop-filter: blur(20px) saturate(1.3) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.3) !important;
+}
+
+/* ── Link Colors ─────────────────────────────────────────── */
+.light a {
+  color: var(--accent);
+}
+.light a:hover {
+  color: var(--accent-soft);
+}
+
+/* ── White/Black Opacity Utilities Override ───────────────── */
+/* bg-white/N → light card backgrounds */
+.light .bg-white\/5,
+.light .bg-white\/8,
+.light .bg-white\/10,
+.light .bg-white\/\[0\.035\],
+.light .bg-white\/\[0\.045\],
+.light .bg-white\/\[0\.055\] {
+  background-color: var(--card) !important;
+}
+
+/* border-white/N → light borders */
+.light .border-white\/10,
+.light .border-white\/15,
+.light .border-white\/20,
+.light .border-white\/\[0\.06\],
+.light .border-white\/\[0\.08\],
+.light .border-white\/\[0\.1\] {
+  border-color: var(--border) !important;
+}
+
+/* text-white → light foreground */
+.light .text-white {
+  color: var(--foreground) !important;
+}
+.light .text-white\/30,
+.light .text-white\/35,
+.light .text-white\/45,
+.light .text-white\/50,
+.light .text-white\/60,
+.light .text-white\/70,
+.light .text-white\/80 {
+  color: var(--muted) !important;
+}
+
+/* ring-white/N → light borders */
+.light .ring-white\/10,
+.light .ring-white\/15 {
+  --tw-ring-color: var(--border) !important;
+}
+
+/* hover:bg-white/N → light hover */
+.light .hover\:bg-white\/5:hover,
+.light .hover\:bg-white\/8:hover,
+.light .hover\:bg-white\/10:hover,
+.light .hover\:bg-white\/15:hover,
+.light .hover\:bg-white\/\[0\.045\]:hover {
+  background-color: var(--card-hover) !important;
+}
+
+/* hover:text-white → light foreground */
+.light .hover\:text-white:hover {
+  color: var(--foreground) !important;
+}
+
+/* hover:border-white/N → light border */
+.light .hover\:border-white\/10:hover,
+.light .hover\:border-white\/15:hover,
+.light .hover\:border-white\/20:hover {
+  border-color: var(--accent) !important;
+}
+
+/* ── Series Banner ───────────────────────────────────────── */
+.light .hv-series-banner-link:hover {
+  background-color: var(--card-hover) !important;
+}
+
+/* ── Code Panel (always dark) ────────────────────────────── */
+.light .code-panel {
+  /* Keep dark — code blocks should always have dark background */
+}
+
+/* ── Avatar ring ─────────────────────────────────────────── */
+.light .hv-avatar-ring {
+  border-color: rgba(140, 122, 106, 0.2) !important;
+  box-shadow: 0 0 40px rgba(194, 112, 22, 0.15) !important;
+}
+
+/* ── Selection ───────────────────────────────────────────── */
+.light ::selection {
+  background: rgba(194,112,22,0.15);
+  color: var(--text-heading);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+.light ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.light ::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(140,122,106,0.2);
+  border-radius: 4px;
+}
+.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(140,122,106,0.35);
+}
+
+/* ── Print Override ──────────────────────────────────────── */
+@media print {
+  .light body {
+    background: white !important;
+    background-image: none !important;
+  }
+}

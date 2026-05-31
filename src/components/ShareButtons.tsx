@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, Link2, Send, Share2 } from "lucide-react";
+import { useT } from "@/components/LocaleProvider";
 
 type Props = {
   title: string;
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export function ShareButtons({ title, url }: Props) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
 
   function copy() {
@@ -31,13 +33,13 @@ export function ShareButtons({ title, url }: Props) {
 
   return (
     <div className="inline-flex items-center gap-1">
-      <ActionButton onClick={copy} label={copied ? "已复制" : "复制链接"}>
+      <ActionButton onClick={copy} label={copied ? t.common.copied : t.common.copyLink}>
         {copied ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
       </ActionButton>
-      <ActionLink href={xHref} label="分享到 X / Twitter">
+      <ActionLink href={xHref} label={t.common.shareX}>
         <Share2 className="h-4 w-4" />
       </ActionLink>
-      <ActionLink href={weiboHref} label="分享到微博">
+      <ActionLink href={weiboHref} label={t.common.shareWeibo}>
         <Send className="h-4 w-4" />
       </ActionLink>
     </div>

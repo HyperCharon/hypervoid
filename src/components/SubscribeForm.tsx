@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useT } from "@/components/LocaleProvider";
 
 export function SubscribeForm({
   variant = "default",
 }: {
   variant?: "default" | "compact";
 }) {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<
@@ -29,13 +31,13 @@ export function SubscribeForm({
         if (res.ok && data.ok) {
           setMessage({
             type: "ok",
-            text: "✓ 验证邮件已发到你的邮箱，点击邮件里的确认链接即可。",
+            text: t.subscribe.success,
           });
           setEmail("");
         } else {
           setMessage({
             type: "error",
-            text: data.error ?? `订阅失败 (${res.status})`,
+            text: data.error ?? `${t.subscribe.error} (${res.status})`,
           });
         }
       } catch (e) {
@@ -58,14 +60,14 @@ export function SubscribeForm({
         onChange={(e) => setEmail(e.target.value)}
         placeholder="you@example.com"
         className="hv-input min-w-0 flex-1 rounded-md border border-border bg-card px-3 py-1.5 text-sm text-foreground placeholder:text-muted-soft transition focus:border-accent/50 focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent-glow"
-        aria-label="邮箱"
+        aria-label={t.subscribe.emailLabel}
       />
       <button
         type="submit"
         disabled={pending}
         className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-accent shadow-[0_0_16px_var(--accent-glow)] transition hover:border-accent/60 hover:bg-accent/20 hover:text-accent hover:shadow-[0_0_24px_var(--accent-glow)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[0_0_16px_var(--accent-glow)]"
       >
-        {pending ? "提交中…" : "订阅"}
+        {pending ? t.common.submitting : t.common.subscribe}
         {!pending ? (
           <svg
             aria-hidden
@@ -98,7 +100,7 @@ export function SubscribeForm({
             </h3>
           </div>
           <p className="mt-1.5 text-sm leading-snug text-muted">
-            新文章发布时通过邮件通知你，不发别的。随时退订。
+            {t.subscribe.description}
           </p>
         </div>
         {form}

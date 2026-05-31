@@ -5,19 +5,21 @@ import { MobileNav } from "@/components/MobileNav";
 import { NavGroups } from "@/components/NavGroups";
 import { HypervoidWordmark } from "@/components/HypervoidWordmark";
 import { HeaderDock } from "@/components/HeaderDock";
+import { useT } from "@/components/LocaleProvider";
 
 export function SiteHeader() {
+  const t = useT();
   return (
     <header
-      className="hv-site-header sticky top-0 z-40 w-full text-foreground"
-      style={{ viewTransitionName: "site-header", background: "linear-gradient(135deg, rgba(239,68,68,0.08), rgba(249,115,22,0.06), rgba(234,179,8,0.05), rgba(34,197,94,0.06), rgba(6,182,212,0.08), rgba(59,130,246,0.1), rgba(99,102,241,0.08), rgba(139,92,246,0.07), rgba(217,70,239,0.06), rgba(12,18,36,0.85))", backdropFilter: "blur(24px) saturate(1.4)", WebkitBackdropFilter: "blur(24px) saturate(1.4)" }}
+      className="hv-site-header hv-grad-header sticky top-0 z-40 w-full text-foreground backdrop-blur-[24px] saturate-[1.4]"
+      style={{ viewTransitionName: "site-header" }}
     >
       <div className="mx-auto flex h-14 max-w-[100rem] items-center gap-2 px-4 sm:gap-3 sm:px-6 lg:px-8">
         <div className="flex min-h-11 shrink-0 items-center gap-2 font-bold tracking-tight sm:gap-2.5">
           <Link
             href="/sign-in"
-            aria-label="登录 Hypervoid"
-            title="登录"
+            aria-label={`${t.common.signIn} Hypervoid`}
+            title={t.common.signIn}
             className="hv-brand-orbit group inline-flex h-9 w-9 items-center justify-center text-muted transition hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <span aria-hidden className="inline-flex h-7 w-7 items-center justify-center transition-transform group-hover:rotate-12">

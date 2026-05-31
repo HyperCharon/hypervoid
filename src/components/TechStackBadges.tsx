@@ -90,8 +90,8 @@ const BADGES: Badge[] = [
     value: "Vercel",
     icon: "vercel",
     href: "https://vercel.com",
-    color: "bg-zinc-900 dark:bg-zinc-100",
-    text: "text-white dark:text-zinc-900",
+    color: "bg-foreground",
+    text: "text-background",
   },
   {
     label: "Hosted",
@@ -119,8 +119,8 @@ const BADGES: Badge[] = [
     value: "Next.js 16",
     icon: "next",
     href: "https://nextjs.org",
-    color: "bg-zinc-900 dark:bg-zinc-100",
-    text: "text-white dark:text-zinc-900",
+    color: "bg-foreground",
+    text: "text-background",
   },
   {
     label: "UI",
@@ -147,8 +147,8 @@ const BADGES: Badge[] = [
 
 function BadgeChip({ badge }: { badge: Badge }) {
   const inner = (
-    <span className="inline-flex select-none overflow-hidden rounded-md text-[10px] font-medium leading-none shadow-sm ring-1 ring-black/10 sm:text-[11px]">
-      <span className="inline-flex items-center gap-1 bg-zinc-700 px-1.5 py-1 text-zinc-50 sm:px-2 sm:py-1.5 dark:bg-zinc-800">
+    <span className="inline-flex select-none overflow-hidden rounded-md text-xs font-medium leading-none shadow-sm ring-1 ring-black/10 sm:text-[11px]">
+      <span className="inline-flex items-center gap-1 bg-card px-1.5 py-1 text-muted sm:px-2 sm:py-1.5">
         <span className="opacity-90">{ICONS[badge.icon]}</span>
         <span className="tracking-wide">{badge.label}</span>
       </span>

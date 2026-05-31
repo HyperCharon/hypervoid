@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useT } from "@/components/LocaleProvider";
 
 type UserInfo = {
   login: string;
@@ -11,6 +12,7 @@ type UserInfo = {
 };
 
 export function PrivateSpace() {
+  const t = useT();
   const [user, setUser] = useState<UserInfo | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -57,17 +59,17 @@ export function PrivateSpace() {
           <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-foreground/80">
             Private_Space
           </h3>
-          <p className="truncate font-mono text-[10px] text-muted">
+          <p className="truncate font-mono text-xs text-muted">
             {user.name || user.login}
           </p>
         </div>
       </div>
 
       <div className="mt-2.5 flex flex-col gap-0.5">
-        <SpaceLink href="/admin" icon="settings" label="管理后台" />
-        <SpaceLink href="/admin/posts/new" icon="write" label="写文章" />
-        <SpaceLink href="/admin/series" icon="collection" label="专题管理" />
-        <SpaceLink href="/admin/albums" icon="photo" label="相册管理" />
+        <SpaceLink href="/admin" icon="settings" label={t.admin.dashboard} />
+        <SpaceLink href="/admin/posts/new" icon="write" label={t.admin.writePost} />
+        <SpaceLink href="/admin/series" icon="collection" label={t.admin.manageSeries} />
+        <SpaceLink href="/admin/albums" icon="photo" label={t.admin.manageAlbums} />
       </div>
     </aside>
   );

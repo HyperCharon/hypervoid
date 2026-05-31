@@ -5,9 +5,9 @@ import { siteConfig } from "@/lib/site-config";
 export function SiteFooter() {
   const year = new Date().getFullYear();
   return (
-    <footer className="relative mt-16 backdrop-blur-sm" style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.08), rgba(249,115,22,0.06), rgba(234,179,8,0.05), rgba(34,197,94,0.06), rgba(6,182,212,0.08), rgba(59,130,246,0.1), rgba(99,102,241,0.08), rgba(139,92,246,0.07), rgba(217,70,239,0.06), rgba(12,18,36,0.85))" }}>
+    <footer className="hv-grad-header relative mt-16 backdrop-blur-sm">
       {/* Full spectrum top border */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[2px] opacity-50" style={{ background: "linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #06b6d4, #3b82f6, #6366f1, #8b5cf6, #d946ef, #ec4899)" }} />
+      <div aria-hidden className="hv-spectrum-line pointer-events-none absolute inset-x-0 top-0 h-[2px] opacity-50" />
       <div className="mx-auto flex max-w-[100rem] flex-col gap-5 px-4 py-6 text-sm sm:px-6 sm:py-8 lg:px-8">
         <div className="relative flex flex-wrap items-center justify-between gap-3 pb-4">
           <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-border" />

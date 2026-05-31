@@ -1,17 +1,12 @@
 import Link from "next/link";
 import { Hash, Tags } from "lucide-react";
-import type { Metadata } from "next";
 import { getAllTags } from "@/lib/posts";
+import { getMessages } from "@/lib/i18n-server";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "标签",
-  description: "按标签浏览所有文章",
-};
-
 export default async function TagsIndex() {
-  const tags = await getAllTags();
+  const [tags, t] = await Promise.all([getAllTags(), getMessages()]);
   return (
     <div className="flex flex-col gap-6">
       <header className="group relative overflow-hidden border border-border bg-gradient-to-br from-card to-background p-5 sm:p-7" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
@@ -22,18 +17,18 @@ export default async function TagsIndex() {
 
         <div className="flex items-center gap-2">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-          <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-accent">
-            Tag_Matrix / Topic_Channels
+          <p className="font-mono text-xs font-semibold uppercase tracking-widest text-accent">
+            {t.tags.kicker}
           </p>
         </div>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <h1 className="flex items-center gap-3 font-mono text-3xl font-black uppercase leading-tight tracking-tight text-foreground sm:text-5xl">
             <Tags className="h-8 w-8 text-accent-soft sm:h-10 sm:w-10" aria-hidden />
-            All_Tags
+            {t.tags.allTags}
           </h1>
           <span className="inline-flex items-center gap-1.5 border border-border bg-accent/15 px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-foreground" style={{ clipPath: 'polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 0 100%)' }}>
             <span className="h-1 w-1 rounded-full bg-accent" />
-            {tags.length} Channels
+            {tags.length} {t.tags.channels}
           </span>
         </div>
       </header>
@@ -48,7 +43,7 @@ export default async function TagsIndex() {
             >
               <Hash className="h-3.5 w-3.5 text-accent-soft transition group-hover:text-accent-soft" aria-hidden />
               <span className="font-mono text-foreground transition group-hover:text-foreground">{tag}</span>
-              <span className="border-l border-border pl-2 font-mono text-[10px] uppercase tracking-wider text-muted-soft">
+              <span className="border-l border-border pl-2 font-mono text-xs uppercase tracking-wider text-muted-soft">
                 {count}
               </span>
             </Link>
@@ -56,7 +51,7 @@ export default async function TagsIndex() {
         </div>
       ) : (
         <p className="border border-dashed border-border bg-card p-8 text-center font-mono text-sm uppercase tracking-wider text-muted" style={{ clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)' }}>
-          No_Tags_Yet
+          {t.tags.empty}
         </p>
       )}
     </div>

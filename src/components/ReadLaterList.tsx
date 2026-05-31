@@ -76,7 +76,7 @@ export function ReadLaterList() {
                   {it.description}
                 </p>
               ) : null}
-              <p className="mt-1 font-mono text-[10px] uppercase text-muted-soft">
+              <p className="mt-1 font-mono text-xs uppercase text-muted-soft">
                 加入于 {formatRelative(it.addedAt)}
               </p>
             </div>
@@ -84,7 +84,7 @@ export function ReadLaterList() {
               type="button"
               onClick={() => remove(it.slug)}
               aria-label="移除"
-              className="shrink-0 border border-border bg-card px-2 py-1 text-[10px] text-muted-soft opacity-100 transition hover:border-red-400/45 hover:text-red-300 sm:opacity-0 sm:group-hover:opacity-100"
+              className="shrink-0 border border-border bg-card px-2 py-1 text-xs text-muted-soft opacity-100 transition hover:border-red-400/45 hover:text-red-300 sm:opacity-0 sm:group-hover:opacity-100"
             >
               移除
             </button>

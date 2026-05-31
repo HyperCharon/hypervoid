@@ -1,18 +1,13 @@
 import Link from "next/link";
 import { Archive, Pin, Radio } from "lucide-react";
-import type { Metadata } from "next";
 import { getAllPostMeta } from "@/lib/posts";
 import { ArchiveLayout } from "@/components/ArchiveLayout";
+import { getMessages } from "@/lib/i18n-server";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "归档",
-  description: "全部文章按时间线归档",
-};
-
 export default async function ArchivePage() {
-  const posts = await getAllPostMeta();
+  const [posts, t] = await Promise.all([getAllPostMeta(), getMessages()]);
 
   const byYear = new Map<string, typeof posts>();
   for (const post of posts) {
@@ -32,39 +27,39 @@ export default async function ArchivePage() {
 
         <div className="flex items-center gap-2">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-          <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-accent">
-            Archive_Timeline / Chronological_Scan
+          <p className="font-mono text-xs font-semibold uppercase tracking-widest text-accent">
+            {t.archive.kicker}
           </p>
         </div>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <h1 className="flex items-center gap-3 font-mono text-3xl font-black uppercase leading-tight tracking-tight text-foreground sm:text-5xl">
             <Archive className="h-8 w-8 text-accent-soft sm:h-10 sm:w-10" aria-hidden />
-            Archive
+            {t.nav.archive}
           </h1>
           <span className="inline-flex items-center gap-1.5 border border-border bg-accent/15 px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-foreground" style={{ clipPath: 'polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 0 100%)' }}>
             <span className="h-1 w-1 rounded-full bg-accent" />
-            {posts.length} / {years.length}y
+            {posts.length} / {years.length}{t.archive.yearSuffix}
           </span>
         </div>
       </header>
       {years.length === 0 ? (
         <p className="border border-dashed border-border bg-card p-8 text-center font-mono text-sm uppercase tracking-wider text-muted" style={{ clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)' }}>
-          No_Posts_Yet
+          {t.posts.empty}
         </p>
       ) : (
         <ArchiveLayout>
           {years.map((year) => {
-            const posts = byYear.get(year)!;
+            const yearPosts = byYear.get(year)!;
             return (
               <section key={year} className="flex flex-col gap-3">
                 <h2 className="flex items-baseline gap-2 font-mono text-2xl font-bold uppercase tracking-tight text-foreground">
                   {year}
                   <span className="inline-flex items-center gap-1 border border-border bg-card px-2 py-0.5 text-xs font-normal normal-case tracking-wider text-muted" style={{ clipPath: 'polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%)' }}>
-                    {posts.length} Posts
+                    {yearPosts.length} {t.archive.postsCount}
                   </span>
                 </h2>
                 <ol className="relative ml-2 space-y-3 border-l-2 border-border pl-5">
-                  {posts.map((post) => (
+                  {yearPosts.map((post) => (
                     <li key={post.slug} className="relative">
                       <span className="absolute -left-[27px] mt-2 grid h-2.5 w-2.5 place-items-center border border-accent bg-card shadow-[0_0_14px_var(--accent-glow)]" style={{ clipPath: 'polygon(0 0, calc(100% - 2px) 0, 100% 2px, 100% 100%, 0 100%)' }} />
                       <Link
@@ -74,7 +69,7 @@ export default async function ArchivePage() {
                       >
                         <span className="flex min-w-0 items-baseline gap-2">
                           {post.frontmatter.pinned ? (
-                            <Pin className="h-3.5 w-3.5 shrink-0 text-accent" aria-label="置顶" />
+                            <Pin className="h-3.5 w-3.5 shrink-0 text-accent" aria-label={t.post.pinnedTooltip} />
                           ) : (
                             <Radio className="h-3.5 w-3.5 shrink-0 text-muted-soft" aria-hidden />
                           )}

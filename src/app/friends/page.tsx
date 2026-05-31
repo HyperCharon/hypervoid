@@ -1,14 +1,12 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import { listFriends } from "@/db/friends";
 import { FriendApplyForm } from "@/components/FriendApplyForm";
+import { getMessages } from "@/lib/i18n-server";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = { title: "友链", description: "Charon 的朋友们——串门的博客与站点" };
-
 export default async function FriendsPage() {
-  const friends = await listFriends();
+  const [friends, t] = await Promise.all([listFriends(), getMessages()]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -16,17 +14,17 @@ export default async function FriendsPage() {
         <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
         <div aria-hidden className="absolute left-0 top-0 h-8 w-8 border-l border-t border-accent/40" />
         <div aria-hidden className="absolute right-0 top-0 h-2 w-2 rounded-full bg-accent animate-pulse" />
-        <p className="hv-kicker">Friend_Links / Network_Nodes</p>
+        <p className="hv-kicker">{t.friends.kicker}</p>
         <h1 className="hv-title mt-2 text-3xl font-black uppercase tracking-tight sm:text-4xl">
-          友链
+          {t.nav.friends}
         </h1>
         <p className="mt-3 text-sm text-muted">
-          朋友们的博客与个人站点。
+          {t.friends.description}
         </p>
       </header>
       {friends.length === 0 ? (
         <p className="hv-panel border-dashed p-8 text-center text-muted">
-          暂无友链。
+          {t.friends.empty}
         </p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">

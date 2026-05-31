@@ -23,23 +23,17 @@ export type FontKey = "geist" | "serif" | "handwriting";
 
 export type FontSizeKey = "normal" | "large";
 
-export type DisplayMode = "fullscreen" | "banner" | "simple";
+export type WallpaperKey = "none" | "1" | "cyberpunk" | "medieval" | "custom";
 
 export const DEFAULT_HUE = 187;
 export const DEFAULT_BACKGROUND: BackgroundKey = "cosmic";
 export const DEFAULT_FONT: FontKey = "geist";
 export const DEFAULT_FONT_SIZE: FontSizeKey = "normal";
-export const DEFAULT_DISPLAY_MODE: DisplayMode = "fullscreen";
+export const DEFAULT_WALLPAPER: WallpaperKey = "none";
 
 export const FONT_SIZE_OPTIONS: { key: FontSizeKey; label: string; hint: string }[] = [
   { key: "normal", label: "标准", hint: "17.5px 基准（默认）" },
   { key: "large", label: "舒适", hint: "19.5px 基准，正文更宽敞" },
-];
-
-export const DISPLAY_MODE_OPTIONS: { key: DisplayMode; label: string; hint: string }[] = [
-  { key: "fullscreen", label: "全屏", hint: "背景铺满整个视口（默认）" },
-  { key: "banner", label: "横幅", hint: "仅在顶部条带显示" },
-  { key: "simple", label: "简洁", hint: "完全隐藏背景特效" },
 ];
 
 export const BACKGROUND_OPTIONS: { key: BackgroundKey; label: string; hint: string }[] = [
@@ -48,25 +42,36 @@ export const BACKGROUND_OPTIONS: { key: BackgroundKey; label: string; hint: stri
   { key: "plain", label: "纯黑", hint: "关闭动态背景" },
 ];
 
+export const WALLPAPER_OPTIONS: { key: WallpaperKey; label: string; hint: string; preview?: string }[] = [
+  { key: "none", label: "无", hint: "不使用壁纸（默认）" },
+  { key: "1", label: "风景", hint: "暖色调风景壁纸", preview: "/wallpapers/1.webp" },
+  { key: "cyberpunk", label: "赛博", hint: "赛博朋克风格壁纸", preview: "/wallpapers/cyberpunk.webp" },
+  { key: "medieval", label: "中世纪", hint: "中世纪风格壁纸", preview: "/wallpapers/medieval.webp" },
+  { key: "custom", label: "自定义", hint: "使用自定义图片 URL" },
+];
+
 const HUE_KEY = "hypervoid:hue";
 const BG_KEY = "hypervoid:bg";
 const FONT_KEY = "hypervoid:font";
 const FONT_SIZE_KEY = "hypervoid:font-size";
-const DISPLAY_MODE_KEY = "hypervoid:display";
+const WALLPAPER_KEY = "hypervoid:wallpaper";
+const WALLPAPER_CUSTOM_KEY = "hypervoid:wallpaper-custom";
 const SETTINGS_SCHEMA_KEY = "hypervoid:settings-schema";
-const SETTINGS_SCHEMA_VERSION = "2";
+const SETTINGS_SCHEMA_VERSION = "3";
 
 type SettingsValue = {
   hue: number;
   background: BackgroundKey;
   font: FontKey;
   fontSize: FontSizeKey;
-  displayMode: DisplayMode;
+  wallpaper: WallpaperKey;
+  wallpaperCustomUrl: string;
   setHue: (v: number) => void;
   setBackground: (v: BackgroundKey) => void;
   setFont: (v: FontKey) => void;
   setFontSize: (v: FontSizeKey) => void;
-  setDisplayMode: (v: DisplayMode) => void;
+  setWallpaper: (v: WallpaperKey) => void;
+  setWallpaperCustomUrl: (v: string) => void;
   reset: () => void;
 };
 
@@ -75,12 +80,14 @@ const SettingsContext = createContext<SettingsValue>({
   background: DEFAULT_BACKGROUND,
   font: DEFAULT_FONT,
   fontSize: DEFAULT_FONT_SIZE,
-  displayMode: DEFAULT_DISPLAY_MODE,
+  wallpaper: DEFAULT_WALLPAPER,
+  wallpaperCustomUrl: "",
   setHue: () => {},
   setBackground: () => {},
   setFont: () => {},
   setFontSize: () => {},
-  setDisplayMode: () => {},
+  setWallpaper: () => {},
+  setWallpaperCustomUrl: () => {},
   reset: () => {},
 });
 
@@ -111,9 +118,23 @@ function applyFontSize(size: FontSizeKey) {
   document.documentElement.dataset.fontSize = size;
 }
 
-function applyDisplayMode(mode: DisplayMode) {
+function applyWallpaper(wp: WallpaperKey, customUrl: string) {
   if (typeof document === "undefined") return;
-  document.documentElement.dataset.display = mode;
+  const root = document.documentElement;
+  if (wp === "none") {
+    root.style.removeProperty("--wallpaper-url");
+    root.style.removeProperty("--wallpaper-overlay");
+    root.dataset.wallpaper = "none";
+    return;
+  }
+  let url = "";
+  if (wp === "custom" && customUrl) {
+    url = customUrl;
+  } else if (wp !== "custom") {
+    url = `/bg/${wp}.webp`;
+  }
+  root.style.setProperty("--wallpaper-url", url ? `url("${url}")` : "none");
+  root.dataset.wallpaper = wp;
 }
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
@@ -123,16 +144,15 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [font, setFontState] = useState<FontKey>(DEFAULT_FONT);
   const [fontSize, setFontSizeState] =
     useState<FontSizeKey>(DEFAULT_FONT_SIZE);
-  const [displayMode, setDisplayModeState] = useState<DisplayMode>(
-    DEFAULT_DISPLAY_MODE,
-  );
+  const [wallpaper, setWallpaperState] =
+    useState<WallpaperKey>(DEFAULT_WALLPAPER);
+  const [wallpaperCustomUrl, setWallpaperCustomUrlState] = useState("");
+
   useEffect(() => {
     try {
       const migrated = localStorage.getItem(SETTINGS_SCHEMA_KEY) === SETTINGS_SCHEMA_VERSION;
       if (!migrated) {
         localStorage.removeItem(HUE_KEY);
-        localStorage.removeItem(BG_KEY);
-        localStorage.removeItem(FONT_KEY);
         localStorage.removeItem(DISPLAY_MODE_KEY);
         localStorage.setItem(SETTINGS_SCHEMA_KEY, SETTINGS_SCHEMA_VERSION);
       }
@@ -163,24 +183,27 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       } else {
         applyFontSize(DEFAULT_FONT_SIZE);
       }
-      const storedDisplay = localStorage.getItem(
-        DISPLAY_MODE_KEY,
-      ) as DisplayMode | null;
+
+      const storedWallpaper = localStorage.getItem(
+        WALLPAPER_KEY,
+      ) as WallpaperKey | null;
+      const storedCustomUrl = localStorage.getItem(WALLPAPER_CUSTOM_KEY) ?? "";
       if (
-        storedDisplay &&
-        DISPLAY_MODE_OPTIONS.some((o) => o.key === storedDisplay)
+        storedWallpaper &&
+        WALLPAPER_OPTIONS.some((o) => o.key === storedWallpaper)
       ) {
-        setDisplayModeState(storedDisplay);
-        applyDisplayMode(storedDisplay);
+        setWallpaperState(storedWallpaper);
+        setWallpaperCustomUrlState(storedCustomUrl);
+        applyWallpaper(storedWallpaper, storedCustomUrl);
       } else {
-        applyDisplayMode(DEFAULT_DISPLAY_MODE);
+        applyWallpaper(DEFAULT_WALLPAPER, "");
       }
     } catch {
       applyHue(DEFAULT_HUE);
       applyBackground(DEFAULT_BACKGROUND);
       applyFont(DEFAULT_FONT);
       applyFontSize(DEFAULT_FONT_SIZE);
-      applyDisplayMode(DEFAULT_DISPLAY_MODE);
+      applyWallpaper(DEFAULT_WALLPAPER, "");
     }
   }, []);
 
@@ -202,17 +225,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(BG_KEY, v);
       } catch {
         /* ignore */
-      }
-      // Cyberpunk wallpaper is heavy and themed for the banner strip — force
-      // banner mode so it doesn't dominate the whole page in fullscreen.
-      if (v === "cyberpunk") {
-        setDisplayModeState("banner");
-        applyDisplayMode("banner");
-        try {
-          localStorage.setItem(DISPLAY_MODE_KEY, "banner");
-        } catch {
-          /* ignore */
-        }
       }
     },
     [],
@@ -238,14 +250,26 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const setDisplayMode = useCallback((v: DisplayMode) => {
-    setDisplayModeState(v);
-    applyDisplayMode(v);
+  const setWallpaper = useCallback((v: WallpaperKey) => {
+    setWallpaperState(v);
     try {
-      localStorage.setItem(DISPLAY_MODE_KEY, v);
+      localStorage.setItem(WALLPAPER_KEY, v);
     } catch {
       /* ignore */
     }
+    // Read current custom url from storage to avoid stale closure
+    const customUrl = localStorage.getItem(WALLPAPER_CUSTOM_KEY) ?? "";
+    applyWallpaper(v, customUrl);
+  }, []);
+
+  const setWallpaperCustomUrl = useCallback((v: string) => {
+    setWallpaperCustomUrlState(v);
+    try {
+      localStorage.setItem(WALLPAPER_CUSTOM_KEY, v);
+    } catch {
+      /* ignore */
+    }
+    applyWallpaper("custom", v);
   }, []);
 
   const reset = useCallback(() => {
@@ -253,17 +277,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setBackground(DEFAULT_BACKGROUND);
     setFont(DEFAULT_FONT);
     setFontSize(DEFAULT_FONT_SIZE);
-    setDisplayMode(DEFAULT_DISPLAY_MODE);
-    try {
-      localStorage.removeItem(HUE_KEY);
-      localStorage.removeItem(BG_KEY);
-      localStorage.removeItem(FONT_KEY);
-      localStorage.removeItem(FONT_SIZE_KEY);
-      localStorage.removeItem(DISPLAY_MODE_KEY);
-    } catch {
-      /* ignore */
-    }
-  }, [setHue, setBackground, setFont, setFontSize, setDisplayMode]);
+    setWallpaper(DEFAULT_WALLPAPER);
+    setWallpaperCustomUrl("");
+  }, [setHue, setBackground, setFont, setFontSize, setWallpaper, setWallpaperCustomUrl]);
 
   return (
     <SettingsContext.Provider
@@ -272,12 +288,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         background,
         font,
         fontSize,
-        displayMode,
+        wallpaper,
+        wallpaperCustomUrl,
         setHue,
         setBackground,
         setFont,
         setFontSize,
-        setDisplayMode,
+        setWallpaper,
+        setWallpaperCustomUrl,
         reset,
       }}
     >
@@ -289,3 +307,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 export function useSettings() {
   return useContext(SettingsContext);
 }
+
+// Keep DISPLAY_MODE_KEY reference for migration
+const DISPLAY_MODE_KEY = "hypervoid:display";

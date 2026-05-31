@@ -177,12 +177,12 @@ function GameCard({
             className="h-full w-full object-cover transition group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="grid h-full place-items-center px-2 text-center text-[10px] text-muted">
+          <div className="grid h-full place-items-center px-2 text-center text-xs text-muted">
             {game.name}
           </div>
         )}
         {game.playtimeForeverMin > 0 ? (
-          <span className="dark-locked absolute right-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-mono text-white backdrop-blur">
+          <span className="dark-locked absolute right-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black/70 px-1.5 py-0.5 text-xs font-mono text-white backdrop-blur">
             {formatHours(game.playtimeForeverMin)}
           </span>
         ) : null}
@@ -192,7 +192,7 @@ function GameCard({
           {game.name}
         </p>
         {game.playtimeRecentMin > 0 ? (
-          <p className="mt-0.5 font-mono text-[10px] text-primary">
+          <p className="mt-0.5 font-mono text-xs text-primary">
             ↻ {formatHours(game.playtimeRecentMin)} (最近 2 周)
           </p>
         ) : null}
@@ -231,7 +231,7 @@ function RecentCard({
             className="h-full w-full object-cover transition group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="grid h-full place-items-center px-2 text-center text-[10px] text-muted">
+          <div className="grid h-full place-items-center px-2 text-center text-xs text-muted">
             {game.name}
           </div>
         )}
@@ -240,7 +240,7 @@ function RecentCard({
         <p className="line-clamp-2 text-sm font-medium leading-snug transition group-hover:text-primary">
           {game.name}
         </p>
-        <p className="mt-1 flex items-center justify-between gap-1 text-[10px] text-muted">
+        <p className="mt-1 flex items-center justify-between gap-1 text-xs text-muted">
           <span className="font-mono text-primary">
             ↻ {formatHours(game.playtimeRecentMin)}
           </span>

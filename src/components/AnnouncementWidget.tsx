@@ -1,6 +1,7 @@
 import { inArray } from "drizzle-orm";
 import { getDb, schema } from "@/db/client";
 import { getActiveAnnouncement } from "@/db/announcements";
+import { getMessages } from "@/lib/i18n-server";
 
 const LEGACY_KEYS = [
   "announcementMessage",
@@ -24,9 +25,10 @@ async function getLegacyOverrides(): Promise<Record<string, string>> {
 }
 
 export async function AnnouncementWidget() {
-  const [slotEntry, legacy] = await Promise.all([
+  const [slotEntry, legacy, t] = await Promise.all([
     getActiveAnnouncement("sidebar").catch(() => null),
     getLegacyOverrides(),
+    getMessages(),
   ]);
 
   const message = slotEntry?.message || legacy.announcementMessage || process.env.ANNOUNCEMENT_MESSAGE || "";
@@ -42,7 +44,7 @@ export async function AnnouncementWidget() {
           <span className="absolute h-3 w-3 animate-ping rounded-full bg-accent/40" />
           <span className="relative h-2 w-2 rounded-full bg-accent" />
         </span>
-        <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-accent">Notice</span>
+        <span className="font-mono text-xs font-bold uppercase tracking-widest text-accent">{t.widget.notice}</span>
       </div>
       <p className="mt-2 text-sm leading-relaxed text-muted">{message}</p>
       {linkHref ? (
@@ -50,7 +52,7 @@ export async function AnnouncementWidget() {
           href={linkHref}
           className="glow-underline mt-2 inline-flex items-center gap-1 text-xs font-medium text-accent transition hover:text-accent-soft"
         >
-          {linkText || "了解更多"}
+          {linkText || t.common.learnMore}
           <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M5 12h14M13 5l7 7-7 7" />
           </svg>

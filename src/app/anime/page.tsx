@@ -23,8 +23,11 @@ export default async function AnimePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-3xl font-bold tracking-tight">番剧追番</h1>
+      <header className="hv-panel relative overflow-hidden p-5 sm:p-7">
+        <p className="hv-kicker">Anime / Bangumi_Tracking</p>
+        <h1 className="hv-title mt-2 text-3xl font-black uppercase tracking-tight sm:text-4xl">
+          番剧追番
+        </h1>
         <p className="mt-2 text-sm text-muted">
           在看 {all.watching.total} · 看过 {all.done.total} · 想看{" "}
           {all.wish.total}

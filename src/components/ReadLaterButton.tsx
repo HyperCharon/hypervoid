@@ -2,6 +2,7 @@
 
 import { Clock3 } from "lucide-react";
 import { useReadLater } from "@/lib/use-read-later";
+import { useT } from "@/components/LocaleProvider";
 
 export function ReadLaterButton({
   slug,
@@ -12,6 +13,7 @@ export function ReadLaterButton({
   title: string;
   description?: string | null;
 }) {
+  const t = useT();
   const { isQueued, toggle, ready } = useReadLater();
   const active = ready && isQueued(slug);
 
@@ -19,8 +21,8 @@ export function ReadLaterButton({
     <button
       type="button"
       onClick={() => toggle({ slug, title, description })}
-      aria-label={active ? "从稍后读移除" : "稍后读"}
-      title={active ? "已在稍后读 / 点击移除" : "稍后读 → /reading-list"}
+      aria-label={active ? t.readLater.remove : t.readLater.add}
+      title={active ? t.readLater.added : t.readLater.hint}
       className={"hv-action h-9 w-9 p-0 " + (
         active ? "border-accent bg-accent/14 text-foreground" : ""
       )}

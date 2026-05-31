@@ -74,7 +74,7 @@ export function SeriesPostList({
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   {isRead ? (
-                    <span className="hv-chip text-[10px]">
+                    <span className="hv-chip text-xs">
                       <Check className="h-3 w-3" aria-hidden /> 已读
                     </span>
                   ) : null}

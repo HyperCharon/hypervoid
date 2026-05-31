@@ -53,7 +53,7 @@ export function AskAIImpl({ slug }: { slug: string }) {
           <Bot className="h-5 w-5 text-accent-soft" aria-hidden />
           问问 AI
         </h3>
-        <span className="hv-chip text-[10px]">article scope</span>
+        <span className="hv-chip text-xs">article scope</span>
       </div>
       <p className="mt-2 text-xs leading-relaxed text-muted-soft">
         AI 会基于这篇文章的内容回答你的问题。回答仅供参考，可能与作者本人观点不同。

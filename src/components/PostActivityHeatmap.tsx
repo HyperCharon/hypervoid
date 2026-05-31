@@ -3,11 +3,11 @@ import { getPostHeatmap } from "@/lib/stats";
 const WEEKS = 18;
 
 function cellColor(count: number): string {
-  if (count <= 0) return "bg-zinc-800/50";
-  if (count === 1) return "bg-blue-900/60";
-  if (count === 2) return "bg-blue-700/60";
-  if (count === 3) return "bg-blue-500/60";
-  return "bg-blue-400/70";
+  if (count <= 0) return "bg-[var(--heatmap-0)]";
+  if (count === 1) return "bg-[var(--heatmap-1)]";
+  if (count === 2) return "bg-[var(--heatmap-2)]";
+  if (count === 3) return "bg-[var(--heatmap-3)]";
+  return "bg-[var(--heatmap-4)]";
 }
 
 const MONTHS = [
@@ -63,7 +63,7 @@ export async function PostActivityHeatmap() {
         {monthLabels.map((m, i) => (
           <div key={i} className="relative h-3 flex-1">
             {m !== null ? (
-              <span className="absolute left-0 top-0 text-[10px] leading-none text-muted-soft">
+              <span className="absolute left-0 top-0 text-xs leading-none text-muted-soft">
                 {MONTHS[m]}
               </span>
             ) : null}
@@ -75,7 +75,7 @@ export async function PostActivityHeatmap() {
         {/* Row 0-6: each row = day label + 18 week cells */}
         {[0, 1, 2, 3, 4, 5, 6].map((row) => (
           <div key={row} className="flex items-center gap-[2px]">
-            <span className="mr-0.5 flex w-4 shrink-0 items-center justify-end pr-0.5 text-[9px] leading-none text-muted-soft">
+            <span className="mr-0.5 flex w-4 shrink-0 items-center justify-end pr-0.5 text-xs leading-none text-muted-soft">
               {DAY_ABBR[row] ?? ""}
             </span>
             {weeks.map((week) => {
@@ -94,7 +94,7 @@ export async function PostActivityHeatmap() {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-end gap-[2px] text-[10px] text-muted-soft">
+      <div className="flex items-center justify-end gap-[2px] text-xs text-muted-soft">
         <span className="mr-0.5">少</span>
         {[0, 1, 2, 3, 4].map((n) => (
           <div

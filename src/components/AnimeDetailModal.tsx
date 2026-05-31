@@ -185,7 +185,7 @@ export function AnimeDetailModal({
 
             {detail?.rating && maxRatingCount > 0 ? (
               <div className="mt-4 rounded-lg border border-border bg-background/50 p-3">
-                <p className="mb-2 text-[10px] uppercase tracking-wider text-muted">
+                <p className="mb-2 text-xs uppercase tracking-wider text-muted">
                   评分分布
                 </p>
                 <div className="flex h-12 items-end gap-1">
@@ -207,7 +207,7 @@ export function AnimeDetailModal({
                     );
                   })}
                 </div>
-                <div className="mt-1 flex justify-between text-[9px] text-muted">
+                <div className="mt-1 flex justify-between text-xs text-muted">
                   <span>10</span>
                   <span>5</span>
                   <span>1</span>
@@ -219,7 +219,7 @@ export function AnimeDetailModal({
               <p className="mt-4 text-xs text-muted">载入详情中…</p>
             ) : detail?.summary ? (
               <div className="mt-4">
-                <p className="mb-1.5 text-[10px] uppercase tracking-wider text-muted">
+                <p className="mb-1.5 text-xs uppercase tracking-wider text-muted">
                   简介
                 </p>
                 <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90">
@@ -237,7 +237,7 @@ export function AnimeDetailModal({
                     title={`${t.count} 人标注`}
                   >
                     {t.name}
-                    <span className="font-mono text-[9px] opacity-60">
+                    <span className="font-mono text-xs opacity-60">
                       {t.count}
                     </span>
                   </span>

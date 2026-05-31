@@ -155,7 +155,7 @@ export function KnowledgeGraphCanvas({
                 <text
                   textAnchor="middle"
                   y={r + 12}
-                  className="select-none fill-current text-[10px] font-medium"
+                  className="select-none fill-current text-xs font-medium"
                   style={{
                     fill: isHovered ? "rgb(224 242 254)" : "rgba(240,249,255,0.76)",
                     paintOrder: "stroke",

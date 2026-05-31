@@ -6,9 +6,12 @@ export const metadata: Metadata = { title: "日记" };
 export default function DiaryPage() {
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-3xl font-bold tracking-tight">日记</h1>
-        <p className="mt-2 text-muted">短小、随性、不打算长期保存的碎片。</p>
+      <header className="hv-panel relative overflow-hidden p-5 sm:p-7">
+        <p className="hv-kicker">Diary / Daily_Fragments</p>
+        <h1 className="hv-title mt-2 text-3xl font-black uppercase tracking-tight sm:text-4xl">
+          日记
+        </h1>
+        <p className="mt-2 text-sm text-muted">短小、随性、不打算长期保存的碎片。</p>
       </header>
       <article className="rounded-xl border border-border bg-card p-6">
         <time className="text-xs uppercase tracking-wider text-muted">

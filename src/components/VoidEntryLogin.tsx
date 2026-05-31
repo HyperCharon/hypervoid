@@ -440,14 +440,14 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                         <GitHubMark className="h-4 w-4" />
                       )}
                       <span>使用 GitHub 登录</span>
-                      <span className="ml-auto hidden border border-black/20 px-2 py-1 text-[10px] font-black sm:inline-flex">
+                      <span className="ml-auto hidden border border-black/20 px-2 py-1 text-xs font-black sm:inline-flex">
                         推荐
                       </span>
                     </button>
 
                     <div className="my-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
                       <div className="h-px bg-white/18" />
-                      <span className="font-mono text-[10px] uppercase text-white/45">邮箱备用登录</span>
+                      <span className="font-mono text-xs uppercase text-white/45">邮箱备用登录</span>
                       <div className="h-px bg-white/18" />
                     </div>
 
@@ -501,7 +501,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                   </>
                 )}
 
-                <div className="mt-5 grid grid-cols-3 border-y border-white/12 py-3 font-mono text-[10px] uppercase text-white/50">
+                <div className="mt-5 grid grid-cols-3 border-y border-white/12 py-3 font-mono text-xs uppercase text-white/50">
                   <span className="flex items-center gap-1.5">
                     <ShieldCheck className="h-3.5 w-3.5 text-emerald-100" aria-hidden />
                     GitHub 主登录

@@ -15,7 +15,7 @@ const COMMON_DIRECTIVES = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "frame-src https://giscus.app https://www.youtube.com https://player.bilibili.com",
-  "connect-src 'self' https://cloud.umami.is https://umami.hypervoid.top https://giscus.app https://api.bgm.tv https://api.anthropic.com https://api.deepseek.com https://api.iconify.design",
+  "connect-src 'self' https://cloud.umami.is https://umami.hypervoid.top https://api-gateway.umami.dev https://giscus.app https://api.bgm.tv https://api.anthropic.com https://api.deepseek.com https://api.iconify.design",
   "media-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",

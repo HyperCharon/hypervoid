@@ -17,7 +17,7 @@ export async function SeriesBanner({ post }: { post: Post }) {
     <aside className="hv-panel mt-6 overflow-hidden">
       <Link
         href={`/series/${encodeURIComponent(seriesName)}`}
-        className="block px-4 py-3 transition hover:bg-white/[0.045]"
+        className="hv-series-banner-link block px-4 py-3 transition hover:bg-card-hover"
       >
         <div className="flex items-center justify-between gap-3 text-xs">
           <span className="inline-flex items-center gap-2 font-medium text-foreground">
@@ -51,7 +51,7 @@ export async function SeriesBanner({ post }: { post: Post }) {
                   {p.frontmatter.title}
                 </span>
                 {isCurrent ? (
-                  <span className="shrink-0 text-[10px] uppercase tracking-wider">
+                  <span className="shrink-0 text-xs uppercase tracking-wider">
                     当前
                   </span>
                 ) : null}

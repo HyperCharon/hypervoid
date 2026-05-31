@@ -98,8 +98,8 @@ export function BottomTabBar() {
   return (
     <nav
       aria-label="底部导航"
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 shadow-[0_-18px_44px_rgba(0,0,0,0.34)] backdrop-blur-xl md:hidden"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)", background: "linear-gradient(135deg, rgba(239,68,68,0.06), rgba(234,179,8,0.04), rgba(34,197,94,0.05), rgba(59,130,246,0.08), rgba(99,102,241,0.06), rgba(139,92,246,0.05), rgba(12,18,36,0.9))", borderTop: "1px solid rgba(255,255,255,0.06)" }}
+      className="hv-grad-tabbar fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t backdrop-blur-xl md:hidden"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       {/* Top accent line */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[2px]" style={{ background: "var(--rainbow)", opacity: 0.4 }} />
@@ -111,7 +111,7 @@ export function BottomTabBar() {
             key={t.href}
             href={t.href}
             aria-current={active ? "page" : undefined}
-            className={`relative flex flex-col items-center justify-center gap-0.5 py-2.5 font-mono text-[10px] uppercase tracking-wider transition ${
+            className={`relative flex flex-col items-center justify-center gap-0.5 py-2.5 font-mono text-xs uppercase tracking-wider transition ${
               active
                 ? "text-accent"
                 : "text-muted-soft hover:text-accent active:text-accent"

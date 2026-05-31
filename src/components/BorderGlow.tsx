@@ -8,6 +8,7 @@ interface BorderGlowProps {
   edgeSensitivity?: number;
   glowColor?: string;
   backgroundColor?: string;
+  lightBackgroundColor?: string;
   borderRadius?: number;
   glowRadius?: number;
   glowIntensity?: number;
@@ -113,6 +114,7 @@ export function BorderGlow({
   edgeSensitivity = 30,
   glowColor = "270 80 60",
   backgroundColor = "transparent",
+  lightBackgroundColor,
   borderRadius = 12,
   glowRadius = 40,
   glowIntensity = 1.0,
@@ -126,6 +128,21 @@ export function BorderGlow({
   const [cursorAngle, setCursorAngle] = useState(45);
   const [edgeProximity, setEdgeProximity] = useState(0);
   const [sweepActive, setSweepActive] = useState(false);
+  const [isLight, setIsLight] = useState(false);
+  const [fxGlow, setFxGlow] = useState(1);
+
+  useEffect(() => {
+    const check = () => {
+      const root = document.documentElement;
+      setIsLight(root.classList.contains("light"));
+      const val = getComputedStyle(root).getPropertyValue("--fx-border-glow").trim();
+      setFxGlow(val ? parseFloat(val) : 1);
+    };
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   const getCenterOfElement = useCallback((el: HTMLElement) => {
     const { width, height } = el.getBoundingClientRect();
@@ -213,10 +230,10 @@ export function BorderGlow({
   const colorSensitivity = edgeSensitivity + 20;
   const isVisible = isHovered || sweepActive;
   const borderOpacity = isVisible
-    ? Math.max(0, (edgeProximity * 100 - colorSensitivity) / (100 - colorSensitivity))
+    ? Math.max(0, (edgeProximity * 100 - colorSensitivity) / (100 - colorSensitivity)) * fxGlow
     : 0;
   const glowOpacity = isVisible
-    ? Math.max(0, (edgeProximity * 100 - edgeSensitivity) / (100 - edgeSensitivity))
+    ? Math.max(0, (edgeProximity * 100 - edgeSensitivity) / (100 - edgeSensitivity)) * fxGlow
     : 0;
 
   const meshGradients = buildMeshGradients(colors);
@@ -232,7 +249,7 @@ export function BorderGlow({
       onPointerLeave={() => setIsHovered(false)}
       className={`relative grid isolate ${className}`}
       style={{
-        background: backgroundColor,
+        background: (isLight && lightBackgroundColor) ? lightBackgroundColor : backgroundColor,
         borderRadius: `${borderRadius}px`,
         transform: "translate3d(0, 0, 0.01px)",
       }}

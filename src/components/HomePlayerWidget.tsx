@@ -150,7 +150,7 @@ export function HomePlayerWidget() {
           <div className="flex items-center gap-1.5">
             <Link
               href="/music"
-              className="group inline-flex items-center gap-1 border border-border bg-card px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted transition hover:border-accent/40 hover:bg-card-hover hover:text-accent"
+              className="group inline-flex items-center gap-1 border border-border bg-card px-2.5 py-0.5 font-mono text-xs uppercase tracking-wider text-muted transition hover:border-accent/40 hover:bg-card-hover hover:text-accent"
             >
               完整版
               <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5" aria-hidden />
@@ -232,7 +232,7 @@ export function HomePlayerWidget() {
                     <div
                       className={`flex shrink-0 items-center justify-center bg-gradient-to-br from-accent/16 to-card/35 ${
                         fxEnabled
-                          ? "h-14 w-14 rounded-full text-2xl shadow-[0_0_18px_rgba(6,182,212,0.16)] ring-1 ring-accent/20"
+                          ? "h-14 w-14 rounded-full text-2xl shadow-[0_0_18px_var(--accent-glow)] ring-1 ring-accent/20"
                           : "h-12 w-12 rounded-full text-xl text-muted"
                       }`}
                     >
@@ -282,17 +282,17 @@ export function HomePlayerWidget() {
                       })}
                     </div>
                     <div className="mt-1 flex items-center justify-between">
-                      <span className="font-mono text-[10px] text-muted-soft">
+                      <span className="font-mono text-xs text-muted-soft">
                         {formatTime(currentTime)}
                       </span>
-                      <span className="font-mono text-[10px] text-muted-soft">
+                      <span className="font-mono text-xs text-muted-soft">
                         {formatTime(duration)}
                       </span>
                     </div>
                   </div>
                 ) : (
                   <div className="mt-3 flex items-center gap-2">
-                    <span className="w-8 text-right font-mono text-[10px] text-muted-soft">
+                    <span className="w-8 text-right font-mono text-xs text-muted-soft">
                       {formatTime(currentTime)}
                     </span>
                     <div className="relative h-1 flex-1 bg-border">
@@ -306,7 +306,7 @@ export function HomePlayerWidget() {
                         }}
                       />
                     </div>
-                    <span className="w-8 font-mono text-[10px] text-muted-soft">
+                    <span className="w-8 font-mono text-xs text-muted-soft">
                       {formatTime(duration)}
                     </span>
                   </div>
@@ -327,7 +327,7 @@ export function HomePlayerWidget() {
                     onClick={togglePlay}
                     disabled={!current?.url}
                     aria-label={playing ? "暂停" : "播放"}
-                    className="grid h-10 w-10 place-items-center border border-accent/50 bg-accent text-background shadow-[0_0_18px_rgba(6,182,212,0.16)] transition hover:bg-accent-soft disabled:opacity-40"
+                    className="grid h-10 w-10 place-items-center border border-accent/50 bg-accent text-background shadow-[0_0_18px_var(--accent-glow)] transition hover:bg-accent-soft disabled:opacity-40"
                   >
                     {playing ? (
                       <Pause className="h-4 w-4" aria-hidden />

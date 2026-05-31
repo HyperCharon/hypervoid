@@ -79,7 +79,7 @@ function NavCard({
           isPrev ? "items-start text-left" : "items-end text-right"
         }`}
       >
-        <span className="inline-flex items-center gap-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-accent-soft">
+        <span className="inline-flex items-center gap-1 font-mono text-xs font-semibold uppercase tracking-widest text-accent-soft">
           {isPrev ? (
             <>
               <ArrowLeft className="h-3.5 w-3.5 transition group-hover:-translate-x-0.5" aria-hidden />
@@ -95,7 +95,7 @@ function NavCard({
         <p className="line-clamp-2 text-sm font-semibold leading-snug tracking-tight text-foreground transition group-hover:text-accent sm:text-base">
           {post.title}
         </p>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-muted-soft">
+        <span className="font-mono text-xs uppercase tracking-wider text-muted-soft">
           {post.readingMinutes}m Read
         </span>
       </div>

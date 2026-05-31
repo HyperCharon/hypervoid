@@ -52,7 +52,7 @@ export function Webmentions({ items }: { items: Webmention[] }) {
               >
                 {w.authorName ?? hostnameOf(w.source)}
               </a>
-              <p className="text-[10px] text-muted-soft">
+              <p className="text-xs text-muted-soft">
                 {hostnameOf(w.source)}
                 {w.verifiedAt ? (
                   <>

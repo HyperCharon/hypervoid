@@ -1,20 +1,24 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import {
   Bot,
   Check,
   Download,
-  MonitorCog,
+  ImageIcon,
+  Moon,
   RotateCcw,
   Settings2,
+  Sun,
   Type,
   X,
+  Zap,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import {
-  DISPLAY_MODE_OPTIONS,
   FONT_SIZE_OPTIONS,
+  WALLPAPER_OPTIONS,
   useSettings,
 } from "@/components/SettingsProvider";
 import { isMascotEnabled, setMascotEnabled } from "@/components/Live2DMascot";
@@ -22,6 +26,45 @@ import { useInstallPrompt } from "@/components/PwaInstallController";
 
 const MASCOT_ENABLED_KEY = "hypervoid:mascot";
 const MASCOT_ENABLED_EVENT = "hypervoid:mascot-changed";
+
+const THEME_OPTIONS = [
+  { key: "dark", icon: Moon, label: "暗色", labelEn: "Dark" },
+  { key: "light", icon: Sun, label: "亮色", labelEn: "Light" },
+  { key: "cyberpunk", icon: Zap, label: "赛博朋克", labelEn: "Cyberpunk" },
+] as const;
+
+function ThemeSelector({
+  optionBase,
+  active,
+  idle,
+}: {
+  optionBase: string;
+  active: string;
+  idle: string;
+}) {
+  const { resolvedTheme, setTheme } = useTheme();
+  const current = resolvedTheme ?? "dark";
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      {THEME_OPTIONS.map((o) => {
+        const isActive = current === o.key;
+        const Icon = o.icon;
+        return (
+          <button
+            key={o.key}
+            type="button"
+            onClick={() => setTheme(o.key)}
+            aria-pressed={isActive}
+            className={[optionBase, "flex-col items-center gap-1", isActive ? active : idle].join(" ")}
+          >
+            <Icon className="h-4 w-4" aria-hidden />
+            <span className="text-xs font-medium">{o.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 function SettingSection({
   icon,
@@ -33,9 +76,9 @@ function SettingSection({
   children: ReactNode;
 }) {
   return (
-    <section className="border border-blue-100/14 bg-white/[0.035] p-3">
-      <div className="mb-3 flex items-center gap-2 font-mono text-[11px] uppercase text-blue-50/68">
-        <span className="grid h-6 w-6 place-items-center border border-blue-100/18 bg-blue-50/8 text-blue-100">
+    <section className="hv-settings-option p-3">
+      <div className="mb-3 flex items-center gap-2 font-mono text-[11px] uppercase text-muted-soft">
+        <span className="grid h-6 w-6 place-items-center border border-border bg-card text-accent">
           {icon}
         </span>
         {title}
@@ -53,11 +96,12 @@ export function SiteSettings({
   triggerChildren?: ReactNode;
 } = {}) {
   const [open, setOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mascot, setMascot] = useState(false);
   const { available: installAvailable, install } = useInstallPrompt();
-  const { fontSize, displayMode, setFontSize, setDisplayMode, reset } = useSettings();
+  const { fontSize, wallpaper, wallpaperCustomUrl, setFontSize, setWallpaper, setWallpaperCustomUrl, reset } = useSettings();
 
   useEffect(() => {
     setMounted(true);
@@ -105,31 +149,42 @@ export function SiteSettings({
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  // Click outside to close
+  useEffect(() => {
+    if (!open) return;
+    function onClick(e: MouseEvent) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    // Delay to avoid closing from the same click that opened
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", onClick);
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", onClick);
+    };
+  }, [open]);
+
   const optionBase =
-    "relative flex min-h-11 items-center justify-between gap-3 border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-100/70";
-  const active = "border-blue-100/48 bg-blue-50/12 text-white shadow-[0_0_22px_rgba(34,211,238,0.12)]";
-  const idle = "border-blue-100/14 bg-black/16 text-blue-50/68 hover:border-blue-100/34 hover:bg-blue-50/8 hover:text-white";
+    "relative flex min-h-11 items-center justify-between gap-3 border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent";
+  const active = "hv-settings-option-active";
+  const idle = "hv-settings-option";
 
   const panel = open ? (
-    <>
-      <div
-        className="fixed inset-0 z-50 bg-black/55 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none"
-        onClick={() => setOpen(false)}
-        aria-hidden
-      />
-
-      <div
-        role="dialog"
-        aria-label="界面控制"
-        className="fixed inset-x-3 bottom-3 z-50 max-h-[86dvh] overflow-y-auto border border-blue-100/20 bg-slate-950/88 text-white shadow-[0_28px_90px_rgba(0,0,0,0.46),0_0_40px_rgba(34,211,238,0.12)] backdrop-blur-2xl md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-12 md:w-[21rem]"
-        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="sticky top-0 z-10 border-b border-blue-100/14 bg-slate-950/82 px-4 py-3 backdrop-blur-xl">
+    <div
+      ref={panelRef}
+      role="dialog"
+      aria-label="界面控制"
+      className="hv-settings-panel fixed inset-x-3 bottom-3 z-[55] max-h-[86dvh] overflow-y-auto md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-12 md:w-[21rem]"
+      style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}
+    >
+        <div className="hv-settings-header sticky top-0 z-10 px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="font-mono text-[10px] uppercase text-blue-100/70">Interface Console</p>
-              <h2 className="mt-1 text-base font-black tracking-normal text-white">界面控制</h2>
+              <p className="hv-settings-label font-mono text-xs uppercase">Interface Console</p>
+              <h2 className="hv-settings-title mt-1 text-base font-black tracking-normal">界面控制</h2>
             </div>
             <div className="flex items-center gap-1.5">
               <button
@@ -137,7 +192,7 @@ export function SiteSettings({
                 onClick={reset}
                 aria-label="重置界面控制"
                 title="重置"
-                className="grid h-9 w-9 place-items-center border border-blue-100/14 text-blue-50/64 transition hover:border-blue-100/38 hover:bg-blue-50/8 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-100/70"
+                className="hv-settings-btn grid h-9 w-9 place-items-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 <RotateCcw className="h-4 w-4" aria-hidden />
               </button>
@@ -145,39 +200,66 @@ export function SiteSettings({
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="关闭界面控制"
-                className="grid h-9 w-9 place-items-center border border-blue-100/14 text-blue-50/64 transition hover:border-blue-100/38 hover:bg-blue-50/8 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-100/70 md:hidden"
+                className="hv-settings-btn grid h-9 w-9 place-items-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
               >
                 <X className="h-4 w-4" aria-hidden />
               </button>
             </div>
           </div>
-          <p className="mt-2 text-xs leading-5 text-blue-50/50">
-            旧色相、壁纸市场与字体预设已移除；右上角可快速切换主题与背景。
-          </p>
         </div>
 
         <div className="grid gap-3 p-4">
-          <SettingSection icon={<MonitorCog className="h-3.5 w-3.5" aria-hidden />} title="视觉层级">
-            <div className="grid gap-2">
-              {DISPLAY_MODE_OPTIONS.map((o) => {
-                const isActive = displayMode === o.key;
+          <SettingSection icon={<Moon className="h-3.5 w-3.5" aria-hidden />} title="主题">
+            <ThemeSelector optionBase={optionBase} active={active} idle={idle} />
+          </SettingSection>
+          <SettingSection icon={<ImageIcon className="h-3.5 w-3.5" aria-hidden />} title="壁纸">
+            <div className="grid grid-cols-3 gap-2">
+              {WALLPAPER_OPTIONS.filter((o) => o.key !== "custom").map((o) => {
+                const isActive = wallpaper === o.key;
                 return (
                   <button
                     key={o.key}
                     type="button"
-                    onClick={() => setDisplayMode(o.key)}
+                    onClick={() => setWallpaper(o.key)}
                     aria-pressed={isActive}
                     title={o.hint}
-                    className={[optionBase, isActive ? active : idle].join(" ")}
+                    className={[optionBase, "flex-col items-center gap-1 p-2", isActive ? active : idle].join(" ")}
                   >
-                    <span>
-                      <span className="block font-semibold">{o.label}</span>
-                      <span className="mt-0.5 block text-xs text-blue-50/48">{o.hint}</span>
-                    </span>
-                    {isActive ? <Check className="h-4 w-4 shrink-0 text-blue-100" aria-hidden /> : null}
+                    {o.preview ? (
+                      <div className="h-8 w-full overflow-hidden rounded border border-border">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={o.preview} alt="" className="h-full w-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="grid h-8 w-full place-items-center rounded border border-dashed border-border text-muted-soft">
+                        <X className="h-3 w-3" aria-hidden />
+                      </div>
+                    )}
+                    <span className="text-xs font-medium">{o.label}</span>
                   </button>
                 );
               })}
+            </div>
+            {/* Custom URL input */}
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={() => setWallpaper("custom")}
+                aria-pressed={wallpaper === "custom"}
+                className={[optionBase, "w-full", wallpaper === "custom" ? active : idle].join(" ")}
+              >
+                <span className="text-sm font-medium">自定义 URL</span>
+                {wallpaper === "custom" ? <Check className="h-4 w-4 shrink-0 text-accent" aria-hidden /> : null}
+              </button>
+              {wallpaper === "custom" ? (
+                <input
+                  type="url"
+                  value={wallpaperCustomUrl}
+                  onChange={(e) => setWallpaperCustomUrl(e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                  className="hv-input mt-2 w-full rounded border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-soft"
+                />
+              ) : null}
             </div>
           </SettingSection>
 
@@ -195,7 +277,7 @@ export function SiteSettings({
                     className={[optionBase, "flex-col items-start justify-center", isActive ? active : idle].join(" ")}
                   >
                     <span className="font-semibold">{o.label}</span>
-                    <span className="text-xs text-blue-50/48">{o.hint}</span>
+                    <span className="text-xs hv-settings-hint">{o.hint}</span>
                   </button>
                 );
               })}
@@ -216,13 +298,13 @@ export function SiteSettings({
               >
                 <span>
                   <span className="block font-semibold">{mascot ? "已开启" : "已关闭"}</span>
-                  <span className="mt-0.5 block text-xs text-blue-50/48">右下角交互角色，仅桌面显示。</span>
+                  <span className="mt-0.5 block text-xs hv-settings-hint">右下角交互角色，仅桌面显示。</span>
                 </span>
                 <span
                   aria-hidden
-                  className={["relative h-5 w-9 border transition", mascot ? "border-blue-100 bg-blue-100" : "border-blue-100/18 bg-white/5"].join(" ")}
+                  className={["relative h-5 w-9 border transition rounded-full", mascot ? "border-accent bg-accent" : "border-border bg-card"].join(" ")}
                 >
-                  <span className={["absolute top-0.5 h-3.5 w-3.5 bg-slate-950 transition-transform", mascot ? "translate-x-[1.125rem]" : "translate-x-0.5"].join(" ")} />
+                  <span className={["absolute top-0.5 h-3.5 w-3.5 rounded-full bg-background transition-transform", mascot ? "translate-x-[1.125rem]" : "translate-x-0.5"].join(" ")} />
                 </span>
               </button>
             </SettingSection>
@@ -233,19 +315,18 @@ export function SiteSettings({
               <button type="button" onClick={install} className={[optionBase, "w-full", idle].join(" ")}>
                 <span>
                   <span className="block font-semibold">安装 Hypervoid</span>
-                  <span className="mt-0.5 block text-xs text-blue-50/48">添加到桌面或主屏，使用离线缓存。</span>
+                  <span className="mt-0.5 block text-xs hv-settings-hint">添加到桌面或主屏，使用离线缓存。</span>
                 </span>
-                <Download className="h-4 w-4 shrink-0 text-blue-100" aria-hidden />
+                <Download className="h-4 w-4 shrink-0 text-accent" aria-hidden />
               </button>
             </SettingSection>
           ) : null}
 
-          <p className="hidden border-t border-blue-100/12 pt-3 font-mono text-[10px] uppercase text-blue-50/38 md:block">
+          <p className="hv-settings-footer hv-settings-divider hidden pt-3 font-mono text-xs uppercase md:block">
             Cmd/Ctrl + , open · Esc close
           </p>
         </div>
-      </div>
-    </>
+    </div>
   ) : null;
 
   return (
@@ -256,7 +337,7 @@ export function SiteSettings({
         aria-label="界面控制"
         aria-expanded={open}
         title="界面控制 (Cmd/Ctrl+,)"
-        className={triggerClassName ?? "grid h-10 w-10 place-items-center border border-blue-100/18 bg-white/[0.055] text-blue-50/72 backdrop-blur-xl transition hover:border-blue-100/45 hover:bg-blue-50/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-100/70"}
+        className={triggerClassName ?? "hv-settings-btn grid h-10 w-10 place-items-center backdrop-blur-xl transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"}
       >
         {triggerChildren ?? <Settings2 className="h-4 w-4" aria-hidden />}
       </button>

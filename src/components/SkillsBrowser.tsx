@@ -79,7 +79,7 @@ export function SkillsBrowser({ skills }: { skills: Skill[] }) {
                   }`}
                 >
                   {c === "all" ? "全部" : CATEGORY_LABEL[c]}
-                  <span className="font-mono text-[10px] opacity-70">
+                  <span className="font-mono text-xs opacity-70">
                     {categoryCounts[c]}
                   </span>
                 </button>
