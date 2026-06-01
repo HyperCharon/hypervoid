@@ -1249,21 +1249,6 @@ html[data-fullscreen-route="true"] body { overflow-x: hidden; }
   overflow: hidden;
 }
 
-/* Posts section max height to prevent overlapping subscribe */
-.hv-home-posts {
-  max-height: calc(100vh - 12rem);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--muted-soft) transparent;
-}
-.hv-home-posts::-webkit-scrollbar {
-  width: 4px;
-}
-.hv-home-posts::-webkit-scrollbar-thumb {
-  background: var(--muted-soft);
-  border-radius: 999px;
-}
-
 .hv-magic-bento-content {
   position: relative;
   z-index: 4;
@@ -1507,12 +1492,6 @@ html[data-fullscreen-route="true"] body { overflow-x: hidden; }
   .stats-carousel-indicator { transition: none; }
 }
 
-/* ── Homepage Layout ───────────────────────────────────────── */
-.hv-home-grid { align-items: start; }
-.hv-home-main,
-.hv-home-rail,
-.hv-home-posts { min-width: 0; }
-.hv-home-hero { min-height: 0; }
 /* ── Entry Page ────────────────────────────────────────────── */
 .hypervoid-entry-video {
   left: 50%;
