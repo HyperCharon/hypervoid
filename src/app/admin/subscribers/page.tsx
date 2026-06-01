@@ -44,7 +44,7 @@ function statusOf(sub: {
 
 export default async function AdminSubscribersPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const [subs, stats] = await Promise.all([
     listAllSubscribers(),

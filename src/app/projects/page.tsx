@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PlaceholderBanner } from "@/components/PlaceholderBanner";
+
 
 export const metadata: Metadata = { title: "项目" };
 
@@ -53,7 +53,6 @@ export default function ProjectsPage() {
           </a>
         ))}
       </div>
-      <PlaceholderBanner hint="编辑 src/app/projects/page.tsx 把占位项目替换成你自己的项目。也可以考虑接 GitHub pinned repos API 自动同步。" />
     </div>
   );
 }

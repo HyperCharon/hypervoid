@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default async function AdminSettingsPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const allFields = await getAllOverrides();
   const loginPolicy = (await getSiteSetting("site_login_required")) || "optional";

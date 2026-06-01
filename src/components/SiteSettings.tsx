@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import {
   Bot,
-  Check,
   Download,
   ImageIcon,
   Moon,
@@ -13,12 +12,11 @@ import {
   Sun,
   Type,
   X,
-  Zap,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
   FONT_SIZE_OPTIONS,
-  WALLPAPER_OPTIONS,
+  STYLE_OPTIONS,
   useSettings,
 } from "@/components/SettingsProvider";
 import { isMascotEnabled, setMascotEnabled } from "@/components/Live2DMascot";
@@ -30,7 +28,6 @@ const MASCOT_ENABLED_EVENT = "hypervoid:mascot-changed";
 const THEME_OPTIONS = [
   { key: "dark", icon: Moon, label: "暗色", labelEn: "Dark" },
   { key: "light", icon: Sun, label: "亮色", labelEn: "Light" },
-  { key: "cyberpunk", icon: Zap, label: "赛博朋克", labelEn: "Cyberpunk" },
 ] as const;
 
 function ThemeSelector({
@@ -45,7 +42,7 @@ function ThemeSelector({
   const { resolvedTheme, setTheme } = useTheme();
   const current = resolvedTheme ?? "dark";
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-2 gap-2">
       {THEME_OPTIONS.map((o) => {
         const isActive = current === o.key;
         const Icon = o.icon;
@@ -101,7 +98,7 @@ export function SiteSettings({
   const [isMobile, setIsMobile] = useState(false);
   const [mascot, setMascot] = useState(false);
   const { available: installAvailable, install } = useInstallPrompt();
-  const { fontSize, wallpaper, wallpaperCustomUrl, setFontSize, setWallpaper, setWallpaperCustomUrl, reset } = useSettings();
+  const { fontSize, style, setFontSize, setStyle, reset } = useSettings();
 
   useEffect(() => {
     setMounted(true);
@@ -212,55 +209,27 @@ export function SiteSettings({
           <SettingSection icon={<Moon className="h-3.5 w-3.5" aria-hidden />} title="主题">
             <ThemeSelector optionBase={optionBase} active={active} idle={idle} />
           </SettingSection>
-          <SettingSection icon={<ImageIcon className="h-3.5 w-3.5" aria-hidden />} title="壁纸">
+          <SettingSection icon={<ImageIcon className="h-3.5 w-3.5" aria-hidden />} title="页面样式">
             <div className="grid grid-cols-3 gap-2">
-              {WALLPAPER_OPTIONS.filter((o) => o.key !== "custom").map((o) => {
-                const isActive = wallpaper === o.key;
+              {STYLE_OPTIONS.map((o) => {
+                const isActive = style === o.key;
                 return (
                   <button
                     key={o.key}
                     type="button"
-                    onClick={() => setWallpaper(o.key)}
+                    onClick={() => setStyle(o.key)}
                     aria-pressed={isActive}
                     title={o.hint}
                     className={[optionBase, "flex-col items-center gap-1 p-2", isActive ? active : idle].join(" ")}
                   >
-                    {o.preview ? (
-                      <div className="h-8 w-full overflow-hidden rounded border border-border">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={o.preview} alt="" className="h-full w-full object-cover" />
-                      </div>
-                    ) : (
-                      <div className="grid h-8 w-full place-items-center rounded border border-dashed border-border text-muted-soft">
-                        <X className="h-3 w-3" aria-hidden />
-                      </div>
-                    )}
                     <span className="text-xs font-medium">{o.label}</span>
                   </button>
                 );
               })}
             </div>
-            {/* Custom URL input */}
-            <div className="mt-2">
-              <button
-                type="button"
-                onClick={() => setWallpaper("custom")}
-                aria-pressed={wallpaper === "custom"}
-                className={[optionBase, "w-full", wallpaper === "custom" ? active : idle].join(" ")}
-              >
-                <span className="text-sm font-medium">自定义 URL</span>
-                {wallpaper === "custom" ? <Check className="h-4 w-4 shrink-0 text-accent" aria-hidden /> : null}
-              </button>
-              {wallpaper === "custom" ? (
-                <input
-                  type="url"
-                  value={wallpaperCustomUrl}
-                  onChange={(e) => setWallpaperCustomUrl(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="hv-input mt-2 w-full rounded border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-soft"
-                />
-              ) : null}
-            </div>
+            <p className="mt-2 text-xs text-muted-soft">
+              {STYLE_OPTIONS.find((o) => o.key === style)?.hint}
+            </p>
           </SettingSection>
 
           <SettingSection icon={<Type className="h-3.5 w-3.5" aria-hidden />} title="阅读字号">

@@ -44,12 +44,6 @@ const PwaInstallController = dynamic(
   { ssr: false },
 );
 
-const BottomTabBar = dynamic(
-  () =>
-    import("@/components/BottomTabBar").then((m) => m.BottomTabBar),
-  { ssr: false },
-);
-
 const ClickEffect = dynamic(
   () => import("@/components/ClickEffect").then((m) => m.ClickEffect),
   { ssr: false },
@@ -77,7 +71,6 @@ export function DeferredClientUI() {
       <KeyboardShortcuts />
       {!hideFloating && <MascotRouter />}
       <PwaInstallController />
-      {!hideFloating && <BottomTabBar />}
       {!hideFloating && <ClickEffect />}
       {!hideFloating && <SparkleEffect />}
     </>

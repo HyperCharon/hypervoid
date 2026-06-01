@@ -21,33 +21,32 @@ export function PostCard({ post }: { post: PostMeta }) {
         href={`/posts/${slug}`}
         className="group relative flex flex-col gap-3 overflow-hidden p-3 sm:flex-row sm:items-stretch sm:gap-3 sm:p-3.5"
       >
-        <div className="relative h-32 w-full shrink-0 overflow-hidden rounded-xl bg-card sm:h-auto sm:w-32">
+        <div className="relative h-28 w-full shrink-0 overflow-hidden rounded-xl bg-card sm:h-auto sm:w-28">
           {frontmatter.cover ? (
             <Image
               src={frontmatter.cover}
               alt=""
               fill
-              sizes="(min-width: 640px) 128px, 100vw"
+              sizes="(min-width: 640px) 112px, 100vw"
               loading="lazy"
               className="object-cover opacity-[0.82] saturate-[0.85] transition duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100"
             />
           ) : (
-            <div className="grid h-full min-h-24 place-items-center bg-[radial-gradient(circle_at_50%_50%,var(--accent-glow),transparent_48%)]">
+            <div className="grid h-full place-items-center bg-[radial-gradient(circle_at_50%_50%,var(--accent-glow),transparent_48%)]">
               <Radio className="h-8 w-8 text-accent/60" aria-hidden />
             </div>
           )}
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,var(--overlay-dark))]" />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 overflow-hidden">
             {frontmatter.pinned ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5" title="置顶">
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 whitespace-nowrap" title="置顶">
                 <Pin className="h-3 w-3 text-accent" aria-hidden />
                 <span className="font-mono text-xs font-bold uppercase tracking-wider text-muted">Pinned</span>
               </span>
             ) : null}
-            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 whitespace-nowrap">
               <BookOpenText className="h-3 w-3 text-accent/60" aria-hidden />
               <span className="font-mono text-xs uppercase tracking-wider text-muted">Article</span>
             </span>

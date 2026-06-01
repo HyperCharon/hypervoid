@@ -30,7 +30,7 @@ function statusBadge(status: number | null, errorMessage: string | null) {
 
 export default async function AdminLinkCheckPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const list = await listLinkChecks();
   const broken = list.filter((r) => r.status === null || r.status >= 400 || r.status === 0);

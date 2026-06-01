@@ -23,7 +23,7 @@ const SLOT_LABEL: Record<string, string> = {
 
 export default async function AdminNotesPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const list = await listAllAnnouncements();
 

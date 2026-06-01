@@ -25,41 +25,81 @@ import {
   Archive,
   X,
   Menu,
+  Search,
+  Moon,
+  Sun,
+  Settings2,
+  Languages,
 } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useLocale } from "@/components/LocaleProvider";
+import { LOCALES } from "@/lib/i18n";
+import { SiteSettings } from "@/components/SiteSettings";
 
 /* ── Bottom Tab Bar ────────────────────────────────────────── */
 const TAB_ITEMS = [
-  { href: "/", icon: Home, labelKey: "home" as const },
-  { href: "/posts", icon: FileText, labelKey: "posts" as const },
-  { href: "/tags", icon: Tags, labelKey: "tags" as const },
-  { href: "/anime", icon: Sparkles, labelKey: "anime" as const },
-  { href: "/about", icon: Info, labelKey: "about" as const },
+  { href: "/", icon: Home, label: "home" },
+  { href: "/posts", icon: FileText, label: "posts" },
+  { href: "/tags", icon: Tags, label: "tags" },
+  { href: "/anime", icon: Sparkles, label: "anime" },
+  { href: "/search", icon: Search, label: "搜索" },
 ];
 
-function BottomTabBar() {
+function BottomTabBar({ onMenuOpen }: { onMenuOpen: () => void }) {
   const pathname = usePathname();
   const t = useT();
+  const { resolvedTheme, setTheme } = useTheme();
+  const { locale, setLocale } = useLocale();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const isDark = mounted ? resolvedTheme !== "light" : true;
+  const nextLocale = LOCALES[(LOCALES.indexOf(locale) + 1) % LOCALES.length];
 
   return (
     <nav className="hv-bottom-tab-bar fixed inset-x-0 bottom-0 z-50 lg:hidden">
-      <div className="flex items-center justify-around border-t border-border/15 bg-card/80 px-1.5 backdrop-blur-xl">
-        {TAB_ITEMS.map(({ href, icon: Icon, labelKey }) => {
+      <div className="flex items-center justify-around border-t border-border/15 bg-card/80 px-1 backdrop-blur-xl">
+        {/* Main tabs */}
+        {TAB_ITEMS.map(({ href, icon: Icon, label }) => {
           const active = pathname === href || (href !== "/" && pathname.startsWith(href));
+          const displayLabel = label in (t.nav as Record<string, string>) ? (t.nav as Record<string, string>)[label] : label;
           return (
             <Link
               key={href}
               href={href}
-              className={`flex min-h-[44px] flex-col items-center justify-center gap-0.5 rounded-lg px-3 py-1.5 transition ${
+              className={`flex min-h-[44px] flex-col items-center justify-center gap-0.5 rounded-lg px-2.5 py-1.5 transition ${
                 active
                   ? "text-accent"
                   : "text-muted-soft/60 hover:text-foreground"
               }`}
             >
               <Icon className="h-5 w-5" />
-              <span className="font-mono text-[10px] uppercase tracking-wider">{t.nav[labelKey]}</span>
+              <span className="font-mono text-[10px] uppercase tracking-wider">{displayLabel}</span>
             </Link>
           );
         })}
+
+        {/* Theme toggle */}
+        <button
+          type="button"
+          onClick={() => setTheme(isDark ? "light" : "dark")}
+          className="flex min-h-[44px] flex-col items-center justify-center gap-0.5 rounded-lg px-2.5 py-1.5 text-muted-soft/60 transition hover:text-foreground"
+          aria-label={isDark ? "切换到浅色" : "切换到深色"}
+        >
+          {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+          <span className="font-mono text-[10px] uppercase tracking-wider">{isDark ? "Dark" : "Light"}</span>
+        </button>
+
+        {/* Menu button */}
+        <button
+          type="button"
+          onClick={onMenuOpen}
+          className="flex min-h-[44px] flex-col items-center justify-center gap-0.5 rounded-lg px-2.5 py-1.5 text-muted-soft/60 transition hover:text-foreground"
+          aria-label="打开菜单"
+        >
+          <Menu className="h-5 w-5" />
+          <span className="font-mono text-[10px] uppercase tracking-wider">菜单</span>
+        </button>
       </div>
     </nav>
   );
@@ -70,6 +110,13 @@ function MenuSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const t = useT();
   const pathname = usePathname();
+  const { resolvedTheme, setTheme } = useTheme();
+  const { locale, setLocale } = useLocale();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const isDark = mounted ? resolvedTheme !== "light" : true;
+  const nextLocale = LOCALES[(LOCALES.indexOf(locale) + 1) % LOCALES.length];
 
   useEffect(() => {
     if (open) {
@@ -152,6 +199,37 @@ function MenuSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
         </div>
 
         <div className="px-4 py-4">
+          {/* Quick actions */}
+          <div className="mb-4 grid grid-cols-4 gap-1.5">
+            <button
+              type="button"
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className="flex flex-col items-center gap-1 rounded-lg border border-border/15 bg-foreground/5 px-2 py-2.5 text-muted-soft transition hover:text-foreground"
+            >
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              <span className="text-[10px] font-medium">{isDark ? "浅色" : "深色"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setLocale(nextLocale)}
+              className="flex flex-col items-center gap-1 rounded-lg border border-border/15 bg-foreground/5 px-2 py-2.5 text-muted-soft transition hover:text-foreground"
+            >
+              <Languages className="h-4 w-4" />
+              <span className="text-[10px] font-medium">{nextLocale.toUpperCase()}</span>
+            </button>
+            <Link
+              href="/search"
+              className="flex flex-col items-center gap-1 rounded-lg border border-border/15 bg-foreground/5 px-2 py-2.5 text-muted-soft transition hover:text-foreground"
+            >
+              <Search className="h-4 w-4" />
+              <span className="text-[10px] font-medium">搜索</span>
+            </Link>
+            <div className="flex flex-col items-center gap-1 rounded-lg border border-border/15 bg-foreground/5 px-2 py-2.5">
+              <Settings2 className="h-4 w-4 text-muted-soft" />
+              <span className="text-[10px] font-medium text-muted-soft">设置</span>
+            </div>
+          </div>
+
           {navGroups.map((group) => (
             <div key={group.title} className="mb-4 last:mb-0">
               <p className="mb-2 px-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-soft/45">
@@ -222,7 +300,7 @@ export function MobileNav() {
       </button>
 
       {/* Bottom tab bar — always visible on mobile */}
-      <BottomTabBar />
+      <BottomTabBar onMenuOpen={() => setOpen(true)} />
 
       {/* Full menu sheet */}
       <MenuSheet open={open} onClose={() => setOpen(false)} />

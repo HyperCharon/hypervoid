@@ -52,7 +52,7 @@ export async function ProfileCard() {
         <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-muted sm:text-base" style={{ textShadow: "var(--text-shadow-subtle)" }}>{bio}</p>
 
         {/* Social icons — larger */}
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+        <div className="mt-5 flex items-center justify-center gap-1.5">
           {socials.map((s) => (
             <a
               key={s.name}

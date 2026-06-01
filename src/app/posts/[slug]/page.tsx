@@ -134,15 +134,15 @@ export default async function PostPage(props: { params: Promise<Params> }) {
       <ReadingProgress />
       <ReadTracker slug={slug} />
       <article className="mx-auto w-full ">
-        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+        <div className="flex items-center justify-between gap-2 sm:gap-3">
           <Link
             href="/posts"
-            className="hv-action px-4 text-sm font-medium"
+            className="hv-action shrink-0 px-4 text-sm font-medium whitespace-nowrap"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
             返回文章列表
           </Link>
-          <div className="flex items-center gap-1">
+          <div className="flex shrink-0 items-center gap-1">
             <ReadingMode />
             <BookmarkButton
               slug={slug}
@@ -166,59 +166,47 @@ export default async function PostPage(props: { params: Promise<Params> }) {
           <h1 className="hv-title mt-2 text-3xl font-black leading-tight sm:text-5xl">
             {frontmatter.title}
           </h1>
-          <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted">
+          <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm text-muted">
             {frontmatter.visibility === "private" ? (
-              <span className="hv-chip border-accent-soft/30 bg-accent-soft/10 text-accent-soft">
+              <span className="hv-chip shrink-0 whitespace-nowrap border-accent-soft/30 bg-accent-soft/10 text-accent-soft">
                 <LockKeyhole className="h-3 w-3" aria-hidden /> 私密
               </span>
             ) : null}
             {frontmatter.pinned ? (
-              <span className="hv-chip hv-chip-strong">
+              <span className="hv-chip hv-chip-strong shrink-0 whitespace-nowrap">
                 <Pin className="h-3 w-3" aria-hidden /> 置顶
               </span>
             ) : null}
-            <time>{frontmatter.date}</time>
+            <time className="shrink-0 whitespace-nowrap">{frontmatter.date}</time>
             {frontmatter.updatedDate &&
             frontmatter.updatedDate !== frontmatter.date ? (
               <span
-                className="hv-chip"
+                className="hv-chip shrink-0 whitespace-nowrap"
                 title={`本文最后更新于 ${frontmatter.updatedDate}`}
               >
                 <RefreshCcw className="h-3 w-3" aria-hidden /> 更新于 {frontmatter.updatedDate}
               </span>
             ) : null}
             {frontmatter.category ? (
-              <>
-                <span>·</span>
-                <span>{frontmatter.category}</span>
-              </>
+              <span className="shrink-0">· {frontmatter.category}</span>
             ) : null}
-            <span>·</span>
-            <span>
-              {frontmatter.wordCount.toLocaleString()} 字 ·{" "}
-              {frontmatter.readingMinutes} 分钟
-            </span>
+            <span className="shrink-0">· {frontmatter.wordCount.toLocaleString()} 字 · {frontmatter.readingMinutes} 分钟</span>
             {viewCount !== null ? (
-              <>
-                <span>·</span>
-                <ViewCounter slug={slug} initialCount={viewCount} />
-              </>
+              <span className="shrink-0">· <ViewCounter slug={slug} initialCount={viewCount} /></span>
             ) : null}
             {frontmatter.tags?.length ? (
-              <>
+              <span className="flex flex-wrap items-center gap-1.5">
                 <span>·</span>
-                <span className="flex flex-wrap gap-1.5">
-                  {frontmatter.tags.map((tag) => (
-                    <Link
-                      key={tag}
-                      href={`/tags/${encodeURIComponent(tag)}`}
-                      className="hv-chip transition hover:border-border hover:text-foreground"
-                    >
-                      #{tag}
-                    </Link>
-                  ))}
-                </span>
-              </>
+                {frontmatter.tags.map((tag) => (
+                  <Link
+                    key={tag}
+                    href={`/tags/${encodeURIComponent(tag)}`}
+                    className="hv-chip shrink-0 whitespace-nowrap transition hover:border-border hover:text-foreground"
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </span>
             ) : null}
           </div>
           {frontmatter.description ? (

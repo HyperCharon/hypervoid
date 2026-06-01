@@ -60,7 +60,7 @@ function fmtNumber(n: number): string {
 
 export default async function AdminAiPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const current = await getActiveAiModel();
   const customRows = await listCustomModels();

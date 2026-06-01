@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { FeaturedPostCard } from "@/components/FeaturedPostCard";
-import { CompactPostCard } from "@/components/CompactPostCard";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { SubscribeForm } from "@/components/SubscribeForm";
 import { RssSubscribeCard } from "@/components/RssSubscribeCard";
@@ -20,8 +20,10 @@ import { HeroSection } from "@/components/HeroSection";
 import { DailyPick } from "@/components/DailyPick";
 import { HomePlayerWidget } from "@/components/HomePlayerWidget";
 import { LatestPostsHeader, EmptyPosts, RssHint } from "@/components/HomeSectionHeader";
+import { GradualBlur } from "@/components/GradualBlur";
 import { getAllPostMeta } from "@/lib/posts";
 import { getSiteOverride } from "@/lib/site-config-server";
+import { getMessages } from "@/lib/i18n-server";
 import { Skeleton } from "@/components/Skeleton";
 
 export const revalidate = 60;
@@ -43,6 +45,7 @@ export default async function Home() {
   ]);
   const recent = all;
   const dailyPick = pickByDay(all);
+  const t = await getMessages();
 
   const terminalPosts = all
     .slice(0, 20)
@@ -116,20 +119,111 @@ export default async function Home() {
             <LatestPostsHeader />
 
             {recent.length ? (
-              <div className="flex flex-col gap-6">
-                {/* Featured — full width with cover */}
+              <div className="flex flex-col gap-5">
+                {/* Featured — full width */}
                 <ScrollReveal variant="scale-up" duration={700}>
                   <FeaturedPostCard post={recent[0]} />
                 </ScrollReveal>
 
-                {/* Typographic list — overreacted.io style */}
+                {/* Posts staggered grid with gradual blur */}
                 {recent.length > 1 ? (
-                  <div className="flex flex-col">
-                    {recent.slice(1).map((post, i) => (
-                      <ScrollReveal key={post.slug} variant="fade-up" delay={i * 60} duration={500}>
-                        <CompactPostCard post={post} index={i + 1} />
-                      </ScrollReveal>
-                    ))}
+                  <div className="relative">
+                    {/* Staggered masonry: alternating wide/narrow cards */}
+                    <div className="columns-1 gap-3 sm:columns-2">
+                      {recent.slice(1).map((post, i) => {
+                        const hasCover = !!post.frontmatter.cover;
+                        return (
+                          <ScrollReveal key={post.slug} variant="fade-up" delay={i * 40} duration={400}>
+                            <Link
+                              href={`/posts/${post.slug}`}
+                              className="group relative mb-3 flex break-inside-avoid overflow-hidden rounded-xl border border-border/30 bg-card/40 p-3 transition-all duration-250 hover:border-accent/30 hover:bg-card/70 hover:shadow-[0_0_20px_var(--accent-glow)] sm:flex-row sm:items-stretch sm:gap-3 sm:p-3.5"
+                            >
+                              {/* Cover image — only when exists */}
+                              {hasCover ? (
+                                <div className="w-full shrink-0 overflow-hidden rounded-xl sm:w-36">
+                                  <Image
+                                    src={post.frontmatter.cover!}
+                                    alt=""
+                                    width={288}
+                                    height={200}
+                                    sizes="(min-width: 640px) 144px, 100vw"
+                                    loading="lazy"
+                                    className="h-auto w-full opacity-80 saturate-[0.85] transition duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100"
+                                  />
+                                </div>
+                              ) : null}
+
+                              {/* Text content */}
+                              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                                {/* Index + date row */}
+                                <div className="flex items-center gap-2">
+                                  <span className="pointer-events-none font-mono text-[10px] font-bold tracking-wider text-muted-soft/20 transition-colors group-hover:text-accent/25">
+                                    {String(i + 1).padStart(2, "0")}
+                                  </span>
+                                  <time className="font-mono text-[10px] tracking-wider text-muted-soft/50 transition-colors group-hover:text-accent/60">
+                                    {post.frontmatter.date}
+                                  </time>
+                                  <span className="h-px flex-1 bg-border/20" />
+                                  <span className="font-mono text-[10px] text-muted-soft/35">
+                                    {post.frontmatter.readingMinutes}{t.post.readingTimeSuffix}
+                                  </span>
+                                </div>
+
+                                {/* Title */}
+                                <h3 className="line-clamp-2 text-sm font-semibold tracking-tight text-foreground/90 transition-colors duration-200 group-hover:text-accent sm:text-[15px]">
+                                  {post.frontmatter.title}
+                                </h3>
+
+                                {/* Description — only when no cover */}
+                                {!hasCover && post.frontmatter.description ? (
+                                  <p className="line-clamp-2 text-xs leading-relaxed text-muted-soft/60">
+                                    {post.frontmatter.description}
+                                  </p>
+                                ) : null}
+
+                                {/* Tags */}
+                                {post.frontmatter.tags?.length ? (
+                                  <div className="mt-auto flex flex-wrap gap-1.5 pt-1.5">
+                                    {post.frontmatter.tags.slice(0, 2).map((tag) => (
+                                      <span
+                                        key={tag}
+                                        className="rounded-md border border-border/25 bg-background/50 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-soft/50 transition-colors group-hover:border-accent/20 group-hover:text-muted-soft/70"
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : null}
+                              </div>
+
+                              {/* Bottom accent line */}
+                              <span className="absolute inset-x-3 bottom-0 h-px scale-x-0 bg-gradient-to-r from-transparent via-accent/40 to-transparent transition-transform duration-300 group-hover:scale-x-100" />
+                            </Link>
+                          </ScrollReveal>
+                        );
+                      })}
+                    </div>
+
+                    {/* Gradual blur overlay (reactbits-inspired) */}
+                    <GradualBlur
+                      position="bottom"
+                      intensity={1.2}
+                      height="5rem"
+                      layers={4}
+                    />
+
+                    {/* View all link */}
+                    <div className="relative z-20 flex justify-center pt-6 pb-1">
+                      <Link
+                        href="/posts"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-card/60 px-4 py-1.5 font-mono text-[11px] uppercase tracking-wider text-muted-soft transition-all duration-200 hover:border-accent/40 hover:bg-accent/8 hover:text-accent"
+                      >
+                        {t.hero.enterPosts}
+                        <svg aria-hidden className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 12h14M13 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </div>
                   </div>
                 ) : null}
               </div>
@@ -140,22 +234,42 @@ export default async function Home() {
 
           {/* ── Subscribe ── */}
           <ScrollReveal variant="fade-up" delay={100}>
-            <div className="border-t border-border pt-6">
-              {isEmailConfigured() ? <SubscribeForm variant="compact" /> : (
-                <div className="flex items-center justify-between gap-4">
-                  <RssHint />
-                  <Link
-                    href="/rss.xml"
-                    prefetch={false}
-                    className="inline-flex shrink-0 items-center gap-1.5 font-mono text-xs font-medium uppercase tracking-wider text-accent transition hover:text-accent-soft"
-                  >
-                    RSS
-                    <svg aria-hidden className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12h14M13 5l7 7-7 7" />
-                    </svg>
-                  </Link>
+            <div className="hv-card overflow-hidden p-0">
+              <div className="grid gap-0 md:grid-cols-[1fr_auto] md:items-stretch">
+                {/* Left — info */}
+                <div className="flex flex-col justify-center gap-2 border-b border-border p-4 sm:p-5 md:border-b-0 md:border-r">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded bg-accent/10">
+                      <svg aria-hidden className="h-3 w-3 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                      </svg>
+                    </span>
+                    <h3 className="font-mono text-xs font-bold uppercase tracking-widest text-foreground">
+                      Subscribe_Updates
+                    </h3>
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                  </div>
+                  <p className="text-sm leading-relaxed text-muted-soft">
+                    {t.subscribe.description}
+                  </p>
                 </div>
-              )}
+                {/* Right — form */}
+                <div className="flex items-center p-4 sm:p-5">
+                  {isEmailConfigured() ? <SubscribeForm variant="compact" /> : (
+                    <Link
+                      href="/rss.xml"
+                      prefetch={false}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-accent/30 bg-accent/8 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-accent transition hover:border-accent/50 hover:bg-accent/15"
+                    >
+                      RSS
+                      <svg aria-hidden className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 12h14M13 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  )}
+                </div>
+              </div>
             </div>
           </ScrollReveal>
         </main>

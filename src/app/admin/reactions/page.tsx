@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminReactionsPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const rows = await listAllPostReactions();
 

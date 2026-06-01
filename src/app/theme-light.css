@@ -3,23 +3,45 @@
    Variables are defined in globals.css .light block
    ═══════════════════════════════════════════════════════════ */
 
+/* ── dark-locked: prevent light overrides from leaking in ── */
+.light .dark-locked,
+.light .dark-locked .text-white,
+.light .dark-locked [class*="text-white/"],
+.light .dark-locked [class*="bg-white/"],
+.light .dark-locked [class*="border-white/"],
+.light .dark-locked [class*="ring-white/"],
+.light .dark-locked [class*="hover:bg-white/"],
+.light .dark-locked [class*="hover:text-white"] {
+  color-scheme: dark;
+}
+.light .dark-locked .text-white,
+.light .dark-locked [class*="text-white"] {
+  color: white !important;
+}
+.light .dark-locked [class*="bg-white/"] {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+.light .dark-locked [class*="border-white/"] {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.light .dark-locked a {
+  color: inherit !important;
+}
+
 /* ── Background Options ──────────────────────────────────── */
 .light {
   --bg-image: none;
-  --bg-color: #faf8f4;
+  --bg-color: #faf6ef;
   --bg-size: cover;
   --bg-position: center;
   --bg-repeat: no-repeat;
   --background: var(--bg-color);
 }
 
-.light[data-bg="parchment"] { --bg-color: #f5f0e8; }
-.light[data-bg="linen"] { --bg-color: #faf6f0; }
-.light[data-bg="cream"] { --bg-color: #fffef7; }
-.light[data-bg="warm-gray"] { --bg-color: #f2f0ed; }
-.light[data-bg="photo-1"] { --bg-image: url("/bg/light-1.jpg"); --bg-color: #f5f0e8; }
-.light[data-bg="photo-2"] { --bg-image: url("/bg/light-2.jpg"); --bg-color: #f5f0e8; }
-.light[data-bg="photo-3"] { --bg-image: url("/bg/light-3.jpg"); --bg-color: #f5f0e8; }
+.light[data-bg="parchment"] { --bg-color: #f4ece0; }
+.light[data-bg="linen"] { --bg-color: #f0e8d8; }
+.light[data-bg="cream"] { --bg-color: #fefcf7; }
+.light[data-bg="warm-gray"] { --bg-color: #ede6d8; }
 
 /* ── Body ────────────────────────────────────────────────── */
 .light body {
@@ -29,10 +51,10 @@
   background-position: var(--bg-position);
   background-repeat: var(--bg-repeat);
   background-attachment: fixed;
-  color: var(--text-body);
+  color: var(--foreground);
 }
 
-/* Subtle warm ambient overlay */
+/* Warm amber ambient overlay */
 .light body::before {
   content: "";
   position: fixed;
@@ -40,9 +62,10 @@
   z-index: -20;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 60% 50% at 15% 20%, rgba(194,112,22,0.04), transparent 50%),
-    radial-gradient(ellipse 50% 40% at 80% 30%, rgba(168,93,16,0.03), transparent 45%),
-    radial-gradient(ellipse 70% 50% at 50% 85%, rgba(140,122,106,0.03), transparent 50%);
+    radial-gradient(ellipse 55% 45% at 12% 18%, rgba(180,83,9,0.04), transparent 50%),
+    radial-gradient(ellipse 45% 40% at 82% 25%, rgba(217,119,6,0.03), transparent 45%),
+    radial-gradient(ellipse 50% 45% at 35% 75%, rgba(202,138,4,0.025), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 70% 80%, rgba(180,83,9,0.02), transparent 45%);
   opacity: var(--fx-ambient, 0.3);
 }
 
@@ -72,23 +95,23 @@
   filter: blur(2rem) !important;
 }
 .light .hv-grad-player .bg-gradient-to-b {
-  background: linear-gradient(to bottom, rgba(255,252,245,0.3), rgba(255,252,245,0.95)) !important;
+  background: linear-gradient(to bottom, rgba(254,252,247,0.3), rgba(254,252,247,0.95)) !important;
 }
 
 /* Light mode image overlays — soften */
 .light [class*="bg-gradient-to-t"][class*="from-black"] {
-  background: linear-gradient(to top, rgba(44,24,16,0.12), transparent) !important;
+  background: linear-gradient(to top, rgba(44,24,16,0.08), transparent) !important;
 }
 .light [class*="bg-\[linear-gradient(180deg,transparent"] {
-  background: linear-gradient(180deg, transparent, rgba(44,24,16,0.08)) !important;
+  background: linear-gradient(180deg, transparent, rgba(44,24,16,0.05)) !important;
 }
 
 /* ── Text visibility boost ────────────────────────────────── */
 .light .text-muted {
-  color: #6b5b4d !important;
+  color: #7a6a5a !important;
 }
 .light .text-muted-soft {
-  color: #8c7a6a !important;
+  color: #9a8a78 !important;
 }
 .light .text-foreground\/80 {
   color: var(--foreground) !important;
@@ -174,10 +197,10 @@
   box-shadow: var(--shadow-lg), var(--shadow-glow) !important;
 }
 .light .hv-daily-sparkle-h {
-  background: linear-gradient(270deg, rgba(194,112,22,0.15), rgba(168,93,16,0.1), transparent) !important;
+  background: linear-gradient(270deg, rgba(180,83,9,0.14), rgba(180,83,9,0.08), transparent) !important;
 }
 .light .hv-daily-sparkle-v {
-  background: linear-gradient(180deg, rgba(194,112,22,0.12), rgba(168,93,16,0.08), transparent) !important;
+  background: linear-gradient(180deg, rgba(202,138,4,0.1), rgba(180,83,9,0.06), transparent) !important;
 }
 .light .hv-daily-icon {
   background: var(--grad-chip) !important;
@@ -236,7 +259,7 @@
 .light .hv-input:focus {
   background: var(--grad-card) !important;
   border-color: var(--accent) !important;
-  box-shadow: 0 0 0 3px rgba(194,112,22,0.1), var(--shadow-glow) !important;
+  box-shadow: 0 0 0 3px rgba(180,83,9,0.08), 0 0 0 6px rgba(217,119,6,0.04), var(--shadow-glow) !important;
   outline: none !important;
 }
 
@@ -262,22 +285,22 @@
   background-clip: text !important;
 }
 .light .hv-profile-glow {
-  background: radial-gradient(circle, rgba(194,112,22,0.15), rgba(168,93,16,0.08), transparent) !important;
+  background: radial-gradient(circle, rgba(180,83,9,0.08), rgba(217,119,6,0.05), rgba(202,138,4,0.03), transparent) !important;
 }
 .light .hv-profile-line-tl {
-  background: linear-gradient(90deg, var(--accent), var(--accent-soft), transparent) !important;
+  background: linear-gradient(90deg, #b45309, #d97706, #ca8a04, transparent) !important;
   opacity: 0.3 !important;
 }
 .light .hv-profile-line-bl {
-  background: linear-gradient(180deg, var(--accent), var(--accent-soft), transparent) !important;
+  background: linear-gradient(180deg, #b45309, #ca8a04, #16a34a, transparent) !important;
   opacity: 0.3 !important;
 }
 .light .hv-profile-line-tr {
-  background: linear-gradient(270deg, var(--accent), var(--accent-soft), transparent) !important;
+  background: linear-gradient(270deg, #db2777, #7c3aed, #0284c7, #0d9488, transparent) !important;
   opacity: 0.3 !important;
 }
 .light .hv-profile-line-br {
-  background: linear-gradient(0deg, var(--accent), var(--accent-soft), transparent) !important;
+  background: linear-gradient(0deg, #db2777, #7c3aed, #0d9488, transparent) !important;
   opacity: 0.3 !important;
 }
 /* Dark mode profile */
@@ -370,7 +393,7 @@
 
 /* ── Shiny Text ──────────────────────────────────────────── */
 .light .shiny-text {
-  background: linear-gradient(135deg, #c27016, #d4882a, #e8a84c, #d4882a, #c27016) !important;
+  background: linear-gradient(135deg, #0d9488, #0284c7, #4f46e5, #7c3aed, #db2777, #e11d48, #0d9488) !important;
   background-size: 300% 300% !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
@@ -380,9 +403,9 @@
   background: linear-gradient(
     105deg,
     transparent 40%,
-    rgba(194,112,22,0.08) 45%,
-    rgba(194,112,22,0.12) 50%,
-    rgba(194,112,22,0.08) 55%,
+    rgba(124,58,237,0.06) 45%,
+    rgba(13,148,136,0.1) 50%,
+    rgba(13,148,136,0.06) 55%,
     transparent 60%
   ) !important;
   background-size: 200% 100% !important;
@@ -393,39 +416,39 @@
 
 /* ── Spectrum Lines ──────────────────────────────────────── */
 .light .hv-spectrum-line {
-  background: linear-gradient(90deg, var(--accent), var(--accent-soft), rgba(168,93,16,0.5), transparent) !important;
-  opacity: 0.4 !important;
+  background: linear-gradient(90deg, #0d9488, #0284c7, #7c3aed, #db2777, #e11d48, transparent) !important;
+  opacity: 0.35 !important;
 }
 .light .hv-spectrum-line-fade {
-  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-soft), transparent) !important;
-  opacity: 0.3 !important;
+  background: linear-gradient(90deg, transparent, #0d9488, #7c3aed, #db2777, #e11d48, transparent) !important;
+  opacity: 0.25 !important;
 }
 
 /* ── Aurora Blob ─────────────────────────────────────────── */
 .light .hv-aurora-blob {
-  background: radial-gradient(circle, rgba(194,112,22,0.08), rgba(168,93,16,0.04), transparent 70%) !important;
+  background: radial-gradient(circle, rgba(124,58,237,0.06), rgba(13,148,136,0.04), rgba(13,148,136,0.03), transparent 70%) !important;
 }
 
 /* ── Hero Grid ───────────────────────────────────────────── */
 .light .hv-hero-grid {
   background-image:
-    linear-gradient(rgba(140,122,106,0.3) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(140,122,106,0.3) 1px, transparent 1px) !important;
+    linear-gradient(rgba(120,100,70,0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120,100,70,0.2) 1px, transparent 1px) !important;
   background-size: 60px 60px !important;
-  opacity: 0.06 !important;
+  opacity: 0.04 !important;
 }
 
 /* ── Hero Orb ────────────────────────────────────────────── */
 .light .hv-orb-ring {
-  background: conic-gradient(from 0deg, var(--accent), var(--accent-soft), rgba(168,93,16,0.6), var(--accent)) !important;
-  opacity: 0.12 !important;
+  background: conic-gradient(from 0deg, #0d9488, #0284c7, #7c3aed, #db2777, #e11d48, #0d9488) !important;
+  opacity: 0.1 !important;
 }
 .light .hv-orb-glow {
-  background: radial-gradient(circle at 40% 35%, rgba(194,112,22,0.12), transparent 60%) !important;
+  background: radial-gradient(circle at 40% 35%, rgba(124,58,237,0.08), rgba(13,148,136,0.04), transparent 60%) !important;
 }
 .light .hv-orb-ring-inner {
-  border-color: rgba(194,112,22,0.12) !important;
-  box-shadow: 0 0 30px rgba(194,112,22,0.06), inset 0 0 20px rgba(194,112,22,0.04) !important;
+  border-color: rgba(124,58,237,0.1) !important;
+  box-shadow: 0 0 30px rgba(124,58,237,0.04), inset 0 0 20px rgba(13,148,136,0.03) !important;
 }
 
 /* ── Glitch Title ────────────────────────────────────────── */
@@ -434,10 +457,10 @@
   text-shadow: none !important;
 }
 .light .hv-compact-card:hover .hv-compact-title {
-  text-shadow: 0 0 8px rgba(194,112,22,0.2) !important;
+  text-shadow: 0 0 8px rgba(13,148,136,0.15), 0 0 12px rgba(124,58,237,0.06) !important;
 }
 .light .hv-compact-glow {
-  background: radial-gradient(ellipse at 50% 50%, rgba(194,112,22,0.04), transparent 70%) !important;
+  background: radial-gradient(ellipse at 50% 50%, rgba(124,58,237,0.03), rgba(13,148,136,0.02), transparent 70%) !important;
 }
 
 /* ── Scroll Progress ─────────────────────────────────────── */
@@ -473,18 +496,47 @@
 }
 
 /* ── Magic Bento ─────────────────────────────────────────── */
+.light .hv-magic-bento-section::before {
+  opacity: 0.1 !important;
+}
 .light .hv-magic-bento-card {
   background: var(--grad-card) !important;
   border: 1px solid var(--border) !important;
-  box-shadow: var(--shadow-md) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 .light .hv-magic-bento-card:hover {
-  box-shadow: var(--shadow-lg), var(--shadow-glow) !important;
+  box-shadow: var(--shadow-md), var(--shadow-glow) !important;
+  border-color: color-mix(in srgb, var(--accent) 25%, var(--border)) !important;
+}
+.light .hv-magic-bento-card::before {
+  opacity: 0 !important;
+}
+.light .hv-magic-bento-card:hover::before {
+  opacity: 0.4 !important;
 }
 .light .hv-magic-bento-label,
 .light .hv-magic-bento-count {
   background: var(--grad-chip) !important;
   border: 1px solid var(--border) !important;
+  color: var(--muted) !important;
+}
+.light .hv-magic-bento-card img {
+  opacity: 0.3 !important;
+  saturate: 0.8 !important;
+}
+.light .hv-magic-bento-card:hover img {
+  opacity: 0.5 !important;
+  saturate: 1 !important;
+}
+.light .hv-magic-bento-scan {
+  background: linear-gradient(90deg, transparent, rgba(180,83,9,0.05), transparent) !important;
+}
+.light .hv-magic-bento-card .hv-magic-bento-content {
+  position: relative;
+  z-index: 4;
+}
+.light .hv-magic-bento-card [class*="bg-[radial-gradient"] {
+  background: radial-gradient(circle at 24% 18%, var(--accent-glow), transparent 38%), linear-gradient(135deg, rgba(0,0,0,0.02), transparent) !important;
 }
 
 /* ── Stats Carousel ──────────────────────────────────────── */
@@ -497,9 +549,9 @@
   border-color: var(--border) !important;
 }
 .light .stats-carousel-icon {
-  background: rgba(194,112,22,0.08) !important;
+  background: rgba(124,58,237,0.06) !important;
   color: var(--accent) !important;
-  border-color: rgba(194,112,22,0.15) !important;
+  border-color: rgba(124,58,237,0.1) !important;
 }
 .light .stats-carousel-value {
   background: var(--accent-gradient) !important;
@@ -509,8 +561,8 @@
 
 /* ── Glow Underline ──────────────────────────────────────── */
 .light .glow-underline::after {
-  background: var(--accent-gradient) !important;
-  box-shadow: 0 0 6px rgba(194,112,22,0.15) !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* ── Kicker ──────────────────────────────────────────────── */
@@ -552,45 +604,45 @@
 }
 
 /* ── Link Colors ─────────────────────────────────────────── */
-.light a {
+.light a:not(.dark-locked *):not(.dark-locked) {
   color: var(--accent);
 }
-.light a:hover {
+.light a:not(.dark-locked *):not(.dark-locked):hover {
   color: var(--accent-soft);
 }
 
 /* ── White/Black Opacity Utilities Override ───────────────── */
-/* bg-white/N → light card backgrounds */
-.light .bg-white\/5,
-.light .bg-white\/8,
-.light .bg-white\/10,
-.light .bg-white\/\[0\.035\],
-.light .bg-white\/\[0\.045\],
-.light .bg-white\/\[0\.055\] {
+/* bg-white/N → light card backgrounds (skip dark-locked) */
+.light .bg-white\/5:not(.dark-locked *),
+.light .bg-white\/8:not(.dark-locked *),
+.light .bg-white\/10:not(.dark-locked *),
+.light .bg-white\/\[0\.035\]:not(.dark-locked *),
+.light .bg-white\/\[0\.045\]:not(.dark-locked *),
+.light .bg-white\/\[0\.055\]:not(.dark-locked *) {
   background-color: var(--card) !important;
 }
 
-/* border-white/N → light borders */
-.light .border-white\/10,
-.light .border-white\/15,
-.light .border-white\/20,
-.light .border-white\/\[0\.06\],
-.light .border-white\/\[0\.08\],
-.light .border-white\/\[0\.1\] {
+/* border-white/N → light borders (skip dark-locked) */
+.light .border-white\/10:not(.dark-locked *),
+.light .border-white\/15:not(.dark-locked *),
+.light .border-white\/20:not(.dark-locked *),
+.light .border-white\/\[0\.06\]:not(.dark-locked *),
+.light .border-white\/\[0\.08\]:not(.dark-locked *),
+.light .border-white\/\[0\.1\]:not(.dark-locked *) {
   border-color: var(--border) !important;
 }
 
-/* text-white → light foreground */
-.light .text-white {
+/* text-white → light foreground (skip dark-locked containers like login page) */
+.light .text-white:not(.dark-locked *):not(.dark-locked) {
   color: var(--foreground) !important;
 }
-.light .text-white\/30,
-.light .text-white\/35,
-.light .text-white\/45,
-.light .text-white\/50,
-.light .text-white\/60,
-.light .text-white\/70,
-.light .text-white\/80 {
+.light .text-white\/30:not(.dark-locked *),
+.light .text-white\/35:not(.dark-locked *),
+.light .text-white\/45:not(.dark-locked *),
+.light .text-white\/50:not(.dark-locked *),
+.light .text-white\/60:not(.dark-locked *),
+.light .text-white\/70:not(.dark-locked *),
+.light .text-white\/80:not(.dark-locked *) {
   color: var(--muted) !important;
 }
 
@@ -600,17 +652,17 @@
   --tw-ring-color: var(--border) !important;
 }
 
-/* hover:bg-white/N → light hover */
-.light .hover\:bg-white\/5:hover,
-.light .hover\:bg-white\/8:hover,
-.light .hover\:bg-white\/10:hover,
-.light .hover\:bg-white\/15:hover,
-.light .hover\:bg-white\/\[0\.045\]:hover {
+/* hover:bg-white/N → light hover (skip dark-locked) */
+.light .hover\:bg-white\/5:hover:not(.dark-locked *),
+.light .hover\:bg-white\/8:hover:not(.dark-locked *),
+.light .hover\:bg-white\/10:hover:not(.dark-locked *),
+.light .hover\:bg-white\/15:hover:not(.dark-locked *),
+.light .hover\:bg-white\/\[0\.045\]:hover:not(.dark-locked *) {
   background-color: var(--card-hover) !important;
 }
 
-/* hover:text-white → light foreground */
-.light .hover\:text-white:hover {
+/* hover:text-white → light foreground (skip dark-locked) */
+.light .hover\:text-white:hover:not(.dark-locked *) {
   color: var(--foreground) !important;
 }
 
@@ -633,13 +685,13 @@
 
 /* ── Avatar ring ─────────────────────────────────────────── */
 .light .hv-avatar-ring {
-  border-color: rgba(140, 122, 106, 0.2) !important;
-  box-shadow: 0 0 40px rgba(194, 112, 22, 0.15) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0 40px rgba(124, 58, 237, 0.08), 0 0 60px rgba(217, 119, 6, 0.06) !important;
 }
 
 /* ── Selection ───────────────────────────────────────────── */
 .light ::selection {
-  background: rgba(194,112,22,0.15);
+  background: rgba(124,58,237,0.12);
   color: var(--text-heading);
 }
 

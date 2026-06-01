@@ -30,33 +30,32 @@ export function FeaturedPostCard({ post }: { post: PostMeta }) {
         className="group relative flex flex-col overflow-hidden p-4 sm:flex-row sm:gap-5 sm:p-5"
       >
         {/* Cover image — larger for featured */}
-        <div className="relative h-48 w-full shrink-0 overflow-hidden rounded-xl bg-card sm:h-auto sm:w-52 md:w-60">
+        <div className="relative h-36 w-full shrink-0 overflow-hidden rounded-xl bg-card sm:h-auto sm:w-44 md:w-52">
           {frontmatter.cover ? (
             <Image
               src={frontmatter.cover}
               alt=""
               fill
-              sizes="(min-width: 640px) 240px, 100vw"
+              sizes="(min-width: 640px) 208px, 100vw"
               loading="lazy"
               className="object-cover opacity-[0.85] saturate-[0.9] transition duration-500 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100"
             />
           ) : (
-            <div className="grid h-full min-h-40 place-items-center bg-[radial-gradient(circle_at_50%_50%,var(--accent-glow),transparent_48%)]">
+            <div className="grid h-full place-items-center bg-[radial-gradient(circle_at_50%_50%,var(--accent-glow),transparent_48%)]">
               <Radio className="h-10 w-10 text-muted" aria-hidden />
             </div>
           )}
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,var(--overlay-dark))]" />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-2.5 pt-3 sm:pt-1">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 overflow-hidden">
             {frontmatter.pinned ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5" title={t.post.pinnedTooltip}>
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 whitespace-nowrap" title={t.post.pinnedTooltip}>
                 <Pin className="h-3 w-3 text-accent" aria-hidden />
                 <span className="font-mono text-xs font-bold uppercase tracking-wider text-muted">{t.post.pinned}</span>
               </span>
             ) : null}
-            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 whitespace-nowrap">
               <BookOpenText className="h-3 w-3 text-accent/60" aria-hidden />
               <span className="font-mono text-xs uppercase tracking-wider text-muted">{t.post.featured}</span>
             </span>

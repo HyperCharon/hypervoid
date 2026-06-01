@@ -41,7 +41,7 @@ export default async function AdminAuditPage(props: {
   }>;
 }) {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const sp = await props.searchParams;
   const filters = {

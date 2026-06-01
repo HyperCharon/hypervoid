@@ -61,7 +61,7 @@ async function denyUnauthorized(req: NextRequest): Promise<NextResponse | null> 
   const { pathname } = req.nextUrl;
   const isAdminPath = pathname.startsWith("/admin");
   const isAdminApi = pathname.startsWith("/api/admin");
-  if ((!isAdminPath && !isAdminApi) || pathname === "/admin/sign-in") {
+  if (!isAdminPath && !isAdminApi) {
     return null;
   }
 
@@ -76,7 +76,7 @@ async function denyUnauthorized(req: NextRequest): Promise<NextResponse | null> 
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const signInUrl = new URL("/admin/sign-in", req.nextUrl);
+  const signInUrl = new URL("/sign-in", req.nextUrl);
   signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname + req.nextUrl.search);
   if (user) signInUrl.searchParams.set("error", "AccessDenied");
   return NextResponse.redirect(signInUrl);

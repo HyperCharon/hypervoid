@@ -1,10 +1,8 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { useSettings } from "@/components/SettingsProvider";
-import { siteConfig } from "@/lib/site-config";
 
 type Particle = {
   x: number;
@@ -128,60 +126,6 @@ function CanvasParticles({ density }: { density: "normal" | "dense" }) {
   );
 }
 
-function AcgCarousel({ wallpapers }: { wallpapers: string[] }) {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    if (wallpapers.length <= 1) return;
-    const id = window.setInterval(() => {
-      setIndex((i) => (i + 1) % wallpapers.length);
-    }, 9000);
-    return () => window.clearInterval(id);
-  }, [wallpapers.length]);
-
-  if (wallpapers.length === 0) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center bg-card/40 backdrop-blur-sm">
-        <p className="rounded-xl border border-dashed border-border bg-card px-4 py-2 text-xs text-muted">
-          ACG 轮播未配置壁纸 — 在{" "}
-          <code className="rounded bg-background px-1.5 py-0.5">
-            src/lib/site-config.ts
-          </code>{" "}
-          的{" "}
-          <code className="rounded bg-background px-1.5 py-0.5">
-            acgWallpapers
-          </code>{" "}
-          数组填入图片路径
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      {wallpapers.map((src, i) => (
-        <Image
-          key={src}
-          src={src}
-          alt=""
-          aria-hidden
-          fill
-          sizes="100vw"
-          priority={i === 0}
-          loading={i === 0 ? "eager" : "lazy"}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[1500ms] ease-in-out ${
-            i === index ? "opacity-100" : "opacity-0"
-          }`}
-        />
-      ))}
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/50 to-background/85"
-      />
-    </>
-  );
-}
-
 export function Backdrop() {
   const { background } = useSettings();
 
@@ -203,44 +147,5 @@ export function Backdrop() {
     );
   }
 
-  if (background === "acg") {
-    return (
-      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <AcgCarousel wallpapers={siteConfig.acgWallpapers} />
-      </div>
-    );
-  }
-
-  if (background === "cyberpunk") {
-    // Cyberpunk is banner-only — see <BannerStrip /> for the wallpaper strip
-    // and SettingsProvider for the auto-switch to displayMode="banner".
-    return null;
-  }
-
-  if (background === "medieval") {
-    return (
-      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <Image
-          src="/wallpapers/medieval.webp"
-          alt=""
-          aria-hidden
-          fill
-          sizes="100vw"
-          priority
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(40,28,12,0.25),rgba(20,12,4,0.55))] mix-blend-multiply"
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-gradient-to-b from-background/25 via-background/55 to-background/85"
-        />
-      </div>
-    );
-  }
-
-  // paper / waves / cyberpunk: pure CSS background, body::before handles the look
   return null;
 }

@@ -74,7 +74,7 @@ export function isMascotEnabled(): boolean {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw !== null) return raw === "true";
-    return document.documentElement.getAttribute("data-bg") === "acg";
+    return false;
   } catch {
     return false;
   }
@@ -332,7 +332,7 @@ export function Live2DMascot() {
           title="呼出看板娘"
           style={{
             bottom: "max(5.25rem, env(safe-area-inset-bottom, 0px) + 4.75rem)",
-            right: "max(1.5rem, env(safe-area-inset-right, 0px) + 1rem)",
+            left: "max(1.5rem, env(safe-area-inset-left, 0px) + 1rem)",
           }}
           className="group fixed z-40 inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card/90 text-muted shadow-lg backdrop-blur transition-all duration-200 hover:scale-110 hover:border-primary/60 hover:text-primary hover:shadow-xl"
         >

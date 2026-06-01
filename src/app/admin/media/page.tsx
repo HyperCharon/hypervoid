@@ -25,7 +25,7 @@ function formatBytes(n: number): string {
 
 export default async function AdminMediaPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   if (!isBlobConfigured()) {
     return (

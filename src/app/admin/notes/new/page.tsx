@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function NewAnnouncementPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   return (
     <div className="flex flex-col gap-6">

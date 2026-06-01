@@ -135,7 +135,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       // Admin routes always require admin login
       if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
-        if (pathname === "/admin/sign-in") return true;
         return isAdminIdentity(auth?.user as { login?: string | null; email?: string | null } | undefined);
       }
 

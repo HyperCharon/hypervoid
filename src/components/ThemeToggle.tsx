@@ -1,17 +1,16 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { Moon, Sun, Zap } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useT } from "@/components/LocaleProvider";
 
-const THEMES = ["dark", "light", "cyberpunk"] as const;
+const THEMES = ["dark", "light"] as const;
 type Theme = (typeof THEMES)[number];
 
 const THEME_ICONS: Record<Theme, typeof Moon> = {
   dark: Moon,
   light: Sun,
-  cyberpunk: Zap,
 };
 
 export function ThemeToggle() {
@@ -23,7 +22,7 @@ export function ThemeToggle() {
 
   const current: Theme = THEMES.includes(resolvedTheme as Theme)
     ? (resolvedTheme as Theme)
-    : "dark";
+    : "light";
   const idx = THEMES.indexOf(current);
   const next = THEMES[(idx + 1) % THEMES.length];
   const Icon = THEME_ICONS[current];
@@ -31,7 +30,6 @@ export function ThemeToggle() {
   const nextLabel: Record<Theme, string> = {
     dark: t.common.themeDark,
     light: t.common.themeLight,
-    cyberpunk: t.common.themeCyberpunk,
   };
 
   return (

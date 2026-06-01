@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminSeriesPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const [series, allPosts] = await Promise.all([
     listAllSeries(),

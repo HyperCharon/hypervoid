@@ -41,63 +41,49 @@ function NavCard({
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className={`group relative overflow-hidden border border-border bg-gradient-to-br from-card to-card/50 p-3 transition hover:border-accent/40 hover:shadow-[0_0_24px_var(--accent-glow)] sm:p-4 ${
-        isPrev ? "flex flex-row" : "flex flex-row-reverse"
+      className={`group relative flex gap-3 overflow-hidden rounded-xl border border-border bg-gradient-to-br from-card to-card/50 p-4 transition hover:border-accent/40 hover:shadow-[0_0_24px_var(--accent-glow)] ${
+        isPrev ? "" : "flex-row-reverse"
       }`}
-      style={{ clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)' }}
     >
-      {/* Corner accent */}
-      <div aria-hidden className={`pointer-events-none absolute top-0 h-px w-16 bg-gradient-to-${isPrev ? 'r' : 'l'} from-accent/50 to-transparent ${isPrev ? 'left-0' : 'right-0'}`} />
-      <div aria-hidden className={`pointer-events-none absolute top-0 h-16 w-px bg-gradient-to-b from-accent/50 to-transparent ${isPrev ? 'left-0' : 'right-0'}`} />
-
       {post.cover ? (
         <Image
           src={post.cover}
           alt=""
-          width={160}
-          height={160}
-          sizes="(min-width: 640px) 80px, 64px"
+          width={80}
+          height={80}
+          sizes="80px"
           loading="lazy"
-          className="aspect-square h-16 w-16 shrink-0 border border-border object-cover opacity-[0.86] saturate-[0.85] transition group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100 sm:h-20 sm:w-20"
-          style={{ clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%)' }}
+          className="h-16 w-16 shrink-0 rounded-lg border border-border object-cover opacity-[0.86] saturate-[0.85] transition group-hover:opacity-100 group-hover:saturate-100 sm:h-20 sm:w-20"
         />
       ) : (
         <div
           aria-hidden
-          className={`grid h-16 w-16 shrink-0 place-items-center border border-border bg-card text-accent-soft transition group-hover:border-accent/40 group-hover:text-accent sm:h-20 sm:w-20 ${
-            isPrev
-              ? "bg-[radial-gradient(circle_at_35%_50%,var(--accent-glow),transparent_48%)]"
-              : "bg-[radial-gradient(circle_at_65%_50%,var(--accent-glow),transparent_48%)]"
-          }`}
-          style={{ clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%)' }}
+          className="grid h-16 w-16 shrink-0 place-items-center rounded-lg border border-border bg-card text-accent-soft transition group-hover:border-accent/40 group-hover:text-accent sm:h-20 sm:w-20"
         >
           {isPrev ? <ArrowLeft className="h-5 w-5" /> : <ArrowRight className="h-5 w-5" />}
         </div>
       )}
       <div
-        className={`flex min-w-0 flex-1 flex-col gap-1.5 ${
+        className={`flex min-w-0 flex-1 flex-col justify-center gap-1 ${
           isPrev ? "items-start text-left" : "items-end text-right"
         }`}
       >
-        <span className="inline-flex items-center gap-1 font-mono text-xs font-semibold uppercase tracking-widest text-accent-soft">
+        <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-widest text-accent-soft whitespace-nowrap">
           {isPrev ? (
             <>
-              <ArrowLeft className="h-3.5 w-3.5 transition group-hover:-translate-x-0.5" aria-hidden />
-              Prev
+              <ArrowLeft className="h-3 w-3 shrink-0 transition group-hover:-translate-x-0.5" aria-hidden />
+              上一篇
             </>
           ) : (
             <>
-              Next
-              <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" aria-hidden />
+              下一篇
+              <ArrowRight className="h-3 w-3 shrink-0 transition group-hover:translate-x-0.5" aria-hidden />
             </>
           )}
         </span>
-        <p className="line-clamp-2 text-sm font-semibold leading-snug tracking-tight text-foreground transition group-hover:text-accent sm:text-base">
+        <p className="line-clamp-2 text-sm font-semibold leading-snug tracking-tight text-foreground transition group-hover:text-accent">
           {post.title}
         </p>
-        <span className="font-mono text-xs uppercase tracking-wider text-muted-soft">
-          {post.readingMinutes}m Read
-        </span>
       </div>
     </Link>
   );

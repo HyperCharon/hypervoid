@@ -28,7 +28,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminStatsPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const [
     stats,

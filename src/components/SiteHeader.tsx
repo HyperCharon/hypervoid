@@ -71,7 +71,7 @@ export function SiteHeader() {
           </Link>
         </div>
 
-        <div className="mx-auto min-w-0">
+        <div className="mx-auto hidden min-w-0 xl:block">
           <NavGroups />
         </div>
 

@@ -1,17 +1,23 @@
 "use client";
 
 import {
-  ArrowRight,
   ChevronDown,
+  ListMusic,
   Music2,
   Pause,
   Play,
+  Repeat,
+  Repeat1,
+  Shuffle,
   SkipBack,
   SkipForward,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
-import { useEffect, useState, useCallback, useMemo } from "react";
-import Link from "next/link";
+import { useEffect, useState, useCallback, type ChangeEvent } from "react";
+import Image from "next/image";
 import { useStateCtx, useTimeCtx, useActions } from "@/components/PlayerProvider";
+import type { RepeatMode } from "@/components/PlayerProvider";
 
 const OPEN_KEY = "hypervoid:home-player:open";
 
@@ -28,327 +34,189 @@ const SAYINGS = [
 
 function loadOpen(): boolean {
   if (typeof window === "undefined") return false;
-  try {
-    return localStorage.getItem(OPEN_KEY) === "true";
-  } catch {
-    return false;
-  }
+  try { return localStorage.getItem(OPEN_KEY) === "true"; } catch { return false; }
 }
 
-function formatTime(ms: number): string {
+function fmt(ms: number): string {
+  if (!ms) return "0:00";
   const s = Math.floor(ms / 1000);
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return `${m}:${String(sec).padStart(2, "0")}`;
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
-
-/** Seed a deterministic pseudo-random height array from a number. */
-function waveformBars(seed: number, count: number): number[] {
-  const bars: number[] = [];
-  let s = seed || 1;
-  for (let i = 0; i < count; i++) {
-    s = (s * 16807 + 12345) % 2147483647;
-    bars.push(0.3 + (s % 71) / 100);
-  }
-  return bars;
-}
-
-const BAR_COUNT = 32;
 
 export function HomePlayerWidget() {
-  const { loading, tracksLoaded, error } = useStateCtx();
-  const {
-    current,
-    playing,
-    currentTime,
-    duration,
-    togglePlay,
-    next,
-    prev,
-    seek,
-  } = useTimeCtx();
-  const { ensureTracksLoaded } = useActions();
+  const { loading, tracksLoaded, error, tracks, currentIdx, volume, muted, repeatMode, shuffle } = useStateCtx();
+  const { current, playing, currentTime, duration, togglePlay, next, prev, seek } = useTimeCtx();
+  const { ensureTracksLoaded, setVolume, toggleMute, toggleShuffle, cycleRepeat, playAt } = useActions();
 
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [saying, setSaying] = useState("");
-  const [fxEnabled, setFxEnabled] = useState(false);
+  const [showList, setShowList] = useState(false);
 
   const refreshSaying = useCallback(() => {
     if (typeof window === "undefined") return;
-    const day = Math.floor(Date.now() / 86_400_000);
-    setSaying(SAYINGS[day % SAYINGS.length]);
+    setSaying(SAYINGS[Math.floor(Date.now() / 86_400_000) % SAYINGS.length]);
   }, []);
 
   useEffect(() => {
     setOpen(loadOpen());
     setMounted(true);
     refreshSaying();
-    fetch("/api/effects")
-      .then((r) => r.json())
-      .then((d) => setFxEnabled(Boolean(d.playerWidget)))
-      .catch(() => {});
   }, [refreshSaying]);
 
   const toggleOpen = () => {
-    setOpen((prevOpen) => {
-      const nextOpen = !prevOpen;
-      try {
-        localStorage.setItem(OPEN_KEY, String(nextOpen));
-      } catch {
-        /* noop */
-      }
-      if (nextOpen) {
-        void ensureTracksLoaded();
-      }
-      return nextOpen;
+    setOpen((v) => {
+      const n = !v;
+      try { localStorage.setItem(OPEN_KEY, String(n)); } catch {}
+      if (n) void ensureTracksLoaded();
+      return n;
     });
   };
 
-  const bars = useMemo(
-    () => waveformBars(current?.id ?? 0, BAR_COUNT),
-    [current?.id],
-  );
+  const progressPct = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
 
-  const progressPct =
-    duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
-
-  const handleBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  function handleBarClick(e: React.MouseEvent<HTMLDivElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
-    const pct = (e.clientX - rect.left) / rect.width;
-    seek(pct * duration);
-  };
+    seek(((e.clientX - rect.left) / rect.width) * duration);
+  }
+
+  function onVolumeChange(e: ChangeEvent<HTMLInputElement>) {
+    const v = Number(e.target.value);
+    setVolume(v);
+  }
+
+  const playable = tracks.filter((t) => Boolean(t.url));
 
   if (!mounted) return null;
 
   return (
-    <aside
-      className="hv-panel-sci group relative overflow-hidden p-3"
-    >
-      {/* Ambient blurred cover backdrop — only when effects enabled */}
-      {fxEnabled && open && current?.cover ? (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={current.cover}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute inset-0 h-full w-full scale-150 object-cover opacity-25 blur-2xl saturate-150 transition-opacity duration-700"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-slate-950/72 to-slate-950" />
-        </>
+    <aside className="hv-card overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-border px-3.5 py-2.5">
+        <h3 className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-widest text-muted">
+          <Music2 className="h-3.5 w-3.5 text-accent" aria-hidden />
+          正在播放
+        </h3>
+        <button
+          type="button"
+          onClick={toggleOpen}
+          aria-expanded={open}
+          aria-label={open ? "收起" : "展开"}
+          className="grid h-6 w-6 place-items-center rounded-md text-muted-soft transition hover:bg-card-hover hover:text-accent"
+        >
+          <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
+        </button>
+      </div>
+
+      {/* Collapsed */}
+      {!open ? (
+        <p onClick={toggleOpen} className="cursor-pointer px-3.5 py-3 text-center text-xs text-muted-soft transition hover:text-foreground">
+          {saying || "音乐是灵魂的避难所。"}
+        </p>
       ) : null}
 
-      {/* Content */}
-      <div className="relative z-10">
-        {/* Header */}
-        <div className="flex items-baseline justify-between">
-          <h3 className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-widest text-foreground/80">
-            <Music2 className="h-3.5 w-3.5 text-accent/76" aria-hidden />
-            音乐播放器
-          </h3>
-          <div className="flex items-center gap-1.5">
-            <Link
-              href="/music"
-              className="group inline-flex items-center gap-1 border border-border bg-card px-2.5 py-0.5 font-mono text-xs uppercase tracking-wider text-muted transition hover:border-accent/40 hover:bg-card-hover hover:text-accent"
-            >
-              完整版
-              <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5" aria-hidden />
-            </Link>
-            <button
-              type="button"
-              onClick={toggleOpen}
-              aria-expanded={open}
-              aria-label={open ? "收起播放器" : "展开播放器"}
-              className="grid h-6 w-6 place-items-center border border-border bg-card text-muted transition hover:border-accent/40 hover:text-accent"
-            >
-              <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
-            </button>
-          </div>
-        </div>
-
-        {/* Collapsed: daily saying */}
-        {!open ? (
-          <p
-            onClick={toggleOpen}
-            className="mt-2 cursor-pointer border border-border bg-card px-2 py-2 text-center font-mono text-xs italic leading-relaxed text-muted transition-colors hover:border-border hover:text-foreground"
-          >
-            「{saying || "音乐是灵魂的避难所。"}」
-          </p>
-        ) : null}
-
-        {/* Expanded: player */}
-        {open ? (
-          <div className="mt-3">
-            {loading && !tracksLoaded ? (
-              <p className="border border-dashed border-border bg-card px-3 py-4 text-center text-xs text-muted backdrop-blur-sm">
-                加载歌单中…
-              </p>
-            ) : error && !tracksLoaded ? (
-              <p className="border border-dashed border-border bg-card px-3 py-4 text-center text-xs text-muted backdrop-blur-sm">
-                {error}
-              </p>
-            ) : !current ? (
-              <div className="border border-dashed border-border bg-card px-3 py-4 text-center backdrop-blur-sm">
-                <p className="mb-2 text-xs text-muted">
-                  暂无可播放曲目。
-                </p>
-                <p
-                  className="text-[11px] leading-relaxed text-muted-soft"
-                  style={{ fontFamily: "Georgia, 'Noto Serif SC', serif" }}
-                >
-                  {saying}
-                </p>
-              </div>
-            ) : (
-              <>
-                {/* Album art + info */}
-                <div className="flex items-center gap-3">
-                  {current.cover ? (
-                    <div className="relative shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={current.cover}
-                        alt={current.title}
-                        className={`object-cover shadow-sm ${
-                          fxEnabled
-                            ? `h-14 w-14 rounded-full shadow-lg ring-1 ring-black/5 dark:ring-white/10 ${
-                                playing ? "animate-[spin_20s_linear_infinite]" : ""
-                              }`
-                            : `h-12 w-12 rounded-full ${
-                                playing ? "animate-[spin_20s_linear_infinite]" : ""
-                              }`
-                        }`}
-                        style={{
-                          animationPlayState: playing ? "running" : "paused",
-                        }}
-                      />
-                      {/* Glow effect — only when effects enabled */}
-                      {fxEnabled && playing ? (
-                        <div className="absolute -inset-1 -z-10 rounded-full bg-accent/15 blur-md" />
-                      ) : null}
-                    </div>
-                  ) : (
-                    <div
-                      className={`flex shrink-0 items-center justify-center bg-gradient-to-br from-accent/16 to-card/35 ${
-                        fxEnabled
-                          ? "h-14 w-14 rounded-full text-2xl shadow-[0_0_18px_var(--accent-glow)] ring-1 ring-accent/20"
-                          : "h-12 w-12 rounded-full text-xl text-muted"
-                      }`}
-                    >
-                      ♪
-                    </div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p
-                      className="truncate text-sm font-semibold tracking-tight"
-                      title={current.title}
-                    >
-                      {current.title}
-                    </p>
-                    <p
-                      className="mt-0.5 truncate text-xs text-muted"
-                      title={current.artist}
-                    >
-                      {current.artist}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Progress bar — waveform when effects on, simple when off */}
-                {fxEnabled ? (
-                  <div className="mt-3">
-                    <div
-                      className="flex h-8 cursor-pointer items-end gap-[2px]"
-                      onClick={handleBarClick}
-                      role="slider"
-                      aria-label="播放进度"
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-valuenow={Math.round(progressPct)}
-                    >
-                      {bars.map((h, i) => {
-                        const barPct = ((i + 0.5) / BAR_COUNT) * 100;
-                        const filled = barPct <= progressPct;
-                        return (
-                          <div
-                            key={i}
-                            className={`flex-1 rounded-full transition-colors duration-150 ${
-                              filled ? "bg-accent" : "bg-border"
-                            }`}
-                            style={{ height: `${h * 100}%` }}
-                          />
-                        );
-                      })}
-                    </div>
-                    <div className="mt-1 flex items-center justify-between">
-                      <span className="font-mono text-xs text-muted-soft">
-                        {formatTime(currentTime)}
-                      </span>
-                      <span className="font-mono text-xs text-muted-soft">
-                        {formatTime(duration)}
-                      </span>
-                    </div>
-                  </div>
+      {/* Expanded */}
+      {open ? (
+        <div className="p-3.5">
+          {loading && !tracksLoaded ? (
+            <p className="py-4 text-center text-xs text-muted">加载歌单中…</p>
+          ) : error && !tracksLoaded ? (
+            <p className="py-4 text-center text-xs text-muted">{error}</p>
+          ) : !current ? (
+            <p className="py-4 text-center text-xs text-muted">暂无可播放曲目</p>
+          ) : (
+            <>
+              {/* Cover + info */}
+              <div className="flex items-center gap-3">
+                {current.cover ? (
+                  <Image src={current.cover} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-lg object-cover" unoptimized />
                 ) : (
-                  <div className="mt-3 flex items-center gap-2">
-                    <span className="w-8 text-right font-mono text-xs text-muted-soft">
-                      {formatTime(currentTime)}
-                    </span>
-                    <div className="relative h-1 flex-1 bg-border">
-                      <div
-                        className="absolute left-0 top-0 h-full bg-accent transition-[width] duration-200"
-                        style={{
-                          width:
-                            duration > 0
-                              ? `${Math.min(100, (currentTime / duration) * 100)}%`
-                              : "0%",
-                        }}
-                      />
-                    </div>
-                    <span className="w-8 font-mono text-xs text-muted-soft">
-                      {formatTime(duration)}
-                    </span>
-                  </div>
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent"><Music2 className="h-4 w-4" /></div>
                 )}
-
-                {/* Controls */}
-                <div className="mt-3 flex items-center justify-center gap-2">
-                  <button
-                    type="button"
-                    onClick={prev}
-                    aria-label="上一首"
-                    className="grid h-8 w-8 place-items-center border border-transparent text-muted transition hover:border-border hover:bg-card hover:text-foreground"
-                  >
-                    <SkipBack className="h-3.5 w-3.5" aria-hidden />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={togglePlay}
-                    disabled={!current?.url}
-                    aria-label={playing ? "暂停" : "播放"}
-                    className="grid h-10 w-10 place-items-center border border-accent/50 bg-accent text-background shadow-[0_0_18px_var(--accent-glow)] transition hover:bg-accent-soft disabled:opacity-40"
-                  >
-                    {playing ? (
-                      <Pause className="h-4 w-4" aria-hidden />
-                    ) : (
-                      <Play className="ml-0.5 h-4 w-4" aria-hidden />
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={next}
-                    aria-label="下一首"
-                    className="grid h-8 w-8 place-items-center border border-transparent text-muted transition hover:border-border hover:bg-card hover:text-foreground"
-                  >
-                    <SkipForward className="h-3.5 w-3.5" aria-hidden />
-                  </button>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-foreground">{current.title}</p>
+                  <p className="mt-0.5 truncate text-xs text-muted">{current.artist}</p>
                 </div>
-              </>
-            )}
-          </div>
-        ) : null}
-      </div>
+              </div>
+
+              {/* Progress */}
+              <div className="mt-3">
+                <div className="group relative h-1.5 cursor-pointer overflow-hidden rounded-full bg-border/40" onClick={handleBarClick} role="slider" aria-label="播放进度" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progressPct)}>
+                  <div className="h-full rounded-full bg-accent transition-[width] duration-200" style={{ width: `${progressPct}%` }} />
+                </div>
+                <div className="mt-1 flex items-center justify-between font-mono text-[10px] text-muted-soft tabular-nums">
+                  <span>{fmt(currentTime)}</span>
+                  <span>{fmt(duration)}</span>
+                </div>
+              </div>
+
+              {/* Main controls */}
+              <div className="mt-2 flex items-center justify-center gap-1">
+                <Btn onClick={prev} label="上一首"><SkipBack className="h-3.5 w-3.5" /></Btn>
+                <button type="button" onClick={togglePlay} disabled={!current?.url} aria-label={playing ? "暂停" : "播放"}
+                  className="grid h-9 w-9 place-items-center rounded-full bg-accent text-primary-foreground transition hover:brightness-110 active:scale-95 disabled:opacity-40">
+                  {playing ? <Pause className="h-4 w-4" fill="currentColor" /> : <Play className="h-4 w-4 ml-0.5" fill="currentColor" />}
+                </button>
+                <Btn onClick={next} label="下一首"><SkipForward className="h-3.5 w-3.5" /></Btn>
+              </div>
+
+              {/* Secondary row: shuffle, repeat, volume, playlist */}
+              <div className="mt-2.5 flex items-center justify-between">
+                <div className="flex items-center gap-0.5">
+                  <Btn small active={shuffle} onClick={toggleShuffle} label="随机"><Shuffle className="h-3.5 w-3.5" /></Btn>
+                  <Btn small active={repeatMode !== "off"} onClick={cycleRepeat} label={repeatMode === "off" ? "循环关" : repeatMode === "all" ? "列表循环" : "单曲循环"}>
+                    {repeatMode === "one" ? <Repeat1 className="h-3.5 w-3.5" /> : <Repeat className="h-3.5 w-3.5" />}
+                  </Btn>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  {/* Volume */}
+                  <div className="flex items-center gap-1">
+                    <Btn small onClick={toggleMute} label={muted ? "取消静音" : "静音"}>
+                      {muted || volume === 0 ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+                    </Btn>
+                    <input type="range" min={0} max={1} step={0.01} value={muted ? 0 : volume} onChange={onVolumeChange}
+                      className="hv-volume-slider h-1 w-14 cursor-pointer accent-accent" aria-label="音量" />
+                  </div>
+
+                  {/* Playlist toggle */}
+                  <Btn small active={showList} onClick={() => setShowList((s) => !s)} label="播放列表">
+                    <ListMusic className="h-3.5 w-3.5" />
+                  </Btn>
+                </div>
+              </div>
+
+              {/* Playlist */}
+              {showList && playable.length > 0 ? (
+                <div className="mt-2.5 max-h-40 overflow-y-auto rounded-lg border border-border">
+                  {playable.map((t, i) => (
+                    <button key={t.id} type="button" onClick={() => playAt(i)}
+                      className={`flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs transition hover:bg-card-hover ${i === currentIdx ? "bg-accent/10 text-accent" : "text-foreground"}`}>
+                      <span className="w-4 shrink-0 text-center font-mono text-[10px] text-muted-soft">
+                        {i === currentIdx && playing ? <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-accent" /> : i + 1}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate">{t.title}</span>
+                      <span className="shrink-0 text-muted-soft">{fmt(t.duration)}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </>
+          )}
+        </div>
+      ) : null}
     </aside>
+  );
+}
+
+/* ── Small button ── */
+function Btn({ children, onClick, active, label, small }: {
+  children: React.ReactNode; onClick: () => void; active?: boolean; label: string; small?: boolean;
+}) {
+  return (
+    <button type="button" onClick={onClick} aria-label={label} title={label}
+      className={`grid place-items-center rounded-lg transition hover:bg-card-hover ${small ? "h-7 w-7" : "h-8 w-8"} ${active ? "text-accent" : "text-muted-soft hover:text-foreground"}`}>
+      {children}
+    </button>
   );
 }

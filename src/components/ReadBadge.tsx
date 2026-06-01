@@ -10,7 +10,7 @@ export function ReadBadge({ slug }: { slug: string }) {
   if (!read.has(slug)) return null;
   return (
     <span
-      className="hv-chip shrink-0 gap-1 text-xs"
+      className="hv-chip shrink-0 gap-1 text-xs whitespace-nowrap"
       title={t.post.readBadgeTitle}
     >
       <Check className="h-3 w-3" aria-hidden />

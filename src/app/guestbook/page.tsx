@@ -63,8 +63,7 @@ export default async function GuestbookPage() {
             <p className="text-sm text-muted">{t.guestbook.loginPrompt}</p>
             <button
               type="submit"
-              className="dark-locked inline-flex items-center gap-2 border border-border bg-[#24292f] px-4 py-2 text-sm font-medium text-foreground transition hover:border-border hover:bg-[#1f2329] clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)]"
-              style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
+              className="dark-locked inline-flex items-center gap-2 rounded-lg border border-white/15 bg-[#24292f] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f2329]"
             >
               <svg
                 aria-hidden="true"

@@ -47,23 +47,6 @@ export default function SkillsPage() {
       </header>
 
       <SkillsBrowser skills={skillsData} />
-
-      <p className="hv-panel border-dashed p-4 text-center text-xs text-muted">
-        想加 / 改 / 删？编辑{" "}
-        <code className="border border-border bg-white/[0.055] px-1.5 py-0.5 font-mono text-[11px] text-foreground">
-          src/lib/skills.ts
-        </code>{" "}
-        即可。图标用{" "}
-        <a
-          href="https://icon-sets.iconify.design/"
-          target="_blank"
-          rel="noreferrer"
-          className="text-foreground hover:underline"
-        >
-          Iconify
-        </a>{" "}
-        集合名（如 <code className="text-foreground">logos:typescript-icon</code>）。
-      </p>
     </div>
   );
 }

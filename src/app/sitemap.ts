@@ -27,7 +27,6 @@ const STATIC_ROUTES: {
   { path: "/friends", priority: 0.4, changeFrequency: "monthly" },
   { path: "/guestbook", priority: 0.4, changeFrequency: "weekly" },
   { path: "/resources", priority: 0.5, changeFrequency: "weekly" },
-  { path: "/graph", priority: 0.4, changeFrequency: "monthly" },
   { path: "/year-in-review", priority: 0.5, changeFrequency: "monthly" },
 ];
 

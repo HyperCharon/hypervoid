@@ -86,7 +86,6 @@ export function NavGroups() {
         { href: "/series", label: "系列", icon: BookOpenText },
         { href: "/tags", label: "标签", icon: Tags },
         { href: "/resources", label: "资源库", icon: Wrench },
-        { href: "/graph", label: "知识图谱", icon: Network },
         { href: "/year-in-review", label: "年度回顾", icon: Sparkles },
         { href: "/posts/random", label: "随机一篇", icon: Sparkles },
       ],

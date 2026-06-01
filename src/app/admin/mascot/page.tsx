@@ -94,7 +94,7 @@ function normalizeMascotId(value: string): MascotId {
 async function setDefaultMascot(character: MascotId) {
   "use server";
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
   await setSiteOverrides([
     { key: "mascot.defaultCharacter", value: normalizeMascotId(character) },
   ]);
@@ -105,7 +105,7 @@ async function setDefaultMascot(character: MascotId) {
 async function setMascotPolicy(key: PolicyKey, enabled: boolean) {
   "use server";
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
   await setSiteOverrides([
     { key: key as OverridableFields, value: enabled ? "on" : "off" },
   ]);
@@ -115,7 +115,7 @@ async function setMascotPolicy(key: PolicyKey, enabled: boolean) {
 
 export default async function AdminMascotPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const [defaultCharacterRaw, ...values] = await Promise.all([
     getSiteOverride("mascot.defaultCharacter"),

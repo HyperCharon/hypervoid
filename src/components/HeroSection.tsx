@@ -542,54 +542,184 @@ function FullGrid() {
   );
 }
 
-/* ── Title ─────────────────────────────────────────────────── */
+/* ── Title — gradient dark / split-color light ─────────────── */
 function Title() {
   return (
     <div className="hv-hero-title-wrap">
-      <span className="hv-hero-title" data-text="HYPERVOID">HYPERVOID</span>
+      <span className="hv-title-hud-tr" />
+      <span className="hv-title-hud-bl" />
+      <div className="hv-title-data" style={{ top: "-0.2em", left: "0.4em" }}>
+        SYS_ID:0x7F <span className="hv-title-data-dim">// HYPERSPACE LINK</span>
+      </div>
+      <div className="hv-title-data" style={{ top: "-0.2em", right: "0.4em", left: "auto", textAlign: "right" }}>
+        <span className="hv-title-data-dim">FREQ </span>3.7GHz <span className="hv-title-data-dim">SIG </span>■■■■□
+      </div>
+      <div className="hv-title-data" style={{ bottom: "-0.2em", left: "0.4em" }}>
+        <span className="hv-title-data-dim">SECTOR </span>7G<span className="hv-title-data-dim"> //</span> DEEP SPACE
+      </div>
+      <div className="hv-title-data" style={{ bottom: "-0.2em", right: "0.4em", left: "auto", textAlign: "right" }}>
+        <span className="hv-title-data-dim">STATUS </span>NOMINAL <span className="hv-title-data-blink">●</span>
+      </div>
+
+      <span className="hv-hero-title" data-text="HYPERV∅ID">
+        <span className="hv-t-hyper">HYPER</span>
+        <span className="hv-t-void">V∅ID</span>
+      </span>
+
       <style>{`
-        .hv-hero-title-wrap { position: relative; display: inline-block; }
+        .hv-hero-title-wrap {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 2.2em 2em 2em;
+          max-width: 100%;
+        }
         .hv-hero-title {
           position: relative;
+          z-index: 1;
           display: inline-block;
-          font-size: clamp(3rem, 11vw, 8rem);
+          font-family: var(--font-orbitron), "Orbitron", ui-sans-serif, system-ui, sans-serif;
+          font-size: clamp(2rem, 8vw, 6rem);
           font-weight: 900;
-          line-height: 0.85;
-          letter-spacing: -0.04em;
-          background: linear-gradient(135deg, #ef4444, #f97316, #eab308, #22c55e, #06b6d4, #3b82f6, #6366f1, #8b5cf6, #d946ef, #ec4899, #ef4444);
-          background-size: 300% 300%;
+          line-height: 0.88;
+          letter-spacing: 0.02em;
+        }
+        /* ── Stagger: inline with offset ── */
+        .hv-t-hyper {
+          display: inline-block;
+          transform: translateY(0.015em);
+          letter-spacing: 0.04em;
+        }
+        .hv-t-void {
+          display: inline-block;
+          transform: translateX(0.03em) translateY(-0.015em);
+        }
+        /* ── HYPER gradient — dark mode ── */
+        .hv-t-hyper {
+          background: linear-gradient(135deg, #ef4444, #f97316, #eab308, #22c55e, #14b8a6, #06b6d4, #3b82f6, #6366f1, #8b5cf6, #a855f7, #d946ef, #ec4899, #f43f5e, #ef4444);
+          background-size: 800% 800%;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          animation: ht-g 8s linear infinite;
+          animation: ht-grad 14s linear infinite;
+          filter: drop-shadow(0 0 20px rgba(56,189,248,0.2));
         }
-        .hv-hero-title::before {
-          content: attr(data-text);
+        /* ── HYPER gradient — light mode: bolder, higher contrast ── */
+        .light .hv-t-hyper {
+          background: linear-gradient(135deg, #dc2626, #ea580c, #d97706, #16a34a, #0d9488, #0284c7, #4f46e5, #7c3aed, #a855f7, #db2777, #e11d48, #dc2626);
+          background-size: 800% 800%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: ht-grad 14s linear infinite;
+          filter: drop-shadow(0 0 12px rgba(180,83,9,0.2));
+        }
+        /* ── VOID — dark mode: white with flicker ── */
+        .hv-t-void {
+          color: #ffffff;
+          text-shadow: 0 0 12px rgba(255,255,255,0.25), 0 0 35px rgba(255,255,255,0.08);
+          animation: ht-void-flicker 4s steps(1) infinite;
+        }
+        /* ── VOID — light mode: dark, no glow ── */
+        .light .hv-t-void {
+          color: #1a1a2e;
+          text-shadow: none;
+          animation: none;
+        }
+        /* Chromatic aberration */
+        .hv-hero-title::after {
+          content: "HYPERV∅ID";
           position: absolute;
           inset: 0;
-          background: inherit;
-          background-size: inherit;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: ht-g 8s linear infinite, ht-glitch 5s infinite steps(2, end);
-          opacity: 0.5;
+          color: #22d3ee;
+          text-shadow: 3px 0 rgba(250,204,21,0.4), -3px 0 rgba(244,114,182,0.4);
+          animation: ht-cp-glitch 4s steps(2, end) infinite;
+          opacity: 0;
         }
-        @keyframes ht-g {
+        /* HUD brackets */
+        .hv-hero-title-wrap::before, .hv-hero-title-wrap::after {
+          content: "";
+          position: absolute;
+          width: 24px; height: 24px;
+          border-style: solid;
+          animation: ht-corner-pulse 2.5s ease-in-out infinite;
+        }
+        .dark .hv-hero-title-wrap::before, .dark .hv-hero-title-wrap::after {
+          border-color: rgba(250,204,21,0.25);
+        }
+        .hv-hero-title-wrap::before { top: -6px; left: -6px; border-width: 2px 0 0 2px; }
+        .hv-hero-title-wrap::after { bottom: -6px; right: -6px; border-width: 0 2px 2px 0; }
+        .hv-title-hud-tr, .hv-title-hud-bl {
+          position: absolute;
+          width: 24px; height: 24px;
+          border-style: solid;
+          pointer-events: none;
+          animation: ht-corner-pulse 2.5s ease-in-out infinite 1.2s;
+        }
+        .dark .hv-title-hud-tr, .dark .hv-title-hud-bl {
+          border-color: rgba(56,189,248,0.2);
+        }
+        .hv-title-hud-tr { top: -6px; right: -6px; border-width: 2px 2px 0 0; }
+        .hv-title-hud-bl { bottom: -6px; left: -6px; border-width: 0 0 2px 2px; }
+        .hv-title-data {
+          position: absolute;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+          font-size: 0.55rem;
+          letter-spacing: 0.08em;
+          white-space: nowrap;
+          pointer-events: none;
+          z-index: 3;
+        }
+        .hv-title-data { color: rgba(250,204,21,0.28); }
+        .hv-title-data-dim { opacity: 0.45; }
+        .hv-title-data-blink {
+          animation: ht-blink 1s step-end infinite;
+        }
+        .hv-title-data-blink { color: rgba(56,189,248,0.5); }
+        /* ── Keyframes ── */
+        @keyframes ht-grad {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
-        @keyframes ht-glitch {
-          0%, 88%, 100% { clip-path: inset(0); transform: none; }
-          90% { clip-path: inset(35% 0 45% 0); transform: translate(-2px, 0); }
-          92% { clip-path: inset(0); transform: none; }
-          94% { clip-path: inset(55% 0 20% 0); transform: translate(2px, 0); }
-          96% { clip-path: inset(0); transform: none; }
+        @keyframes ht-void-flicker {
+          0%, 100% { opacity: 1; }
+          4% { opacity: 0.15; }
+          6% { opacity: 1; }
+          8% { opacity: 0.4; }
+          10% { opacity: 1; }
+          50% { opacity: 1; }
+          52% { opacity: 0.2; }
+          54% { opacity: 1; }
+          80% { opacity: 1; }
+          82% { opacity: 0.3; }
+          83% { opacity: 0.9; }
+          84% { opacity: 0.15; }
+          86% { opacity: 1; }
+        }
+        @keyframes ht-cp-glitch {
+          0%, 82%, 100% { clip-path: inset(0); transform: none; opacity: 0; }
+          84% { clip-path: inset(20% 0 60% 0); transform: translate(-5px, 0) skewX(-2deg); opacity: 0.7; }
+          86% { clip-path: inset(0); transform: none; opacity: 0; }
+          88% { clip-path: inset(55% 0 15% 0); transform: translate(5px, 0) skewX(2deg); opacity: 0.7; }
+          90% { clip-path: inset(0); transform: none; opacity: 0; }
+          92% { clip-path: inset(35% 0 40% 0); transform: translate(-3px, 1px); opacity: 0.5; }
+          94% { clip-path: inset(0); transform: none; opacity: 0; }
+        }
+        @keyframes ht-corner-pulse {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.8; }
+        }
+        @keyframes ht-blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .hv-hero-title, .hv-hero-title::before { animation: ht-g 8s linear infinite; }
-          .hv-hero-title::before { clip-path: none !important; transform: none !important; }
+          .hv-t-hyper { animation: none; background-position: 0% 50%; }
+          .hv-t-void { animation: none; opacity: 1; }
+          .hv-hero-title::after { display: none; }
+          .hv-title-data-blink { animation: none; opacity: 1; }
         }
       `}</style>
     </div>
@@ -637,9 +767,10 @@ function Ticker() {
           flex-shrink: 0;
           padding: 0.4rem 0;
           font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-          font-size: 0.6rem;
+          font-size: 0.65rem;
           letter-spacing: 0.1em;
-          color: color-mix(in srgb, var(--muted-soft) 35%, transparent);
+          color: var(--muted);
+          opacity: 0.7;
           white-space: nowrap;
         }
         @keyframes ticker-scroll {
@@ -675,20 +806,104 @@ function FeaturedClock() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="flex items-baseline font-mono tabular-nums">
-        <span className="text-[2rem] font-bold tracking-tight text-foreground/30 sm:text-[3.5rem]">{time.h}</span>
-        <span className="text-[2rem] font-thin text-accent/35 animate-pulse sm:text-[3.5rem]">:</span>
-        <span className="text-[2rem] font-bold tracking-tight text-foreground/30 sm:text-[3.5rem]">{time.m}</span>
-        <span className="text-[2rem] font-thin text-accent/35 animate-pulse sm:text-[3.5rem]">:</span>
-        <span className="text-[1.2rem] font-medium text-foreground/20 sm:text-[2rem]">{time.s}</span>
-        <span className="ml-0.5 text-[0.6rem] text-foreground/15 sm:text-[0.8rem]">{time.ms}</span>
+    <div className="hv-clock-frame">
+      {/* Corner marks */}
+      <span className="hv-clock-corner hv-clock-tl" />
+      <span className="hv-clock-corner hv-clock-tr" />
+      <span className="hv-clock-corner hv-clock-bl" />
+      <span className="hv-clock-corner hv-clock-br" />
+      {/* Side labels */}
+      <span className="hv-clock-label hv-clock-label-l">CHRONO</span>
+      <span className="hv-clock-label hv-clock-label-r">UTC+0</span>
+
+      <div className="flex flex-col items-center gap-1">
+        <div className="flex items-baseline font-mono tabular-nums">
+          <span className="hv-clock-digit">{time.h}</span>
+          <span className="hv-clock-sep">:</span>
+          <span className="hv-clock-digit">{time.m}</span>
+          <span className="hv-clock-sep">:</span>
+          <span className="hv-clock-s">{time.s}</span>
+          <span className="hv-clock-ms">.{time.ms}</span>
+        </div>
+        <div className="flex items-center gap-2 font-mono text-[11px] tracking-wider text-white/20 sm:text-[12px]">
+          <span>{time.date}</span>
+          <span className="text-white/10">//</span>
+          <span>{time.day}</span>
+        </div>
       </div>
-      <div className="flex items-center gap-2 font-mono text-[10px] text-muted-soft/40 sm:text-[11px]">
-        <span>{time.date}</span>
-        <span className="text-muted-soft/20">·</span>
-        <span>{time.day}</span>
-      </div>
+
+      <style>{`
+        .hv-clock-frame {
+          position: relative;
+          display: inline-block;
+          padding: 0.75rem 2rem;
+        }
+        /* Corner marks */
+        .hv-clock-corner {
+          position: absolute;
+          width: 10px; height: 10px;
+          border-color: rgba(59,130,246,0.3);
+          border-style: solid;
+        }
+        .hv-clock-tl { top: 0; left: 0; border-width: 1px 0 0 1px; }
+        .hv-clock-tr { top: 0; right: 0; border-width: 1px 1px 0 0; }
+        .hv-clock-bl { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
+        .hv-clock-br { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+        /* Side labels */
+        .hv-clock-label {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+          font-size: 0.5rem;
+          letter-spacing: 0.15em;
+          color: rgba(59,130,246,0.2);
+          writing-mode: vertical-rl;
+          text-orientation: mixed;
+        }
+        .hv-clock-label-l { left: -0.2rem; }
+        .hv-clock-label-r { right: -0.2rem; }
+        /* Digits */
+        .hv-clock-digit {
+          font-size: 2.2rem;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          color: rgba(255,255,255,0.5);
+          text-shadow: 0 0 20px rgba(59,130,246,0.15);
+          transition: color 0.1s;
+        }
+        .hv-clock-sep {
+          font-size: 2.2rem;
+          font-weight: 200;
+          color: rgba(59,130,246,0.35);
+          animation: clock-sep-pulse 1s ease-in-out infinite;
+          margin: 0 0.05em;
+        }
+        .hv-clock-s {
+          font-size: 1.5rem;
+          font-weight: 500;
+          color: rgba(255,255,255,0.3);
+        }
+        .hv-clock-ms {
+          font-size: 0.8rem;
+          font-weight: 400;
+          color: rgba(59,130,246,0.25);
+          margin-left: 0.1em;
+        }
+        @media (min-width: 640px) {
+          .hv-clock-digit { font-size: 3.5rem; }
+          .hv-clock-sep { font-size: 3.5rem; }
+          .hv-clock-s { font-size: 2.2rem; }
+          .hv-clock-ms { font-size: 1rem; }
+        }
+        @keyframes clock-sep-pulse {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hv-clock-sep { animation: none; opacity: 0.6; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -767,7 +982,7 @@ export function HeroSection({
   };
 
   return (
-    <section className="hv-cosmic-hero relative min-h-[80vh] overflow-hidden" style={{ background: "transparent" }}>
+    <section className="hv-cosmic-hero relative overflow-hidden" style={{ background: "transparent" }}>
       <FullGrid />
       <Starfield />
       <NebulaGlow />
@@ -784,7 +999,7 @@ export function HeroSection({
       <Ticker />
 
       <div className="relative z-10 mx-auto max-w-[100rem]">
-        <div className="flex flex-col items-center px-5 pt-5 pb-4 sm:px-6 sm:pt-7 sm:pb-5 lg:px-8 lg:pt-8 lg:pb-6">
+        <div className="flex flex-col items-center px-5 pt-6 pb-3 sm:px-6 sm:pt-8 sm:pb-4 lg:px-8 lg:pt-10 lg:pb-5">
 
           {/* Status badge */}
           <R d={0.05}>
@@ -793,7 +1008,7 @@ export function HeroSection({
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-soft/60">{t.hero.systemOnline}</span>
+              <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-muted-soft/60">{t.hero.systemOnline}</span>
             </div>
           </R>
 
@@ -804,7 +1019,7 @@ export function HeroSection({
 
           {/* Subtitle */}
           <R d={0.15}>
-            <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.35em] text-muted-soft/45 sm:mt-1.5">
+            <p className="mt-1.5 font-mono text-[13px] uppercase tracking-[0.3em] text-muted-soft/50 sm:mt-2">
               {t.hero.subtitle}
             </p>
           </R>
@@ -837,7 +1052,7 @@ export function HeroSection({
 
           {/* Stats */}
           <R d={0.4} className="mt-3 sm:mt-4">
-            <div className="flex items-center gap-4 font-mono text-[12px] text-muted-soft/50 sm:gap-5">
+            <div className="flex items-center gap-4 font-mono text-[13px] text-muted-soft/55 sm:gap-5">
               <span><span className="font-bold text-foreground/65">{fmt(stats.articles)}</span> {t.hero.stats.articles}</span>
               <span className="h-3 w-px bg-border/20" />
               <span><span className="font-bold text-foreground/65">{fmt(stats.words)}</span> {t.hero.stats.words}</span>
@@ -851,7 +1066,7 @@ export function HeroSection({
             <div className="flex items-center gap-2.5">
               <Mag>
                 <Link href="/posts"
-                  className="group inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/8 px-5 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-accent transition-all hover:border-accent/50 hover:bg-accent/15 hover:shadow-[0_0_20px_var(--accent-glow)]"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/8 px-5 py-2 font-mono text-[12px] font-bold uppercase tracking-[0.12em] text-accent transition-all hover:border-accent/50 hover:bg-accent/15 hover:shadow-[0_0_20px_var(--accent-glow)]"
                 >
                   {t.hero.enterPosts}
                   <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -859,7 +1074,7 @@ export function HeroSection({
               </Mag>
               <Mag>
                 <Link href="/about"
-                  className="inline-flex items-center rounded-full border border-border/20 bg-card/10 px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-muted/70 transition hover:border-accent/20 hover:text-foreground"
+                  className="inline-flex items-center rounded-full border border-border/20 bg-card/10 px-4 py-2 font-mono text-[12px] font-medium uppercase tracking-[0.12em] text-muted/70 transition hover:border-accent/20 hover:text-foreground"
                 >
                   {t.hero.aboutMe}
                 </Link>

@@ -12,24 +12,23 @@ import {
 export type BackgroundKey =
   | "cosmic"
   | "plain"
-  | "paper"
-  | "waves"
-  | "particles"
-  | "acg"
-  | "medieval"
-  | "cyberpunk";
+  | "particles";
 
 export type FontKey = "geist" | "serif" | "handwriting";
 
 export type FontSizeKey = "normal" | "large";
 
-export type WallpaperKey = "none" | "1" | "cyberpunk" | "medieval" | "custom";
+export type WallpaperKey = "none" | "custom";
+
+/** 页面样式：简洁（默认） / 全屏 / 横幅 */
+export type StyleKey = "simple" | "fullscreen" | "banner";
 
 export const DEFAULT_HUE = 187;
 export const DEFAULT_BACKGROUND: BackgroundKey = "cosmic";
 export const DEFAULT_FONT: FontKey = "geist";
 export const DEFAULT_FONT_SIZE: FontSizeKey = "normal";
 export const DEFAULT_WALLPAPER: WallpaperKey = "none";
+export const DEFAULT_STYLE: StyleKey = "simple";
 
 export const FONT_SIZE_OPTIONS: { key: FontSizeKey; label: string; hint: string }[] = [
   { key: "normal", label: "标准", hint: "17.5px 基准（默认）" },
@@ -42,12 +41,15 @@ export const BACKGROUND_OPTIONS: { key: BackgroundKey; label: string; hint: stri
   { key: "plain", label: "纯黑", hint: "关闭动态背景" },
 ];
 
-export const WALLPAPER_OPTIONS: { key: WallpaperKey; label: string; hint: string; preview?: string }[] = [
+export const WALLPAPER_OPTIONS: { key: WallpaperKey; label: string; hint: string }[] = [
   { key: "none", label: "无", hint: "不使用壁纸（默认）" },
-  { key: "1", label: "风景", hint: "暖色调风景壁纸", preview: "/wallpapers/1.webp" },
-  { key: "cyberpunk", label: "赛博", hint: "赛博朋克风格壁纸", preview: "/wallpapers/cyberpunk.webp" },
-  { key: "medieval", label: "中世纪", hint: "中世纪风格壁纸", preview: "/wallpapers/medieval.webp" },
   { key: "custom", label: "自定义", hint: "使用自定义图片 URL" },
+];
+
+export const STYLE_OPTIONS: { key: StyleKey; label: string; hint: string }[] = [
+  { key: "simple", label: "简洁", hint: "完全不透光，无动效（默认）" },
+  { key: "fullscreen", label: "全屏", hint: "高透亮样式，全动效" },
+  { key: "banner", label: "横幅", hint: "突出头部壁纸区域" },
 ];
 
 const HUE_KEY = "hypervoid:hue";
@@ -56,8 +58,9 @@ const FONT_KEY = "hypervoid:font";
 const FONT_SIZE_KEY = "hypervoid:font-size";
 const WALLPAPER_KEY = "hypervoid:wallpaper";
 const WALLPAPER_CUSTOM_KEY = "hypervoid:wallpaper-custom";
+const STYLE_KEY = "hypervoid:style";
 const SETTINGS_SCHEMA_KEY = "hypervoid:settings-schema";
-const SETTINGS_SCHEMA_VERSION = "3";
+const SETTINGS_SCHEMA_VERSION = "4";
 
 type SettingsValue = {
   hue: number;
@@ -66,12 +69,14 @@ type SettingsValue = {
   fontSize: FontSizeKey;
   wallpaper: WallpaperKey;
   wallpaperCustomUrl: string;
+  style: StyleKey;
   setHue: (v: number) => void;
   setBackground: (v: BackgroundKey) => void;
   setFont: (v: FontKey) => void;
   setFontSize: (v: FontSizeKey) => void;
   setWallpaper: (v: WallpaperKey) => void;
   setWallpaperCustomUrl: (v: string) => void;
+  setStyle: (v: StyleKey) => void;
   reset: () => void;
 };
 
@@ -82,12 +87,14 @@ const SettingsContext = createContext<SettingsValue>({
   fontSize: DEFAULT_FONT_SIZE,
   wallpaper: DEFAULT_WALLPAPER,
   wallpaperCustomUrl: "",
+  style: DEFAULT_STYLE,
   setHue: () => {},
   setBackground: () => {},
   setFont: () => {},
   setFontSize: () => {},
   setWallpaper: () => {},
   setWallpaperCustomUrl: () => {},
+  setStyle: () => {},
   reset: () => {},
 });
 
@@ -123,18 +130,20 @@ function applyWallpaper(wp: WallpaperKey, customUrl: string) {
   const root = document.documentElement;
   if (wp === "none") {
     root.style.removeProperty("--wallpaper-url");
-    root.style.removeProperty("--wallpaper-overlay");
     root.dataset.wallpaper = "none";
     return;
   }
-  let url = "";
   if (wp === "custom" && customUrl) {
-    url = customUrl;
-  } else if (wp !== "custom") {
-    url = `/bg/${wp}.webp`;
+    root.style.setProperty("--wallpaper-url", `url("${customUrl}")`);
+  } else {
+    root.style.removeProperty("--wallpaper-url");
   }
-  root.style.setProperty("--wallpaper-url", url ? `url("${url}")` : "none");
   root.dataset.wallpaper = wp;
+}
+
+function applyStyle(style: StyleKey) {
+  if (typeof document === "undefined") return;
+  document.documentElement.dataset.style = style;
 }
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
@@ -147,6 +156,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [wallpaper, setWallpaperState] =
     useState<WallpaperKey>(DEFAULT_WALLPAPER);
   const [wallpaperCustomUrl, setWallpaperCustomUrlState] = useState("");
+  const [style, setStyleState] = useState<StyleKey>(DEFAULT_STYLE);
 
   useEffect(() => {
     try {
@@ -154,6 +164,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       if (!migrated) {
         localStorage.removeItem(HUE_KEY);
         localStorage.removeItem(DISPLAY_MODE_KEY);
+        // 清除旧壁纸选项
+        localStorage.removeItem(WALLPAPER_KEY);
+        localStorage.removeItem(WALLPAPER_CUSTOM_KEY);
         localStorage.setItem(SETTINGS_SCHEMA_KEY, SETTINGS_SCHEMA_VERSION);
       }
 
@@ -188,15 +201,22 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         WALLPAPER_KEY,
       ) as WallpaperKey | null;
       const storedCustomUrl = localStorage.getItem(WALLPAPER_CUSTOM_KEY) ?? "";
-      if (
-        storedWallpaper &&
-        WALLPAPER_OPTIONS.some((o) => o.key === storedWallpaper)
-      ) {
-        setWallpaperState(storedWallpaper);
+      if (storedWallpaper === "custom" && storedCustomUrl) {
+        setWallpaperState("custom");
         setWallpaperCustomUrlState(storedCustomUrl);
-        applyWallpaper(storedWallpaper, storedCustomUrl);
+        applyWallpaper("custom", storedCustomUrl);
       } else {
+        setWallpaperState(DEFAULT_WALLPAPER);
         applyWallpaper(DEFAULT_WALLPAPER, "");
+      }
+
+      const storedStyle = localStorage.getItem(STYLE_KEY) as StyleKey | null;
+      if (storedStyle && STYLE_OPTIONS.some((o) => o.key === storedStyle)) {
+        setStyleState(storedStyle);
+        applyStyle(storedStyle);
+      } else {
+        setStyleState(DEFAULT_STYLE);
+        applyStyle(DEFAULT_STYLE);
       }
     } catch {
       applyHue(DEFAULT_HUE);
@@ -204,6 +224,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       applyFont(DEFAULT_FONT);
       applyFontSize(DEFAULT_FONT_SIZE);
       applyWallpaper(DEFAULT_WALLPAPER, "");
+      applyStyle(DEFAULT_STYLE);
     }
   }, []);
 
@@ -272,6 +293,16 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     applyWallpaper("custom", v);
   }, []);
 
+  const setStyle = useCallback((v: StyleKey) => {
+    setStyleState(v);
+    applyStyle(v);
+    try {
+      localStorage.setItem(STYLE_KEY, v);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const reset = useCallback(() => {
     setHue(DEFAULT_HUE);
     setBackground(DEFAULT_BACKGROUND);
@@ -279,7 +310,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setFontSize(DEFAULT_FONT_SIZE);
     setWallpaper(DEFAULT_WALLPAPER);
     setWallpaperCustomUrl("");
-  }, [setHue, setBackground, setFont, setFontSize, setWallpaper, setWallpaperCustomUrl]);
+    setStyle(DEFAULT_STYLE);
+  }, [setHue, setBackground, setFont, setFontSize, setWallpaper, setWallpaperCustomUrl, setStyle]);
 
   return (
     <SettingsContext.Provider
@@ -290,12 +322,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         fontSize,
         wallpaper,
         wallpaperCustomUrl,
+        style,
         setHue,
         setBackground,
         setFont,
         setFontSize,
         setWallpaper,
         setWallpaperCustomUrl,
+        setStyle,
         reset,
       }}
     >

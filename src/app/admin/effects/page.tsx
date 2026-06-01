@@ -74,7 +74,7 @@ function ToggleIcon({ on }: { on: boolean }) {
 
 export default async function AdminEffectsPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const values = await Promise.all(
     EFFECTS.map((e) => getSiteOverride(e.key)),
@@ -83,7 +83,7 @@ export default async function AdminEffectsPage() {
   async function toggleEffect(key: OverridableFields, current: string) {
     "use server";
     const s = await auth();
-    if (!s?.user) redirect("/admin/sign-in");
+    if (!s?.user) redirect("/sign-in");
     const next = current === "on" ? "off" : "on";
     await setSiteOverrides([{ key, value: next }]);
     const { revalidatePath } = await import("next/cache");

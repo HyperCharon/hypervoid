@@ -221,7 +221,7 @@ const ADMIN_NAV_GROUPS = mergeAdminNavGroups(
 
 export default async function AdminHome() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const login =
     (session.user as { login?: string }).login ?? session.user.name ?? "?";

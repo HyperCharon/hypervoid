@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminGuestbookPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const messages = await listAllMessages();
   const hidden = messages.filter((m) => m.hidden).length;

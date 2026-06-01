@@ -241,6 +241,20 @@ export function BorderGlow({
   const fillBg = meshGradients.map((g) => `${g} padding-box`);
   const angleDeg = `${cursorAngle.toFixed(3)}deg`;
 
+  // Light mode: skip glow effects entirely
+  if (isLight) {
+    return (
+      <div
+        className={`relative grid isolate ${className}`}
+        style={{
+          borderRadius: `${borderRadius}px`,
+        }}
+      >
+        <div className="flex flex-col relative overflow-auto z-[1]">{children}</div>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={cardRef}

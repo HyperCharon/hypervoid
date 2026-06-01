@@ -55,7 +55,7 @@ function normalizeMode(value: string): MusicSourceMode {
 
 async function ensureAdmin() {
   const s = await auth();
-  if (!s?.user) redirect("/admin/sign-in");
+  if (!s?.user) redirect("/sign-in");
 }
 
 function revalidateMusic() {

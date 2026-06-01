@@ -23,7 +23,7 @@ export default async function EditAnnouncementPage(props: {
   params: Promise<{ id: string }>;
 }) {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const { id } = await props.params;
   const rows = await getDb()

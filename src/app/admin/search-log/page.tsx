@@ -21,7 +21,7 @@ export default async function AdminSearchLogPage(props: {
   searchParams: Promise<{ days?: string }>;
 }) {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const sp = await props.searchParams;
   const days = Math.max(1, Math.min(365, Number(sp.days) || DEFAULT_WINDOW));

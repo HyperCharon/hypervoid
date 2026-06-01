@@ -182,7 +182,7 @@ function GameCard({
           </div>
         )}
         {game.playtimeForeverMin > 0 ? (
-          <span className="dark-locked absolute right-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black/70 px-1.5 py-0.5 text-xs font-mono text-white backdrop-blur">
+          <span className="dark-locked absolute right-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black px-1.5 py-0.5 text-[10px] font-mono font-bold text-white shadow-sm">
             {formatHours(game.playtimeForeverMin)}
           </span>
         ) : null}

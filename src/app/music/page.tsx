@@ -7,7 +7,7 @@ import {
   PLAYLISTS,
   type MusicPlaylist,
 } from "@/lib/music";
-import { APlayerMusicPlayer } from "@/components/APlayerMusicPlayer";
+import { HvPlayer } from "@/components/HvPlayer";
 import {
   getConfiguredMusicTracks,
   getMusicSourceConfig,
@@ -60,7 +60,7 @@ export default async function MusicPage() {
         </p>
       </header>
 
-      <APlayerMusicPlayer
+      <HvPlayer
         initialTracks={initialTracks}
         sourceLabel={MUSIC_SOURCE_LABEL[config.mode]}
       />

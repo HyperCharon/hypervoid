@@ -17,6 +17,11 @@ function isAnimationDisabled() {
   return window.innerWidth <= 768 || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function isLightMode() {
+  if (typeof window === "undefined") return false;
+  return document.documentElement.classList.contains("light");
+}
+
 function createParticle(x: number, y: number) {
   const el = document.createElement("span");
   el.className = "hv-magic-particle";
@@ -191,7 +196,7 @@ export function TopicMagicBento({ series }: { series: PublicSeries[] }) {
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section || isAnimationDisabled()) return;
+    if (!section || isAnimationDisabled() || isLightMode()) return;
     const sectionEl = section;
     const cards = Array.from(sectionEl.querySelectorAll<HTMLElement>(".hv-magic-bento-card"));
 

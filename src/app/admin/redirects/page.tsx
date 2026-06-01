@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminRedirectsPage() {
   const session = await auth();
-  if (!session?.user) redirect("/admin/sign-in");
+  if (!session?.user) redirect("/sign-in");
 
   const list = await listRedirects();
 

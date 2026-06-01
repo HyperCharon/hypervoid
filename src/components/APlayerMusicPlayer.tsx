@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import type { MusicTrack } from "@/lib/music-types";
 
 type APlayerAudio = {
@@ -52,10 +53,13 @@ export function APlayerMusicPlayer({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<APlayerInstance | null>(null);
+  const { resolvedTheme } = useTheme();
   const [tracks, setTracks] = useState<MusicTrack[]>(initialTracks);
   const [loading, setLoading] = useState(initialTracks.length === 0);
   const [error, setError] = useState<string | null>(null);
   const [clientSourceLabel, setClientSourceLabel] = useState(sourceLabel);
+
+  const themeColor = resolvedTheme === "light" ? "#0d9488" : "#3b82f6";
 
   useEffect(() => {
     if (initialTracks.length > 0) return;
@@ -102,9 +106,9 @@ export function APlayerMusicPlayer({
         url: track.url,
         cover: track.cover || undefined,
         lrc: track.lrc,
-        theme: "#3b82f6",
+        theme: themeColor,
       })),
-    [playableTracks],
+    [playableTracks, themeColor],
   );
 
   useEffect(() => {
@@ -120,7 +124,7 @@ export function APlayerMusicPlayer({
         playerRef.current = new APlayer({
           container,
           audio,
-          theme: "#3b82f6",
+          theme: themeColor,
           loop: "all",
           order: "list",
           preload: "metadata",
