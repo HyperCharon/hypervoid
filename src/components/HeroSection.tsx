@@ -580,10 +580,22 @@ function Title() {
           z-index: 1;
           display: inline-block;
           font-family: var(--font-orbitron), "Orbitron", ui-sans-serif, system-ui, sans-serif;
-          font-size: clamp(2rem, 8vw, 6rem);
+          font-size: clamp(2.2rem, 10vw, 6rem);
           font-weight: 900;
           line-height: 0.88;
           letter-spacing: 0.02em;
+          white-space: nowrap;
+        }
+        @media (max-width: 420px) {
+          .hv-hero-title {
+            font-size: 2rem;
+          }
+          .hv-hero-title-wrap {
+            padding: 1.5em 0.8em 1.4em;
+          }
+          .hv-title-data {
+            display: none !important;
+          }
         }
         /* ── Stagger: inline with offset ── */
         .hv-t-hyper {
@@ -983,20 +995,25 @@ export function HeroSection({
 
   return (
     <section className="hv-cosmic-hero relative overflow-hidden" style={{ background: "transparent" }}>
-      <FullGrid />
-      <Starfield />
-      <NebulaGlow />
-      <AuroraWaves />
-      <Planet />
-      <Moon />
-      <GridWarp />
-      <Scanlines />
+      {/* Desktop-only effects */}
+      <div className="hidden sm:block">
+        <FullGrid />
+        <Starfield />
+        <NebulaGlow />
+        <AuroraWaves />
+        <Planet />
+        <Moon />
+        <GridWarp />
+        <Scanlines />
+      </div>
       <HudBrackets />
       {/* Light mode overlay */}
       <div className="hv-light-overlay pointer-events-none absolute inset-0 z-[5]" />
 
-      {/* Ticker */}
-      <Ticker />
+      {/* Ticker — hidden on mobile */}
+      <div className="hidden sm:block">
+        <Ticker />
+      </div>
 
       <div className="relative z-10 mx-auto max-w-[100rem]">
         <div className="flex flex-col items-center px-5 pt-6 pb-3 sm:px-6 sm:pt-8 sm:pb-4 lg:px-8 lg:pt-10 lg:pb-5">
@@ -1024,10 +1041,12 @@ export function HeroSection({
             </p>
           </R>
 
-          {/* Featured Clock */}
-          <R d={0.2} className="mt-4 sm:mt-5">
-            <FeaturedClock />
-          </R>
+          {/* Featured Clock — desktop only */}
+          <div className="hidden sm:block">
+            <R d={0.2} className="mt-4 sm:mt-5">
+              <FeaturedClock />
+            </R>
+          </div>
 
           {/* Divider */}
           <R d={0.25} className="mt-3 sm:mt-4">
@@ -1038,10 +1057,12 @@ export function HeroSection({
             </div>
           </R>
 
-          {/* Status strip */}
-          <R d={0.3} className="mt-3 sm:mt-4">
-            <StatusStrip />
-          </R>
+          {/* Status strip — desktop only */}
+          <div className="hidden sm:block">
+            <R d={0.3} className="mt-3 sm:mt-4">
+              <StatusStrip />
+            </R>
+          </div>
 
           {/* Quote */}
           {quote ? (

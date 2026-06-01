@@ -136,19 +136,19 @@ export default async function Home() {
                           <ScrollReveal key={post.slug} variant="fade-up" delay={i * 40} duration={400}>
                             <Link
                               href={`/posts/${post.slug}`}
-                              className="group relative mb-3 flex break-inside-avoid overflow-hidden rounded-xl border border-border/30 bg-card/40 p-3 transition-all duration-250 hover:border-accent/30 hover:bg-card/70 hover:shadow-[0_0_20px_var(--accent-glow)] sm:flex-row sm:items-stretch sm:gap-3 sm:p-3.5"
+                              className="group relative mb-3 flex flex-row items-center gap-3 break-inside-avoid overflow-hidden rounded-xl border border-border/30 bg-card/40 p-3 transition-all duration-250 hover:border-accent/30 hover:bg-card/70 hover:shadow-[0_0_20px_var(--accent-glow)] sm:items-stretch sm:gap-3 sm:p-3.5"
                             >
                               {/* Cover image — only when exists */}
                               {hasCover ? (
-                                <div className="w-full shrink-0 overflow-hidden rounded-xl sm:w-36">
+                                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg sm:h-auto sm:w-36 sm:rounded-xl">
                                   <Image
                                     src={post.frontmatter.cover!}
                                     alt=""
-                                    width={288}
-                                    height={200}
-                                    sizes="(min-width: 640px) 144px, 100vw"
+                                    width={144}
+                                    height={144}
+                                    sizes="(min-width: 640px) 144px, 64px"
                                     loading="lazy"
-                                    className="h-auto w-full opacity-80 saturate-[0.85] transition duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100"
+                                    className="h-full w-full object-cover opacity-80 saturate-[0.85] transition duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100"
                                   />
                                 </div>
                               ) : null}

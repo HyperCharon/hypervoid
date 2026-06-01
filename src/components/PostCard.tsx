@@ -19,21 +19,21 @@ export function PostCard({ post }: { post: PostMeta }) {
     >
       <Link
         href={`/posts/${slug}`}
-        className="group relative flex flex-col gap-3 overflow-hidden p-3 sm:flex-row sm:items-stretch sm:gap-3 sm:p-3.5"
+        className="group relative flex flex-row items-center gap-3 overflow-hidden p-3 sm:items-stretch sm:gap-3 sm:p-3.5"
       >
-        <div className="relative h-28 w-full shrink-0 overflow-hidden rounded-xl bg-card sm:h-auto sm:w-28">
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-card sm:h-auto sm:w-28 sm:rounded-xl">
           {frontmatter.cover ? (
             <Image
               src={frontmatter.cover}
               alt=""
               fill
-              sizes="(min-width: 640px) 112px, 100vw"
+              sizes="(min-width: 640px) 112px, 64px"
               loading="lazy"
               className="object-cover opacity-[0.82] saturate-[0.85] transition duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100"
             />
           ) : (
             <div className="grid h-full place-items-center bg-[radial-gradient(circle_at_50%_50%,var(--accent-glow),transparent_48%)]">
-              <Radio className="h-8 w-8 text-accent/60" aria-hidden />
+              <Radio className="h-6 w-6 text-accent/60 sm:h-8 sm:w-8" aria-hidden />
             </div>
           )}
         </div>

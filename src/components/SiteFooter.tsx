@@ -5,31 +5,33 @@ import { siteConfig } from "@/lib/site-config";
 export function SiteFooter() {
   const year = new Date().getFullYear();
   return (
-    <footer className="hv-grad-header relative mt-16 backdrop-blur-sm">
+    <footer className="hv-grad-header relative mt-10 backdrop-blur-sm sm:mt-16">
       {/* Full spectrum top border */}
       <div aria-hidden className="hv-spectrum-line pointer-events-none absolute inset-x-0 top-0 h-[2px] opacity-50" />
-      <div className="mx-auto flex max-w-[100rem] flex-col gap-5 px-4 py-6 text-sm sm:px-6 sm:py-8 lg:px-8">
-        <div className="relative flex flex-wrap items-center justify-between gap-3 pb-4">
+      <div className="mx-auto flex max-w-[100rem] flex-col gap-4 px-4 py-5 text-sm sm:gap-5 sm:px-6 sm:py-8 lg:px-8">
+        {/* Brand row */}
+        <div className="relative flex flex-wrap items-center justify-between gap-2 pb-3 sm:gap-3 sm:pb-4">
           <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-border" />
           <div>
-            <p className="text-xs font-medium text-muted-soft">
-              Hypervoid
-            </p>
-            <p className="mt-1 text-xs text-muted-soft">
+            <p className="text-xs font-medium text-muted-soft">Hypervoid</p>
+            <p className="mt-0.5 text-[11px] text-muted-soft sm:mt-1 sm:text-xs">
               &copy; {year} &middot; <span className="italic">One &amp; Only</span>
             </p>
           </div>
-          <TechStackBadges />
+          <div className="hidden sm:block">
+            <TechStackBadges />
+          </div>
         </div>
-        <div className="flex flex-col items-start justify-between gap-3 text-xs sm:flex-row sm:items-center">
-          <p className="flex flex-wrap items-center gap-3 text-muted-soft">
+        {/* Links row */}
+        <div className="flex flex-col gap-2 text-[11px] sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:text-xs">
+          <p className="flex flex-wrap items-center gap-2 text-muted-soft sm:gap-3">
             <span className="inline-flex items-center gap-1.5 text-accent">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Online
             </span>
             <SiteUptime className="hidden text-muted-soft sm:inline" />
           </p>
-          <p className="flex flex-wrap items-center gap-3">
+          <p className="flex flex-wrap items-center gap-2 sm:gap-3">
             <a
               href="https://github.com/HyperCharon"
               target="_blank"
@@ -41,13 +43,9 @@ export function SiteFooter() {
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
               </svg>
             </a>
-            <a href="/rss.xml" className="text-muted transition hover:text-accent">
-              RSS
-            </a>
+            <a href="/rss.xml" className="text-muted transition hover:text-accent">RSS</a>
             {siteConfig.donate.enabled ? (
-              <a href="/donate" className="text-muted transition hover:text-accent">
-                Donate
-              </a>
+              <a href="/donate" className="text-muted transition hover:text-accent">Donate</a>
             ) : null}
           </p>
         </div>

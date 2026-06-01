@@ -27,16 +27,16 @@ export function FeaturedPostCard({ post }: { post: PostMeta }) {
 
       <Link
         href={`/posts/${slug}`}
-        className="group relative flex flex-col overflow-hidden p-4 sm:flex-row sm:gap-5 sm:p-5"
+        className="group relative flex flex-row gap-3 overflow-hidden p-3 sm:gap-5 sm:p-5"
       >
-        {/* Cover image — larger for featured */}
-        <div className="relative h-36 w-full shrink-0 overflow-hidden rounded-xl bg-card sm:h-auto sm:w-44 md:w-52">
+        {/* Cover image — side thumbnail on mobile */}
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-card sm:h-auto sm:w-44 sm:rounded-xl md:w-52">
           {frontmatter.cover ? (
             <Image
               src={frontmatter.cover}
               alt=""
               fill
-              sizes="(min-width: 640px) 208px, 100vw"
+              sizes="(min-width: 640px) 208px, 80px"
               loading="lazy"
               className="object-cover opacity-[0.85] saturate-[0.9] transition duration-500 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100"
             />
@@ -47,7 +47,7 @@ export function FeaturedPostCard({ post }: { post: PostMeta }) {
           )}
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-2.5 pt-3 sm:pt-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-2 sm:gap-2.5">
           <div className="flex items-center gap-2 overflow-hidden">
             {frontmatter.pinned ? (
               <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 whitespace-nowrap" title={t.post.pinnedTooltip}>
