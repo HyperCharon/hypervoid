@@ -26,6 +26,7 @@ import {
   Archive,
   ImageIcon,
   NotebookPen,
+  Wrench,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useLocale } from "@/components/LocaleProvider";
@@ -133,6 +134,7 @@ const NAV_GROUPS = [
     title: "其他",
     items: [
       { href: "/tags", icon: Tags, label: "标签" },
+      { href: "/skills", icon: Wrench, label: "技能" },
       { href: "/projects", icon: FolderOpen, label: "项目" },
       { href: "/timeline", icon: CalendarDays, label: "时间线" },
       { href: "/archive", icon: Archive, label: "归档" },

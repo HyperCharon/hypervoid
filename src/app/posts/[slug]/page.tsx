@@ -134,15 +134,16 @@ export default async function PostPage(props: { params: Promise<Params> }) {
       <ReadingProgress />
       <ReadTracker slug={slug} />
       <article className="mx-auto w-full ">
-        <div className="flex items-center justify-between gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:flex-nowrap sm:gap-3">
           <Link
             href="/posts"
             className="hv-action shrink-0 px-4 text-sm font-medium whitespace-nowrap"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
-            返回文章列表
+            <span className="hidden sm:inline">返回文章列表</span>
+            <span className="sm:hidden">返回</span>
           </Link>
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1 sm:flex-nowrap">
             <ReadingMode />
             <BookmarkButton
               slug={slug}

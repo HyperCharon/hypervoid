@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Home } from "lucide-react";
 import { NavGroups } from "@/components/NavGroups";
 import { HypervoidWordmark } from "@/components/HypervoidWordmark";
 import { HeaderDock } from "@/components/HeaderDock";
@@ -14,9 +15,9 @@ export function SiteHeader() {
       className="hv-site-header hv-grad-header sticky top-0 z-40 w-full text-foreground backdrop-blur-[24px] saturate-[1.4]"
       style={{ viewTransitionName: "site-header" }}
     >
-      <div className="mx-auto flex h-12 max-w-[100rem] items-center gap-2 px-3 sm:h-14 sm:gap-3 sm:px-6 lg:px-8">
-        {/* Left: Logo */}
-        <div className="flex min-h-9 shrink-0 items-center gap-2 font-bold tracking-tight sm:gap-2.5 sm:min-h-11">
+      <div className="mx-auto flex h-12 max-w-[100rem] items-center gap-1.5 px-3 sm:h-14 sm:gap-3 sm:px-6 lg:px-8">
+        {/* Left: Logo + Home */}
+        <div className="flex min-h-9 shrink-0 items-center gap-1 font-bold tracking-tight sm:gap-2.5 sm:min-h-11">
           <Link
             href="/sign-in"
             aria-label="Hypervoid"
@@ -37,6 +38,13 @@ export function SiteHeader() {
                 <circle cx="32" cy="32" r="4.5" fill="url(#hv-core)" />
               </svg>
             </span>
+          </Link>
+          <Link
+            href="/"
+            className="grid h-8 w-8 place-items-center rounded-lg text-muted-soft transition hover:bg-card-hover hover:text-foreground sm:hidden"
+            aria-label="首页"
+          >
+            <Home className="h-4 w-4" />
           </Link>
           <Link
             href="/"

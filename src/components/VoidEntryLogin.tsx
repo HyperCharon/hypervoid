@@ -304,7 +304,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
           ) : (
             <motion.div
               key="login"
-              className="grid w-full max-w-5xl grid-cols-1 items-center gap-4 md:grid-cols-[minmax(0,440px)_280px]"
+              className="grid w-full max-w-5xl grid-cols-1 items-start gap-3 px-2 sm:px-0 md:grid-cols-[minmax(0,440px)_280px] md:items-center md:gap-4"
               style={{
                 x: parallaxEnabled && !reducedMotion ? panelX : 0,
                 y: parallaxEnabled && !reducedMotion ? panelY : 0,
@@ -317,7 +317,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
               exit={{ opacity: 0, y: -28, scale: 0.96, filter: "blur(14px)" }}
               transition={{ type: "spring", stiffness: 120, damping: 20, mass: 0.8 }}
             >
-              <section className="hypervoid-glass transform-gpu border border-white/20 bg-white/10 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_0_60px_rgba(34,211,238,0.18)] backdrop-blur-xl sm:p-7">
+              <section className="hypervoid-glass transform-gpu border border-white/20 bg-white/10 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_0_60px_rgba(34,211,238,0.18)] backdrop-blur-xl sm:p-7">
                 <div className="mb-6 flex items-center justify-between gap-4">
                   <div>
                     <p className="font-mono text-[11px] uppercase text-emerald-100/70">Secure Gateway / 身份入口</p>

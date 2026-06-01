@@ -246,7 +246,7 @@ export default async function AdminHome() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="hv-panel-sci relative overflow-hidden p-5 sm:p-7 flex flex-wrap items-center justify-between gap-3">
+      <header className="hv-panel-sci relative overflow-hidden p-4 sm:p-7 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
         {/* Corner accent lines */}
         <div className="absolute left-0 top-0 h-12 w-12 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-12 w-12 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -261,13 +261,14 @@ export default async function AdminHome() {
             OPERATOR：<span className="font-medium text-foreground">@{login}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <Link
             href="/admin/posts/new"
-            className="hv-action px-3 py-2 text-sm font-medium sm:px-4 clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_20px_var(--accent-glow)]"
+            className="hv-action whitespace-nowrap px-2.5 py-1.5 text-xs font-medium sm:px-4 sm:text-sm"
           >
-            <PenLine className="h-4 w-4" aria-hidden />
-            新文章
+            <PenLine className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
+            <span className="hidden sm:inline">新文章</span>
+            <span className="sm:hidden">写</span>
           </Link>
           <form
             action={async () => {
@@ -277,9 +278,9 @@ export default async function AdminHome() {
           >
             <button
               type="submit"
-              className="hv-action px-3 py-2 text-sm clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_20px_var(--accent-glow)]"
+              className="hv-action whitespace-nowrap px-2.5 py-1.5 text-xs sm:px-4 sm:text-sm"
             >
-              <LogOut className="h-4 w-4" aria-hidden />
+              <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
               退出
             </button>
           </form>
