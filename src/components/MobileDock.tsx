@@ -173,12 +173,12 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-[45] bg-black/30 backdrop-blur-sm lg:hidden" onClick={onClose} />
+      <div className="fixed inset-0 z-[45] bg-black/50 backdrop-blur-sm lg:hidden" onClick={onClose} />
 
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className="fixed inset-x-0 top-12 z-[50] max-h-[calc(100dvh-3rem)] overflow-y-auto border-b border-border bg-card/95 shadow-lg backdrop-blur-xl lg:hidden"
+        className="fixed inset-x-0 top-12 z-[50] max-h-[calc(100dvh-3rem)] overflow-y-auto border-b border-border bg-card shadow-lg lg:hidden"
       >
         <div className="px-3 py-3">
           {NAV_GROUPS.map((group) => (

@@ -387,17 +387,27 @@ html[data-reading="large"] article .prose {
 /* ── Settings Panel (theme-aware) ──────────────────────────── */
 .hv-settings-panel {
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--card) 92%, transparent);
+  background: var(--card);
   color: var(--foreground);
   box-shadow: 0 28px 90px var(--shadow-heavy), 0 0 40px var(--accent-glow);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+}
+@media (min-width: 768px) {
+  .hv-settings-panel {
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  }
 }
 .hv-settings-header {
   border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--card) 88%, transparent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--card);
+}
+@media (min-width: 768px) {
+  .hv-settings-header {
+    background: color-mix(in srgb, var(--card) 88%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
 }
 .hv-settings-label {
   color: var(--muted-soft);
@@ -1018,18 +1028,6 @@ html[data-reading="large"] article .prose {
     padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
   }
 }
-.hv-bottom-tab-bar {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-.dark .hv-bottom-tab-bar > div {
-  background: rgba(8, 11, 20, 0.85);
-  border-top-color: rgba(255, 255, 255, 0.06);
-}
-.light .hv-bottom-tab-bar > div {
-  background: rgba(250, 248, 244, 0.9);
-  border-top-color: rgba(0, 0, 0, 0.06);
-}
-
 /* ── Menu Sheet (mobile) ─────────────────────────────────── */
 .hv-menu-sheet {
   animation: sheet-up 0.25s cubic-bezier(0.22, 1, 0.36, 1);

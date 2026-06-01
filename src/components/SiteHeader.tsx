@@ -18,7 +18,7 @@ export function SiteHeader() {
         {/* Left: Logo */}
         <div className="flex min-h-9 shrink-0 items-center gap-2 font-bold tracking-tight sm:gap-2.5 sm:min-h-11">
           <Link
-            href="/"
+            href="/sign-in"
             aria-label="Hypervoid"
             className="hv-brand-orbit group inline-flex h-8 w-8 items-center justify-center text-muted transition hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-9 sm:w-9"
           >
