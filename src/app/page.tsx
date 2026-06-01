@@ -162,7 +162,8 @@ export default async function Home() {
                     </div>
 
                     {/* Desktop: masonry columns */}
-                    <div className="hidden columns-1 gap-3 sm:columns-2">
+                    <div className="hidden sm:block">
+                    <div className="columns-1 gap-3 sm:columns-2">
                       {recent.slice(1).map((post, i) => {
                         const hasCover = !!post.frontmatter.cover;
                         return (
@@ -200,6 +201,7 @@ export default async function Home() {
                           </ScrollReveal>
                         );
                       })}
+                    </div>
                     </div>
 
                     {/* Gradual blur overlay (reactbits-inspired) */}
