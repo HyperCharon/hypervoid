@@ -50,11 +50,11 @@ export function PostCard({ post }: { post: PostMeta }) {
               <BookOpenText className="h-3 w-3 text-accent/60" aria-hidden />
               <span className="font-mono text-xs uppercase tracking-wider text-muted">Article</span>
             </span>
-            <ReadBadge slug={slug} />
           </div>
 
           <h3 className="line-clamp-2 text-base font-semibold leading-snug tracking-tight text-foreground transition group-hover:text-foreground sm:text-lg">
             {frontmatter.title}
+            <ReadBadge slug={slug} />
           </h3>
 
           {frontmatter.description ? (

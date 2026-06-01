@@ -47,6 +47,11 @@ export function MobileDock() {
   const isDark = mounted ? resolvedTheme !== "light" : true;
   const nextLocale = LOCALES[(LOCALES.indexOf(locale) + 1) % LOCALES.length];
 
+  // Prevent hydration mismatch — render placeholder until mounted
+  if (!mounted) {
+    return <div className="flex h-8 w-[168px] lg:hidden" />;
+  }
+
   return (
     <div className="flex items-center gap-0.5 lg:hidden">
       {/* Search */}
