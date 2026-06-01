@@ -86,8 +86,8 @@ export default async function Home() {
 
       {/* ═══ MAIN + SIDEBAR ═══ */}
       <div className="mt-4 w-full px-3 sm:px-6 sm:mt-8 lg:px-8 lg:mt-12">
-      <div className="mx-auto grid max-w-[100rem] grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
-        <main className="flex flex-col gap-8 lg:order-1">
+      <div className="hv-home-grid mx-auto grid max-w-[100rem] grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
+        <main className="hv-home-main flex flex-col gap-6 sm:gap-8 lg:order-1">
 
           {/* ── Daily Pick — floating card ── */}
           {dailyPick ? (
@@ -115,7 +115,7 @@ export default async function Home() {
           </ScrollReveal>
 
           {/* ── Posts Section ── */}
-          <section>
+          <section className="hv-home-posts">
             <LatestPostsHeader />
 
             {recent.length ? (
@@ -232,7 +232,7 @@ export default async function Home() {
 
           {/* ── Subscribe ── */}
           <ScrollReveal variant="fade-up" delay={100}>
-            <div className="hv-card overflow-hidden p-0">
+            <div className="hv-home-subscribe hv-card overflow-hidden p-0">
               <div className="grid gap-0 md:grid-cols-[1fr_auto] md:items-stretch">
                 {/* Left — info */}
                 <div className="flex flex-col justify-center gap-2 border-b border-border p-4 sm:p-5 md:border-b-0 md:border-r">
@@ -273,7 +273,7 @@ export default async function Home() {
         </main>
 
         {/* ═══ SIDEBAR — staggered, varied spacing ═══ */}
-        <aside className="lg:order-2">
+        <aside className="hv-home-rail lg:order-2">
           <div className="flex flex-col gap-5 lg:sticky lg:top-20">
             <PrivateSpace />
 
