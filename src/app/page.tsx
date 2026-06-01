@@ -85,8 +85,8 @@ export default async function Home() {
       />
 
       {/* ═══ MAIN + SIDEBAR ═══ */}
-      <div className="mt-8 w-full px-4 sm:px-6 lg:px-8 lg:mt-12">
-      <div className="mx-auto grid max-w-[100rem] grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
+      <div className="mt-4 w-full px-3 sm:px-6 sm:mt-8 lg:px-8 lg:mt-12">
+      <div className="mx-auto grid max-w-[100rem] grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10">
         <main className="flex flex-col gap-8 lg:order-1">
 
           {/* ── Daily Pick — floating card ── */}
@@ -129,7 +129,7 @@ export default async function Home() {
                 {recent.length > 1 ? (
                   <div className="relative">
                     {/* Staggered masonry: alternating wide/narrow cards */}
-                    <div className="columns-1 gap-3 sm:columns-2">
+                    <div className="columns-1 gap-3 overflow-hidden sm:columns-2">
                       {recent.slice(1).map((post, i) => {
                         const hasCover = !!post.frontmatter.cover;
                         return (

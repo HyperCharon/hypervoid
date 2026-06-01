@@ -1048,13 +1048,7 @@ html[data-reading="large"] article .prose {
   border-top-color: rgba(0, 0, 0, 0.06);
 }
 
-/* ── Legacy mobile pill (keep for compat) ────────────────── */
-.hv-mobile-pill-button {
-  display: none;
-}
-@media (max-width: 79.999rem) {
-  .hv-mobile-pill-button { display: grid; }
-}
+/* Legacy mobile pill — removed */
 
 /* Dock */
 .hv-dock-panel {
@@ -1164,8 +1158,7 @@ html[data-reading="large"] article .prose {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hv-pill-menu-link:hover,
-  .hv-mobile-pill-link:hover { transform: none; }
+  .hv-pill-menu-link:hover { transform: none; }
 }
 
 /* ── Main Shell ────────────────────────────────────────────── */
@@ -1897,7 +1890,7 @@ html[data-fullscreen-route="true"] body { overflow-x: hidden; }
 
 /* ── Legacy Compat Layer ───────────────────────────────────── */
 /* Map old Tailwind color classes to gradient fills (dark mode) */
-.dark [class*="bg-card"]:not(input):not(textarea):not(select):not(.hv-card):not(.hv-panel):not(.hv-panel-sci):not(.hv-pill-nav-track):not(.hv-dock-panel):not(.hv-pill-menu-panel):not(.hv-mobile-pill-popover):not(.hv-brand-orbit):not(.hv-chip):not(.hv-chip-sci):not(.hv-chip-sci-dim):not(.hv-chip-strong):not(.hv-action):not(.hv-input):not(.stats-carousel-shell):not(.stats-carousel-item):not(.hv-magic-bento-card):not(.hv-magic-bento-label):not(.hv-magic-bento-count) {
+.dark [class*="bg-card"]:not(input):not(textarea):not(select):not(.hv-card):not(.hv-panel):not(.hv-panel-sci):not(.hv-pill-nav-track):not(.hv-dock-panel):not(.hv-pill-menu-panel):not(.hv-brand-orbit):not(.hv-chip):not(.hv-chip-sci):not(.hv-chip-sci-dim):not(.hv-chip-strong):not(.hv-action):not(.hv-input):not(.stats-carousel-shell):not(.stats-carousel-item):not(.hv-magic-bento-card):not(.hv-magic-bento-label):not(.hv-magic-bento-count) {
   background: linear-gradient(145deg, rgba(239,68,68,0.06), rgba(234,179,8,0.04), rgba(34,197,94,0.05), rgba(59,130,246,0.08), rgba(99,102,241,0.06), rgba(139,92,246,0.05), rgba(12,18,36,0.88));
   border-color: rgba(255,255,255,0.06);
 }
