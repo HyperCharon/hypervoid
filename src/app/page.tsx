@@ -125,78 +125,76 @@ export default async function Home() {
                   <FeaturedPostCard post={recent[0]} />
                 </ScrollReveal>
 
-                {/* Posts staggered grid with gradual blur */}
+                {/* Posts grid — mobile: simple list / desktop: masonry */}
                 {recent.length > 1 ? (
                   <div className="relative">
-                    {/* Staggered masonry: alternating wide/narrow cards */}
-                    <div className="columns-1 gap-3 overflow-hidden sm:columns-2">
+                    {/* Mobile: simple stacked list */}
+                    <div className="flex flex-col gap-2 sm:hidden">
+                      {recent.slice(1).map((post, i) => (
+                        <ScrollReveal key={post.slug} variant="fade-up" delay={i * 40} duration={400}>
+                          <Link
+                            href={`/posts/${post.slug}`}
+                            className="group flex items-center gap-3 rounded-xl border border-border/30 bg-card/40 px-3 py-2.5 transition-all duration-200 hover:border-accent/30 hover:bg-card/70"
+                          >
+                            <span className="w-5 shrink-0 text-center font-mono text-[10px] text-muted-soft/30">
+                              {String(i + 1).padStart(2, "0")}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <h3 className="truncate text-[13px] font-semibold tracking-tight text-foreground/90 group-hover:text-accent">
+                                {post.frontmatter.title}
+                              </h3>
+                              <div className="mt-0.5 flex items-center gap-2 text-[10px] text-muted-soft/50">
+                                <time className="font-mono">{post.frontmatter.date}</time>
+                                <span>{post.frontmatter.readingMinutes}{t.post.readingTimeSuffix}</span>
+                              </div>
+                            </div>
+                            {post.frontmatter.cover ? (
+                              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md">
+                                <Image src={post.frontmatter.cover} alt="" width={80} height={80} className="h-full w-full object-cover opacity-70" unoptimized />
+                              </div>
+                            ) : null}
+                            <svg aria-hidden className="h-3.5 w-3.5 shrink-0 text-muted-soft/25 transition group-hover:translate-x-0.5 group-hover:text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M5 12h14M13 5l7 7-7 7" />
+                            </svg>
+                          </Link>
+                        </ScrollReveal>
+                      ))}
+                    </div>
+
+                    {/* Desktop: masonry columns */}
+                    <div className="hidden columns-1 gap-3 sm:columns-2">
                       {recent.slice(1).map((post, i) => {
                         const hasCover = !!post.frontmatter.cover;
                         return (
                           <ScrollReveal key={post.slug} variant="fade-up" delay={i * 40} duration={400}>
                             <Link
                               href={`/posts/${post.slug}`}
-                              className="group relative mb-3 flex flex-row items-center gap-3 break-inside-avoid overflow-hidden rounded-xl border border-border/30 bg-card/40 p-3 transition-all duration-250 hover:border-accent/30 hover:bg-card/70 hover:shadow-[0_0_20px_var(--accent-glow)] sm:items-stretch sm:gap-3 sm:p-3.5"
+                              className="group relative mb-3 flex flex-row items-center gap-3 break-inside-avoid overflow-hidden rounded-xl border border-border/30 bg-card/40 p-3.5 transition-all duration-250 hover:border-accent/30 hover:bg-card/70 hover:shadow-[0_0_20px_var(--accent-glow)]"
                             >
-                              {/* Cover image — only when exists */}
                               {hasCover ? (
-                                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg sm:h-auto sm:w-36 sm:rounded-xl">
-                                  <Image
-                                    src={post.frontmatter.cover!}
-                                    alt=""
-                                    width={144}
-                                    height={144}
-                                    sizes="(min-width: 640px) 144px, 64px"
-                                    loading="lazy"
-                                    className="h-full w-full object-cover opacity-80 saturate-[0.85] transition duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100"
-                                  />
+                                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg">
+                                  <Image src={post.frontmatter.cover!} alt="" width={144} height={144} sizes="144px" loading="lazy" className="h-full w-full object-cover opacity-80 saturate-[0.85] transition duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100" />
                                 </div>
                               ) : null}
-
-                              {/* Text content */}
                               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                                {/* Index + date row */}
                                 <div className="flex items-center gap-2">
-                                  <span className="pointer-events-none font-mono text-[10px] font-bold tracking-wider text-muted-soft/20 transition-colors group-hover:text-accent/25">
-                                    {String(i + 1).padStart(2, "0")}
-                                  </span>
-                                  <time className="font-mono text-[10px] tracking-wider text-muted-soft/50 transition-colors group-hover:text-accent/60">
-                                    {post.frontmatter.date}
-                                  </time>
+                                  <span className="pointer-events-none font-mono text-[10px] font-bold tracking-wider text-muted-soft/20 transition-colors group-hover:text-accent/25">{String(i + 1).padStart(2, "0")}</span>
+                                  <time className="font-mono text-[10px] tracking-wider text-muted-soft/50 transition-colors group-hover:text-accent/60">{post.frontmatter.date}</time>
                                   <span className="h-px flex-1 bg-border/20" />
-                                  <span className="font-mono text-[10px] text-muted-soft/35">
-                                    {post.frontmatter.readingMinutes}{t.post.readingTimeSuffix}
-                                  </span>
+                                  <span className="font-mono text-[10px] text-muted-soft/35">{post.frontmatter.readingMinutes}{t.post.readingTimeSuffix}</span>
                                 </div>
-
-                                {/* Title */}
-                                <h3 className="line-clamp-2 text-sm font-semibold tracking-tight text-foreground/90 transition-colors duration-200 group-hover:text-accent sm:text-[15px]">
-                                  {post.frontmatter.title}
-                                </h3>
-
-                                {/* Description — only when no cover */}
+                                <h3 className="line-clamp-2 text-[15px] font-semibold tracking-tight text-foreground/90 transition-colors duration-200 group-hover:text-accent">{post.frontmatter.title}</h3>
                                 {!hasCover && post.frontmatter.description ? (
-                                  <p className="line-clamp-2 text-xs leading-relaxed text-muted-soft/60">
-                                    {post.frontmatter.description}
-                                  </p>
+                                  <p className="line-clamp-2 text-xs leading-relaxed text-muted-soft/60">{post.frontmatter.description}</p>
                                 ) : null}
-
-                                {/* Tags */}
                                 {post.frontmatter.tags?.length ? (
                                   <div className="mt-auto flex flex-wrap gap-1.5 pt-1.5">
                                     {post.frontmatter.tags.slice(0, 2).map((tag) => (
-                                      <span
-                                        key={tag}
-                                        className="rounded-md border border-border/25 bg-background/50 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-soft/50 transition-colors group-hover:border-accent/20 group-hover:text-muted-soft/70"
-                                      >
-                                        {tag}
-                                      </span>
+                                      <span key={tag} className="rounded-md border border-border/25 bg-background/50 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-soft/50 transition-colors group-hover:border-accent/20 group-hover:text-muted-soft/70">{tag}</span>
                                     ))}
                                   </div>
                                 ) : null}
                               </div>
-
-                              {/* Bottom accent line */}
                               <span className="absolute inset-x-3 bottom-0 h-px scale-x-0 bg-gradient-to-r from-transparent via-accent/40 to-transparent transition-transform duration-300 group-hover:scale-x-100" />
                             </Link>
                           </ScrollReveal>
