@@ -5,7 +5,7 @@ import { HypervoidAuthAdapter } from "@/auth-adapter";
 import { getSiteSetting } from "@/db/site-settings";
 
 const ADMIN_GITHUB_LOGIN =
-  process.env.ADMIN_GITHUB_LOGIN?.trim() || "HyperCharon";
+  process.env.ADMIN_GITHUB_LOGIN?.trim() || "";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.trim().toLowerCase() || null;
 
 function isAuthEmailConfigured(): boolean {
@@ -162,8 +162,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // "optional" — no login required
         return true;
       } catch {
-        // DB error — fail open (allow access)
-        return true;
+        // DB error — fail closed (deny access)
+        return false;
       }
     },
   },

@@ -51,9 +51,10 @@ async function isSiteLoginRequired(): Promise<boolean> {
   try {
     const { getSiteSetting } = await import("@/db/site-settings");
     const val = await getSiteSetting("site_login_required");
-    return val === "true";
+    return val === "required";
   } catch {
-    return false;
+    // DB error — assume login required (fail closed)
+    return true;
   }
 }
 

@@ -179,13 +179,6 @@
   box-shadow: var(--shadow-lg), var(--shadow-glow) !important;
 }
 
-/* ── Hero Section ────────────────────────────────────────── */
-.light .hv-hero-section {
-  background: var(--grad-hero) !important;
-  border-top: 1px solid var(--divider) !important;
-  border-bottom: 1px solid var(--divider) !important;
-}
-
 /* ── Daily Pick ──────────────────────────────────────────── */
 .light .hv-daily-pick {
   background: var(--grad-card) !important;
@@ -228,12 +221,6 @@
   background: var(--grad-card-hover) !important;
   box-shadow: var(--shadow-md), var(--shadow-glow) !important;
 }
-.light .hv-chip-sci-dim {
-  background: var(--grad-chip) !important;
-  border: 1px solid var(--border) !important;
-  color: var(--text-muted) !important;
-}
-
 /* ── Action Buttons ──────────────────────────────────────── */
 .light .hv-action {
   background: var(--grad-button) !important;
@@ -263,16 +250,6 @@
   outline: none !important;
 }
 
-/* ── Terminal ────────────────────────────────────────────── */
-.light .hv-grad-terminal {
-  background: var(--grad-chip) !important;
-  border-color: var(--border) !important;
-}
-
-/* ── Player ──────────────────────────────────────────────── */
-.light .hv-grad-player {
-  background: var(--grad-card) !important;
-}
 
 /* ── Profile Card ────────────────────────────────────────── */
 .light .hv-grad-profile {
@@ -340,39 +317,7 @@
   box-shadow: 0 -2px 12px rgba(44,24,16,0.06) !important;
 }
 
-/* ── Messages ────────────────────────────────────────────── */
-.light .hv-grad-message {
-  background: var(--grad-chip) !important;
-}
 
-/* ── Gradient Utilities ──────────────────────────────────── */
-.light .gradient-fill {
-  background: var(--grad-card) !important;
-  border: 1px solid var(--border) !important;
-}
-.light .gradient-fill-glass {
-  background: var(--grad-panel) !important;
-  border: 1px solid var(--border) !important;
-  backdrop-filter: blur(16px) saturate(1.2) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(1.2) !important;
-}
-.light .gradient-text {
-  background: var(--accent-gradient) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-}
-.light .gradient-glow {
-  box-shadow: var(--shadow-glow) !important;
-}
-.light .gradient-line {
-  background: var(--accent-gradient) !important;
-  opacity: 0.25 !important;
-}
-.light .gradient-line-thick {
-  background: var(--accent-gradient) !important;
-  opacity: 0.3 !important;
-}
 
 /* ── Text Readability ────────────────────────────────────── */
 .light .text-readable {
@@ -429,28 +374,6 @@
   background: radial-gradient(circle, rgba(124,58,237,0.06), rgba(13,148,136,0.04), rgba(13,148,136,0.03), transparent 70%) !important;
 }
 
-/* ── Hero Grid ───────────────────────────────────────────── */
-.light .hv-hero-grid {
-  background-image:
-    linear-gradient(rgba(120,100,70,0.2) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(120,100,70,0.2) 1px, transparent 1px) !important;
-  background-size: 60px 60px !important;
-  opacity: 0.04 !important;
-}
-
-/* ── Hero Orb ────────────────────────────────────────────── */
-.light .hv-orb-ring {
-  background: conic-gradient(from 0deg, #0d9488, #0284c7, #7c3aed, #db2777, #e11d48, #0d9488) !important;
-  opacity: 0.1 !important;
-}
-.light .hv-orb-glow {
-  background: radial-gradient(circle at 40% 35%, rgba(124,58,237,0.08), rgba(13,148,136,0.04), transparent 60%) !important;
-}
-.light .hv-orb-ring-inner {
-  border-color: rgba(124,58,237,0.1) !important;
-  box-shadow: 0 0 30px rgba(124,58,237,0.04), inset 0 0 20px rgba(13,148,136,0.03) !important;
-}
-
 /* ── Glitch Title ────────────────────────────────────────── */
 .light .hv-compact-title {
   color: var(--accent) !important;
@@ -478,11 +401,6 @@
   border: 1px solid var(--border) !important;
 }
 .light .hv-pill-menu-panel {
-  background: var(--grad-panel) !important;
-  border: 1px solid var(--border) !important;
-  box-shadow: var(--shadow-lg) !important;
-}
-.light .hv-mobile-pill-popover {
   background: var(--grad-panel) !important;
   border: 1px solid var(--border) !important;
   box-shadow: var(--shadow-lg) !important;

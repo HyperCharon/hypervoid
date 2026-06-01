@@ -8,7 +8,7 @@ import {
   useMotionValue,
   useTransform,
   useSpring,
-} from "framer-motion";
+} from "motion/react";
 import { useT } from "@/components/LocaleProvider";
 
 type Photo = {

@@ -25,7 +25,7 @@ export function MermaidDiagram({ code }: { code: string }) {
           mermaid.initialize({
             startOnLoad: false,
             theme,
-            securityLevel: "loose",
+            securityLevel: "strict",
             fontFamily: "inherit",
           });
           mermaidInitialized = true;

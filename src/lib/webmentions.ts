@@ -176,7 +176,7 @@ export async function verifySource(
   try {
     response = await fetch(source, {
       signal: controller.signal,
-      redirect: "follow",
+      redirect: "error",
       headers: { "User-Agent": "Hypervoid-Webmentions/1.0" },
     });
   } catch (e) {

@@ -6,7 +6,7 @@ import {
   motion,
   AnimatePresence,
   useMotionValue,
-} from "framer-motion";
+} from "motion/react";
 import type * as THREE from "three";
 
 type Photo = {

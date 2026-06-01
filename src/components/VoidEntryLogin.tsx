@@ -8,7 +8,7 @@ import {
   useReducedMotion,
   useSpring,
   useTransform,
-} from "framer-motion";
+} from "motion/react";
 import {
   AlertCircle,
   ArrowLeft,
