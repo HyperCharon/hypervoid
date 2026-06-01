@@ -1228,26 +1228,6 @@ html[data-fullscreen-route="true"] body { overflow-x: hidden; }
 
 /* ── Homepage Layout ───────────────────────────────────────── */
 .hv-home-grid { align-items: start; }
-.hv-home-main,
-.hv-home-rail,
-.hv-home-posts { min-width: 0; }
-.hv-home-rail > * { min-width: 0; }
-
-.hv-home-rail :is(.hv-panel, .hv-panel-sci),
-.hv-home-subscribe :is(.hv-panel, .hv-panel-sci) {
-  padding: 0.65rem !important;
-}
-
-.hv-home-posts .hv-card { min-height: 0; }
-.hv-home-posts .hv-chip-sci { min-height: 1.35rem; padding-inline: 0.4rem; }
-
-.hv-home-main { gap: 1.15rem !important; }
-.hv-home-rail { gap: 0.75rem !important; }
-
-.hv-home-hero {
-  border-radius: 0.75rem;
-  overflow: hidden;
-}
 
 .hv-magic-bento-content {
   position: relative;
