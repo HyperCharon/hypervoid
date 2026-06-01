@@ -132,8 +132,8 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
     ? "@" + currentUser.login
     : currentUser?.name || currentUser?.email || "已登录用户";
   const visibleError = authError ?? readableError(error);
-  const primaryHref = currentUser && redirectTo !== "/" ? redirectTo : "/posts";
-  const primaryLabel = currentUser && redirectTo !== "/" ? "继续访问" : "进入博客";
+  const primaryHref = currentUser && redirectTo !== "/" ? redirectTo : "/";
+  const primaryLabel = currentUser && redirectTo !== "/" ? "继续访问" : "进入主页";
 
   async function handleSignOut() {
     setAuthError(null);
@@ -371,7 +371,8 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                         <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                           <Link
                             href={primaryHref}
-                            className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 whitespace-nowrap border border-emerald-100/55 bg-emerald-50 px-4 text-sm font-black uppercase text-black transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/80"
+                            className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 whitespace-nowrap border px-4 text-sm font-black uppercase transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/80"
+                            style={{ borderColor: "rgba(16,185,129,0.5)", background: "#ecfdf5", color: "#000000" }}
                           >
                             {primaryLabel}
                             <ArrowRight className="h-4 w-4" aria-hidden />
@@ -379,7 +380,8 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                           {currentUser.isAdmin ? (
                             <Link
                               href="/admin"
-                              className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 whitespace-nowrap border border-white/20 bg-white/10 px-4 text-sm font-black uppercase text-white transition hover:border-emerald-100/60 hover:bg-emerald-50/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/70"
+                              className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 whitespace-nowrap border px-4 text-sm font-black uppercase transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/70"
+                              style={{ borderColor: "rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.1)", color: "#ffffff" }}
                             >
                               进入后台
                             </Link>
@@ -500,6 +502,27 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                     </form>
                   </>
                 )}
+
+                {/* Guest mode */}
+                {!currentUser ? (
+                  <>
+                    <div className="my-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+                      <div className="h-px bg-white/12" />
+                      <span className="font-mono text-[10px] uppercase text-white/35">或</span>
+                      <div className="h-px bg-white/12" />
+                    </div>
+                    <Link
+                      href="/"
+                      onClick={() => {
+                        try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
+                      }}
+                      className="group flex min-h-11 w-full items-center justify-center gap-2 border border-white/15 bg-white/5 text-sm font-medium text-white/70 transition hover:border-white/25 hover:bg-white/10 hover:text-white"
+                    >
+                      游客访问（仅阅读）
+                      <ArrowRight className="h-3.5 w-3.5 opacity-50 transition group-hover:translate-x-0.5 group-hover:opacity-100" aria-hidden />
+                    </Link>
+                  </>
+                ) : null}
 
                 <div className="mt-5 grid grid-cols-3 border-y border-white/12 py-3 font-mono text-xs uppercase text-white/50">
                   <span className="flex items-center gap-1.5">
