@@ -995,17 +995,14 @@ export function HeroSection({
 
   return (
     <section className="hv-cosmic-hero relative overflow-hidden" style={{ background: "transparent" }}>
-      {/* Desktop-only effects */}
-      <div className="hidden sm:block">
-        <FullGrid />
-        <Starfield />
-        <NebulaGlow />
-        <AuroraWaves />
-        <Planet />
-        <Moon />
-        <GridWarp />
-        <Scanlines />
-      </div>
+      <FullGrid />
+      <Starfield />
+      <NebulaGlow />
+      <AuroraWaves />
+      <Planet />
+      <Moon />
+      <GridWarp />
+      <Scanlines />
       <HudBrackets />
       {/* Light mode overlay */}
       <div className="hv-light-overlay pointer-events-none absolute inset-0 z-[5]" />

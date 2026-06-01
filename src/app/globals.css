@@ -1958,7 +1958,7 @@ html[data-style="banner"] .hv-cosmic-hero {
 
 /* ── Mobile Optimizations ──────────────────────────────────── */
 @media (max-width: 639px) {
-  /* Reduce body padding */
+  /* Body bottom padding for safe area */
   body {
     padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
   }
@@ -1966,21 +1966,26 @@ html[data-style="banner"] .hv-cosmic-hero {
   .hv-main-shell {
     padding: 0 0.75rem;
   }
-  /* Hero section compact */
+  /* Hero: hide heavy canvas/animation effects on mobile */
+  .hv-cosmic-hero > canvas.pointer-events-none,
+  .hv-cosmic-hero > div.pointer-events-none.absolute.inset-0.z-0.overflow-hidden,
+  .hv-cosmic-hero > div.pointer-events-none.absolute.inset-x-0 {
+    display: none !important;
+  }
   .hv-cosmic-hero {
     min-height: auto !important;
   }
-  /* Cards tighter padding */
+  /* Cards tighter */
   .hv-card {
     border-radius: 0.625rem;
   }
-  /* Chips smaller on mobile */
+  /* Chips smaller */
   .hv-chip {
     font-size: 0.65rem;
     padding: 0.0625rem 0.375rem;
     min-height: 1.25rem;
   }
-  /* Action buttons smaller */
+  /* Actions smaller */
   .hv-action {
     min-height: 2rem;
     padding: 0 0.75rem;
