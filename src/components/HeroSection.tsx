@@ -1004,13 +1004,13 @@ export function HeroSection({
       <GridWarp />
       <Scanlines />
       <HudBrackets />
-      {/* Light mode overlay */}
-      <div className="hv-light-overlay pointer-events-none absolute inset-0 z-[5]" />
-
-      {/* Ticker — hidden on mobile */}
-      <div className="hidden sm:block">
+      {/* Ticker — above light overlay, hidden on mobile */}
+      <div className="relative z-10 hidden sm:block">
         <Ticker />
       </div>
+
+      {/* Light mode overlay */}
+      <div className="hv-light-overlay pointer-events-none absolute inset-0 z-[5]" />
 
       <div className="relative z-10 mx-auto max-w-[100rem]">
         <div className="flex flex-col items-center px-5 pt-6 pb-3 sm:px-6 sm:pt-8 sm:pb-4 lg:px-8 lg:pt-10 lg:pb-5">
