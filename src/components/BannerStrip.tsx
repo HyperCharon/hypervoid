@@ -97,7 +97,7 @@ export function BannerStrip() {
   if (background === "plain") return null;
 
   const stripClass =
-    "relative w-full h-[44vh] overflow-hidden pointer-events-none";
+    "relative w-full h-[44vh] overflow-hidden pointer-events-none hidden sm:block";
 
   if (background === "cosmic" || background === "particles") {
     return (
