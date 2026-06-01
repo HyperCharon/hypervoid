@@ -15,7 +15,7 @@ export function SiteHeader() {
       className="hv-site-header hv-grad-header sticky top-0 z-40 w-full text-foreground backdrop-blur-[24px] saturate-[1.4]"
       style={{ viewTransitionName: "site-header" }}
     >
-      <div className="mx-auto flex h-12 max-w-[100rem] items-center gap-1.5 px-3 sm:h-14 sm:gap-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-12 max-w-[100rem] items-center px-3 sm:h-14 sm:px-6 lg:px-8">
         {/* Left: Logo + Home */}
         <div className="flex min-h-9 shrink-0 items-center gap-1 font-bold tracking-tight sm:gap-2.5 sm:min-h-11">
           <Link
@@ -55,13 +55,13 @@ export function SiteHeader() {
           </Link>
         </div>
 
-        {/* Center: Desktop nav */}
-        <div className="mx-auto hidden min-w-0 xl:block">
+        {/* Center: Desktop nav — flex-1 on both sides to truly center */}
+        <div className="mx-auto hidden min-w-0 flex-1 justify-center xl:flex">
           <NavGroups />
         </div>
 
         {/* Right: Desktop dock / Mobile dock */}
-        <div className="ml-auto flex shrink-0 items-center">
+        <div className="ml-auto flex shrink-0 items-center xl:ml-0">
           <HeaderDock />
           <MobileDock />
         </div>
