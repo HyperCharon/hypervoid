@@ -568,6 +568,9 @@ html[data-reading="large"] article .prose {
     background: var(--background) !important;
   }
 }
+.light .hv-cosmic-hero {
+  background: var(--background) !important;
+}
 .light .hv-cosmic-hero canvas {
   opacity: 0.1;
 }
