@@ -185,7 +185,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className="fixed inset-x-0 top-12 z-[50] max-h-[calc(100dvh-3rem)] overflow-y-auto border-b border-border bg-card shadow-lg lg:hidden"
+        className="hv-mobile-drawer fixed inset-x-0 top-12 z-[50] max-h-[calc(100dvh-3rem)] overflow-y-auto border-b border-border lg:hidden"
       >
         <div className="px-3 py-3">
           {NAV_GROUPS.map((group) => (
