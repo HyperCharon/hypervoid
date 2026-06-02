@@ -467,3 +467,12 @@ export const dbBackups = pgTable("db_backups", {
     .notNull()
     .defaultNow(),
 });
+
+/** Quick notes (随手记) — admin-only short notes shown on /diary */
+export const quickNotes = pgTable("quick_notes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
