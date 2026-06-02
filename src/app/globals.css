@@ -841,6 +841,11 @@ html[data-reading="large"] article .prose {
   background: rgba(255,255,255,0.06);
 }
 
+/* Mobile nav drawer — fully opaque, no transparency */
+.dark [class*="bg-card"].fixed.inset-x-0 {
+  background: linear-gradient(145deg, rgba(239,68,68,0.06), rgba(234,179,8,0.04), rgba(34,197,94,0.05), rgba(59,130,246,0.08), rgba(99,102,241,0.06), rgba(139,92,246,0.05), rgba(12,18,36,1));
+}
+
 /* ── Navigation ────────────────────────────────────────────── */
 .hv-brand-orbit {
   border: 1px solid var(--border);
