@@ -31,7 +31,7 @@
 /* ── Background Options ──────────────────────────────────── */
 .light {
   --bg-image: none;
-  --bg-color: #faf6ef;
+  --bg-color: #f8f2dc;
   --bg-size: cover;
   --bg-position: center;
   --bg-repeat: no-repeat;
@@ -54,7 +54,7 @@
   color: var(--foreground);
 }
 
-/* Warm amber ambient overlay */
+/* Sky blue ambient overlay */
 .light body::before {
   content: "";
   position: fixed;
@@ -62,10 +62,10 @@
   z-index: -20;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 55% 45% at 12% 18%, rgba(180,83,9,0.04), transparent 50%),
-    radial-gradient(ellipse 45% 40% at 82% 25%, rgba(217,119,6,0.03), transparent 45%),
-    radial-gradient(ellipse 50% 45% at 35% 75%, rgba(202,138,4,0.025), transparent 50%),
-    radial-gradient(ellipse 60% 40% at 70% 80%, rgba(180,83,9,0.02), transparent 45%);
+    radial-gradient(ellipse 55% 45% at 12% 18%, rgba(2,132,199,0.04), transparent 50%),
+    radial-gradient(ellipse 45% 40% at 82% 25%, rgba(14,165,233,0.03), transparent 45%),
+    radial-gradient(ellipse 50% 45% at 35% 75%, rgba(56,189,248,0.025), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 70% 80%, rgba(2,132,199,0.02), transparent 45%);
   opacity: var(--fx-ambient, 0.3);
 }
 
@@ -190,10 +190,10 @@
   box-shadow: var(--shadow-lg), var(--shadow-glow) !important;
 }
 .light .hv-daily-sparkle-h {
-  background: linear-gradient(270deg, rgba(180,83,9,0.14), rgba(180,83,9,0.08), transparent) !important;
+  background: linear-gradient(270deg, rgba(2,132,199,0.14), rgba(2,132,199,0.08), transparent) !important;
 }
 .light .hv-daily-sparkle-v {
-  background: linear-gradient(180deg, rgba(202,138,4,0.1), rgba(180,83,9,0.06), transparent) !important;
+  background: linear-gradient(180deg, rgba(14,165,233,0.1), rgba(2,132,199,0.06), transparent) !important;
 }
 .light .hv-daily-icon {
   background: var(--grad-chip) !important;
@@ -246,7 +246,7 @@
 .light .hv-input:focus {
   background: var(--grad-card) !important;
   border-color: var(--accent) !important;
-  box-shadow: 0 0 0 3px rgba(180,83,9,0.08), 0 0 0 6px rgba(217,119,6,0.04), var(--shadow-glow) !important;
+  box-shadow: 0 0 0 3px rgba(2,132,199,0.08), 0 0 0 6px rgba(56,189,248,0.04), var(--shadow-glow) !important;
   outline: none !important;
 }
 
@@ -262,14 +262,14 @@
   background-clip: text !important;
 }
 .light .hv-profile-glow {
-  background: radial-gradient(circle, rgba(180,83,9,0.08), rgba(217,119,6,0.05), rgba(202,138,4,0.03), transparent) !important;
+  background: radial-gradient(circle, rgba(2,132,199,0.08), rgba(14,165,233,0.05), rgba(56,189,248,0.03), transparent) !important;
 }
 .light .hv-profile-line-tl {
-  background: linear-gradient(90deg, #b45309, #d97706, #ca8a04, transparent) !important;
+  background: linear-gradient(90deg, #0284c7, #0ea5e9, #38bdf8, transparent) !important;
   opacity: 0.3 !important;
 }
 .light .hv-profile-line-bl {
-  background: linear-gradient(180deg, #b45309, #ca8a04, #16a34a, transparent) !important;
+  background: linear-gradient(180deg, #0284c7, #38bdf8, #0d9488, transparent) !important;
   opacity: 0.3 !important;
 }
 .light .hv-profile-line-tr {
@@ -447,7 +447,7 @@
   saturate: 1 !important;
 }
 .light .hv-magic-bento-scan {
-  background: linear-gradient(90deg, transparent, rgba(180,83,9,0.05), transparent) !important;
+  background: linear-gradient(90deg, transparent, rgba(2,132,199,0.05), transparent) !important;
 }
 .light .hv-magic-bento-card .hv-magic-bento-content {
   position: relative;

@@ -143,25 +143,25 @@ html[data-font-size="large"] .prose {
   --danger-bg: rgba(220,38,38,0.08);
   --glitch-pink: #db2777;
   --glitch-violet: #7c3aed;
-  --glitch-bg: #fefcf7;
-  --spotlight: rgba(180, 83, 9, 0.06);
+  --glitch-bg: #fdf9ee;
+  --spotlight: rgba(2, 132, 199, 0.06);
 
   /* Light-specific gradients */
-  --grad-card: linear-gradient(160deg, #fefcf7 0%, #f8f2e6 100%);
-  --grad-card-hover: linear-gradient(160deg, #fefcf7 0%, #f4ecdc 100%);
-  --grad-panel: linear-gradient(160deg, rgba(254,252,247,0.95) 0%, rgba(248,242,230,0.95) 100%);
-  --grad-header: linear-gradient(160deg, rgba(254,252,247,0.97) 0%, rgba(246,240,228,0.97) 100%);
-  --grad-hero: linear-gradient(160deg, rgba(254,252,247,0.98) 0%, rgba(248,242,230,0.92) 50%, rgba(242,236,220,0.88) 100%);
-  --grad-chip: linear-gradient(160deg, #f6f0e4 0%, #f0e8d8 100%);
-  --grad-button: linear-gradient(160deg, #fefcf7 0%, #f6f0e4 100%);
-  --grad-button-hover: linear-gradient(160deg, #fefcf7 0%, #f2eadb 100%);
-  --grad-footer: linear-gradient(160deg, #f6f0e4 0%, #f0e8d8 100%);
-  --shadow-sm: 0 1px 2px rgba(44, 24, 16, 0.04);
-  --shadow-md: 0 2px 8px rgba(44, 24, 16, 0.06), 0 0 0 1px rgba(120, 100, 70, 0.05);
-  --shadow-lg: 0 4px 16px rgba(44, 24, 16, 0.08), 0 0 0 1px rgba(120, 100, 70, 0.06);
-  --shadow-glow: 0 0 12px rgba(180, 83, 9, 0.08);
-  --divider: rgba(120, 100, 70, 0.1);
-  --text-heading: #1a0f08;
+  --grad-card: linear-gradient(160deg, #fdf9ee 0%, #f5edcf 100%);
+  --grad-card-hover: linear-gradient(160deg, #fdf9ee 0%, #f2e9c4 100%);
+  --grad-panel: linear-gradient(160deg, rgba(253,249,238,0.95) 0%, rgba(245,237,207,0.95) 100%);
+  --grad-header: linear-gradient(160deg, rgba(253,249,238,0.97) 0%, rgba(248,242,220,0.97) 100%);
+  --grad-hero: linear-gradient(160deg, rgba(253,249,238,0.98) 0%, rgba(248,242,220,0.92) 50%, rgba(242,234,196,0.88) 100%);
+  --grad-chip: linear-gradient(160deg, #f5edcf 0%, #f0e6c0 100%);
+  --grad-button: linear-gradient(160deg, #fdf9ee 0%, #f5edcf 100%);
+  --grad-button-hover: linear-gradient(160deg, #fdf9ee 0%, #f2e9c4 100%);
+  --grad-footer: linear-gradient(160deg, #f5edcf 0%, #f0e6c0 100%);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 12px rgba(2, 132, 199, 0.08);
+  --divider: rgba(0, 0, 0, 0.08);
+  --text-heading: #1a1a1a;
 
   /* Effect intensities — subdued for light */
   --fx-glow: 0.2;
