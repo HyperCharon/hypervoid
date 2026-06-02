@@ -98,10 +98,10 @@ html[data-font-size="large"] .prose {
 /* ── Theme Variables: Light ─────────────────────────────────── */
 .light {
   color-scheme: light;
-  --background: #faf6ef;
+  --background: #f5f0e6;
   --foreground: #2c1810;
-  --card: #fefcf7;
-  --card-hover: #f6f0e4;
+  --card: #faf7f0;
+  --card-hover: #f0e9da;
   --muted: #7a6a5a;
   --muted-soft: #9a8a78;
   --border: rgba(120, 100, 70, 0.12);
@@ -109,7 +109,7 @@ html[data-font-size="large"] .prose {
   --accent-soft: #d97706;
   --accent-glow: rgba(180, 83, 9, 0.12);
   --accent-gradient: linear-gradient(135deg, #d97706, #b45309, #92400e);
-  --glass-bg: rgba(254, 252, 247, 0.92);
+  --glass-bg: rgba(250, 247, 240, 0.92);
   --glass-border: rgba(120, 100, 70, 0.1);
   --glass-blur: 16px;
   --primary: var(--accent);
