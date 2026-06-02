@@ -560,7 +560,7 @@ html[data-reading="large"] article .prose {
 
 /* Cosmic Hero — light mode */
 .light .hv-light-overlay {
-  background: rgba(250, 246, 239, 0.95);
+  background: rgba(248, 242, 220, 0.95);
   backdrop-filter: blur(2px);
 }
 @media (max-width: 639px) {
