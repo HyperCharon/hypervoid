@@ -24,8 +24,10 @@
 .light .dark-locked [class*="border-white/"] {
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
+/* Bare anchors inherit (matches Tailwind preflight); NOT !important so anchors
+   with an explicit inline color — e.g. the login "进入主页" button — keep it. */
 .light .dark-locked a {
-  color: inherit !important;
+  color: inherit;
 }
 
 /* ── Background Options ──────────────────────────────────── */
