@@ -256,7 +256,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
 
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-[min(72vw,680px)] w-[min(72vw,680px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-100/20 shadow-[0_0_70px_rgba(167,139,250,0.12)]"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden h-[min(72vw,680px)] w-[min(72vw,680px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-100/20 shadow-[0_0_70px_rgba(167,139,250,0.12)] sm:block"
         animate={ringSpin}
         transition={{ repeat: Infinity, duration: 54, ease: "linear" }}
       >
@@ -264,7 +264,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
       </motion.div>
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-[min(54vw,500px)] w-[min(54vw,500px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-white/20"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden h-[min(54vw,500px)] w-[min(54vw,500px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-white/20 sm:block"
         animate={reducedMotion ? undefined : { rotate: -360 }}
         transition={{ repeat: Infinity, duration: 38, ease: "linear" }}
       />
@@ -525,7 +525,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                   </>
                 ) : null}
 
-                <div className="mt-5 grid grid-cols-3 border-y border-white/12 py-3 font-mono text-xs uppercase text-white/50">
+                <div className="mt-5 hidden grid-cols-3 border-y border-white/12 py-3 font-mono text-xs uppercase text-white/50 sm:grid">
                   <span className="flex items-center gap-1.5">
                     <ShieldCheck className="h-3.5 w-3.5 text-emerald-100" aria-hidden />
                     GitHub 主登录
@@ -541,7 +541,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                 </div>
               </section>
 
-              <aside className="hypervoid-glass border border-white/20 bg-white/10 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_0_45px_rgba(14,165,233,0.12)] backdrop-blur-xl">
+              <aside className="hypervoid-glass hidden border border-white/20 bg-white/10 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_0_45px_rgba(14,165,233,0.12)] backdrop-blur-xl md:block">
                 <div className="mb-5 flex items-center gap-3">
                   <div className="grid h-10 w-10 place-items-center border border-emerald-100/30 bg-emerald-50/10 text-emerald-100">
                     <Orbit className="h-5 w-5" aria-hidden />

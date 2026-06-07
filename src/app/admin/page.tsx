@@ -356,8 +356,8 @@ export default async function AdminHome() {
             description="仅管理员可见"
           />
           {missingSummary.length > 0 ? (
-            <div className="border border-amber-300/30 bg-amber-300/10 p-3 text-xs">
-              <p className="flex items-center gap-1.5 font-medium text-amber-200">
+            <div className="border border-amber-500/40 bg-amber-400/15 p-3 text-xs dark:border-amber-300/30 dark:bg-amber-300/10">
+              <p className="flex items-center gap-1.5 font-medium text-amber-700 dark:text-amber-200">
                 <ShieldAlert className="h-3.5 w-3.5" aria-hidden /> {missingSummary.length} 篇已发布文章还没 AI 摘要
               </p>
               <p className="mt-1 text-muted">
