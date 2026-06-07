@@ -81,13 +81,6 @@
   filter: none !important;
   saturate: 1 !important;
 }
-.light .hv-magic-bento-card img {
-  opacity: 0.6 !important;
-  filter: none !important;
-}
-.light .hv-magic-bento-card:hover img {
-  opacity: 0.8 !important;
-}
 
 /* Player widget — soften dark overlay */
 .light .hv-grad-player img {
@@ -439,12 +432,12 @@
   color: var(--muted) !important;
 }
 .light .hv-magic-bento-card img {
-  opacity: 0.3 !important;
-  saturate: 0.8 !important;
+  opacity: 0.78 !important;
+  filter: saturate(0.9) !important;
 }
 .light .hv-magic-bento-card:hover img {
-  opacity: 0.5 !important;
-  saturate: 1 !important;
+  opacity: 0.95 !important;
+  filter: saturate(1) !important;
 }
 .light .hv-magic-bento-scan {
   background: linear-gradient(90deg, transparent, rgba(2,132,199,0.05), transparent) !important;
@@ -452,6 +445,8 @@
 .light .hv-magic-bento-card .hv-magic-bento-content {
   position: relative;
   z-index: 4;
+  /* Bottom scrim so dark title/description stay legible over the vivid cover */
+  background: linear-gradient(to top, var(--card) 0%, color-mix(in srgb, var(--card) 55%, transparent) 36%, transparent 72%);
 }
 .light .hv-magic-bento-card [class*="bg-[radial-gradient"] {
   background: radial-gradient(circle at 24% 18%, var(--accent-glow), transparent 38%), linear-gradient(135deg, rgba(0,0,0,0.02), transparent) !important;

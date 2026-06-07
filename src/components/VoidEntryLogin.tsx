@@ -215,7 +215,8 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
+          poster="/1-poster.jpg"
         >
           <source src="/1.mp4" type="video/mp4" />
           Your browser does not support the video tag.
@@ -516,7 +517,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                       onClick={() => {
                         try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
                       }}
-                      className="group flex min-h-11 w-full items-center justify-center gap-2 border border-white/15 bg-white/5 text-sm font-medium text-white/70 transition hover:border-white/25 hover:bg-white/10 hover:text-white"
+                      className="group flex min-h-11 w-full items-center justify-center gap-2 border border-white/30 bg-white/10 text-sm font-semibold text-white/90 transition hover:border-white/45 hover:bg-white/15 hover:text-white"
                     >
                       游客访问（仅阅读）
                       <ArrowRight className="h-3.5 w-3.5 opacity-50 transition group-hover:translate-x-0.5 group-hover:opacity-100" aria-hidden />

@@ -63,7 +63,7 @@ export function FeaturedPostCard({ post }: { post: PostMeta }) {
 
           <h3 className="text-lg font-bold leading-snug tracking-tight text-foreground transition group-hover:text-foreground sm:text-xl md:text-2xl">
             {frontmatter.title}
-            <ReadBadge slug={slug} />
+            <ReadBadge slug={slug} className="ml-2 align-middle" />
           </h3>
 
           {frontmatter.description ? (
