@@ -49,11 +49,11 @@ export function MobileDock() {
 
   // Prevent hydration mismatch — render placeholder until mounted
   if (!mounted) {
-    return <div className="flex h-8 w-[168px] lg:hidden" />;
+    return <div className="flex h-8 w-[168px] xl:hidden" />;
   }
 
   return (
-    <div className="flex items-center gap-0.5 lg:hidden">
+    <div className="flex items-center gap-0.5 xl:hidden">
       {/* Search */}
       <Link
         href="/search"
@@ -180,12 +180,12 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-[45] bg-black/50 backdrop-blur-sm lg:hidden" onClick={onClose} />
+      <div className="fixed inset-0 z-[45] bg-black/50 backdrop-blur-sm xl:hidden" onClick={onClose} />
 
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className="fixed inset-x-0 top-12 z-[50] max-h-[calc(100dvh-3rem)] overflow-y-auto border-b border-border shadow-lg lg:hidden"
+        className="fixed inset-x-0 top-12 z-[50] max-h-[calc(100dvh-3rem)] overflow-y-auto border-b border-border shadow-lg sm:top-14 sm:max-h-[calc(100dvh-3.5rem)] xl:hidden"
         style={{ background: "var(--card)" }}
       >
         <div className="px-3 py-3">

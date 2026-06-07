@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import Script from "next/script";
-import { Geist, Geist_Mono, Orbitron } from "next/font/google";
+import { Geist, JetBrains_Mono, Orbitron } from "next/font/google";
 import "./globals.css";
 import "aplayer/dist/APlayer.min.css";
 import "remark-github-blockquote-alert/alert.css";
@@ -27,7 +27,7 @@ const geistSans = Geist({
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
@@ -106,7 +106,7 @@ export default async function RootLayout({
     <html
       lang="zh-CN"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${jetbrainsMono.variable} ${orbitron.variable} h-full antialiased`}
     >
       <head>
         <link rel="preconnect" href="https://github.com" crossOrigin="anonymous" />

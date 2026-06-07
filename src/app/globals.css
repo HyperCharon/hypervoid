@@ -141,8 +141,8 @@ html[data-font-size="large"] .prose {
   --danger: #dc2626;
   --danger-hover: #b91c1c;
   --danger-bg: rgba(220,38,38,0.08);
-  --glitch-pink: #db2777;
-  --glitch-violet: #7c3aed;
+  --glitch-pink: #0ea5e9;
+  --glitch-violet: #0369a1;
   --glitch-bg: #fdf9ee;
   --spotlight: rgba(2, 132, 199, 0.06);
 
@@ -192,6 +192,17 @@ html[data-font-size="large"] .prose {
   --color-primary-foreground: #ffffff;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-orbitron);
+}
+
+/* ── Type rhythm ───────────────────────────────────────────────
+   Fluid display sizes + tightened tracking for headings. Applied
+   via .hv-title / .hv-display so it propagates site-wide without
+   touching every component. */
+:root {
+  --tracking-display: -0.025em;
+  --tracking-tight: -0.015em;
+  --leading-display: 1.05;
 }
 
 /* ── Body ──────────────────────────────────────────────────── */
@@ -328,6 +339,7 @@ html[data-reading="large"] article .prose {
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
   font-weight: 500;
+  overflow-wrap: break-word;
 }
 
 /* Table */
@@ -579,9 +591,8 @@ html[data-reading="large"] article .prose {
   color: var(--foreground);
   text-shadow: none;
 }
-.light .hv-t-hyper {
-  filter: brightness(0.55) saturate(0.7);
-}
+/* .light .hv-t-hyper gradient + filter now defined in HeroSection styled-jsx
+   (cohesive sky-blue spectrum); no brightness dim needed here. */
 /* HUD data labels */
 .light .hv-title-data {
   color: var(--muted-soft) !important;
@@ -676,8 +687,18 @@ html[data-reading="large"] article .prose {
 /* Title */
 .hv-title {
   color: var(--foreground);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-tight);
   font-weight: 700;
+  text-wrap: balance;
+}
+
+/* Display — for hero-scale headings using the Orbitron display face */
+.hv-display {
+  font-family: var(--font-display), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-display);
+  font-weight: 800;
+  text-wrap: balance;
 }
 
 /* Chip — base (both themes) */
@@ -801,6 +822,8 @@ html[data-reading="large"] article .prose {
 .hv-prose :where(h1, h2, h3, h4) { color: var(--foreground); letter-spacing: -0.01em; }
 .hv-prose :where(h2, h3) a { text-decoration: none; }
 .hv-prose :where(p, li) { line-height: 1.82; }
+/* Break long URLs / identifiers so they never overflow narrow screens. */
+.hv-prose { overflow-wrap: break-word; }
 .hv-prose :where(blockquote) {
   border-left-color: color-mix(in srgb, var(--accent) 50%, transparent);
   background: color-mix(in srgb, var(--accent) 5%, transparent);
@@ -810,6 +833,8 @@ html[data-reading="large"] article .prose {
 .hv-prose :where(img) {
   border: 1px solid var(--border);
   border-radius: 0.5rem;
+  max-width: 100%;
+  height: auto;
 }
 
 /* ── Site Header ───────────────────────────────────────────── */
@@ -970,29 +995,13 @@ html[data-reading="large"] article .prose {
   background: color-mix(in srgb, var(--accent) 6%, transparent);
 }
 
-/* Mobile nav */
-/* ── Bottom Tab Bar (mobile) ──────────────────────────────── */
+/* Mobile: only reserve the iOS home-indicator safe area below the footer.
+   The bottom tab bar / menu sheet were removed; their 3.5rem spacer was
+   leaving dead empty space at the bottom of every mobile page. */
 @media (max-width: 63.999rem) {
   body {
-    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-}
-/* ── Menu Sheet (mobile) ─────────────────────────────────── */
-.hv-menu-sheet {
-  animation: sheet-up 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-@keyframes sheet-up {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-.dark .hv-menu-sheet {
-  background: rgba(8, 11, 20, 0.95);
-  border-top-color: rgba(255, 255, 255, 0.08);
-}
-.light .hv-menu-sheet {
-  background: rgba(255, 252, 245, 0.97);
-  border-top-color: rgba(0, 0, 0, 0.06);
 }
 
 /* Legacy mobile pill — removed */
@@ -1719,10 +1728,6 @@ html[data-style="banner"] .hv-cosmic-hero {
 
 /* ── Mobile Optimizations ──────────────────────────────────── */
 @media (max-width: 639px) {
-  /* Body bottom padding for safe area */
-  body {
-    padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
-  }
   /* Tighter section spacing */
   .hv-main-shell {
     padding: 0 0.75rem;

@@ -73,7 +73,7 @@ export function HeaderDock() {
   const nextLocale = LOCALES[(LOCALES.indexOf(locale) + 1) % LOCALES.length];
 
   return (
-    <div className="hidden items-center lg:flex">
+    <div className="hidden items-center xl:flex">
       <div className="hv-dock-panel" role="toolbar" aria-label="快捷操作">
         <DockSlot label={t.common.search}>
           <Link href="/search" className="hv-dock-trigger" aria-label={t.common.search} title={t.common.search}>

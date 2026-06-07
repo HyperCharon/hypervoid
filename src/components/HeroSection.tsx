@@ -617,15 +617,15 @@ function Title() {
           animation: ht-grad 14s linear infinite;
           filter: drop-shadow(0 0 20px rgba(56,189,248,0.2));
         }
-        /* ── HYPER gradient — light mode: bolder, higher contrast ── */
+        /* ── HYPER gradient — light mode: cohesive sky-blue spectrum on paper ── */
         .light .hv-t-hyper {
-          background: linear-gradient(135deg, #dc2626, #ea580c, #d97706, #16a34a, #0d9488, #0284c7, #4f46e5, #7c3aed, #a855f7, #db2777, #e11d48, #dc2626);
+          background: linear-gradient(135deg, #075985, #0284c7, #0ea5e9, #38bdf8, #06b6d4, #0891b2, #0284c7, #075985);
           background-size: 800% 800%;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
           animation: ht-grad 14s linear infinite;
-          filter: drop-shadow(0 0 12px rgba(180,83,9,0.2));
+          filter: drop-shadow(0 0 12px rgba(2,132,199,0.22));
         }
         /* ── VOID — dark mode: white with flicker ── */
         .hv-t-void {
