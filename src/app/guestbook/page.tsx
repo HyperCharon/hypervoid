@@ -120,7 +120,7 @@ export default async function GuestbookPage() {
                         href={`https://github.com/${m.githubLogin}`}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="text-sm font-medium text-foreground hover:text-foreground transition"
+                        className="min-w-0 truncate text-sm font-medium text-foreground hover:text-foreground transition"
                       >
                         {m.githubName || m.githubLogin}
                         <span className="ml-1 font-mono text-xs font-normal text-muted">

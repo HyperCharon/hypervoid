@@ -108,10 +108,10 @@
 
 /* ── Text visibility boost ────────────────────────────────── */
 .light .text-muted {
-  color: #7a6a5a !important;
+  color: #6b5b48 !important;
 }
 .light .text-muted-soft {
-  color: #9a8a78 !important;
+  color: #786853 !important;
 }
 .light .text-foreground\/80 {
   color: var(--foreground) !important;

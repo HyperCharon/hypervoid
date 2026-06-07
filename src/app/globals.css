@@ -102,10 +102,10 @@ html[data-font-size="large"] .prose {
   --foreground: #1e1e1e;
   --card: #fdf9ee;
   --card-hover: #f5edcf;
-  --muted: #6b7280;
-  --muted-soft: #9ca3af;
+  --muted: #6b5b48;
+  --muted-soft: #786853;
   --border: rgba(0, 0, 0, 0.08);
-  --accent: #0284c7;
+  --accent: #0369a1;
   --accent-soft: #38bdf8;
   --accent-glow: rgba(2, 132, 199, 0.12);
   --accent-gradient: linear-gradient(135deg, #38bdf8, #0284c7, #0369a1);
