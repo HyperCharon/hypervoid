@@ -47,6 +47,7 @@ export function Hero({ locale, data }: SectionProps) {
   return (
     <header className="cv-hero">
       <div className="cv-hero-bg" aria-hidden>
+        <canvas className="cv-hero-particles" />
         <div className="cv-hero-grid" />
         <div className="cv-hero-glow" />
         <div className="cv-hero-glow cv-hero-glow-2" />
@@ -102,20 +103,20 @@ export function Profile({ locale, data }: SectionProps) {
   );
 }
 
-/* ── Skills ─────────────────────────────────────────────────────── */
+/* ── Skills — flowing chip bars, no cards ───────────────────────── */
 export function Skills({ locale, data }: SectionProps) {
   return (
     <section className="cv-section" id="skills">
       <SectionHeader index="02" kicker="SKILLS" title={isEn(locale) ? "Skills" : "技能"} />
-      <div className="cv-skills cv-stagger">
+      <div className="cv-skills">
         {data.skills.map((g, i) => (
-          <div key={i} className="cv-skill-group cv-stagger-item cv-card-hover">
-            <h3 className="cv-skill-name">{pick(g.name, locale)}</h3>
-            <ul className="cv-skill-chips">
-              {g.items.map((it) => (
-                <li key={it} className="cv-chip">{it}</li>
+          <div key={i} className="cv-skill-row cv-reveal">
+            <h3 className="cv-skill-cat">{pick(g.name, locale)}</h3>
+            <div className="cv-skill-chips">
+              {g.items.map((it, j) => (
+                <span key={it} className="cv-chip" style={{ "--chip-i": j } as React.CSSProperties}>{it}</span>
               ))}
-            </ul>
+            </div>
           </div>
         ))}
       </div>
@@ -123,30 +124,31 @@ export function Skills({ locale, data }: SectionProps) {
   );
 }
 
-/* ── Experience (cinematic timeline) ────────────────────────────── */
+/* ── Experience — two-column sticky timeline ────────────────────── */
 export function Experience({ locale, data }: SectionProps) {
   return (
     <section className="cv-section" id="experience">
       <SectionHeader index="03" kicker="EXPERIENCE" title={isEn(locale) ? "Experience" : "经历"} />
-      <div className="cv-timeline">
-        <span className="cv-timeline-line" aria-hidden />
+      <div className="cv-exp">
         {data.experience.map((exp, i) => (
-          <article key={i} className="cv-tl-item cv-reveal">
-            <span className="cv-tl-dot" aria-hidden />
-            <p className="cv-tl-period">{pick(exp.period, locale)}</p>
-            <h3 className="cv-tl-role">{pick(exp.role, locale)}</h3>
-            <p className="cv-tl-company">
-              <span>{pick(exp.company, locale)}</span>
-              {exp.location ? <span className="cv-tl-loc">· {pick(exp.location, locale)}</span> : null}
-            </p>
-            {exp.summary ? <p className="cv-tl-summary">{pick(exp.summary, locale)}</p> : null}
-            {exp.highlights.length ? (
-              <ul className="cv-tl-highlights">
-                {exp.highlights.map((h, j) => (
-                  <li key={j}>{pick(h, locale)}</li>
-                ))}
-              </ul>
-            ) : null}
+          <article key={i} className="cv-exp-item">
+            <div className="cv-exp-left cv-reveal">
+              <span className="cv-exp-period">{pick(exp.period, locale)}</span>
+              <span className="cv-exp-company">{pick(exp.company, locale)}</span>
+              <span className="cv-exp-dot" aria-hidden />
+            </div>
+            <div className="cv-exp-right cv-reveal">
+              <h3 className="cv-exp-role">{pick(exp.role, locale)}</h3>
+              {exp.location ? <p className="cv-exp-loc">{pick(exp.location, locale)}</p> : null}
+              {exp.summary ? <p className="cv-exp-summary">{pick(exp.summary, locale)}</p> : null}
+              {exp.highlights.length ? (
+                <ul className="cv-exp-highlights">
+                  {exp.highlights.map((h, j) => (
+                    <li key={j}>{pick(h, locale)}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
           </article>
         ))}
       </div>

@@ -10,15 +10,152 @@ import type { CvData } from "@/lib/cv-data";
 import { Hero, Profile, Skills, Experience, Projects, Education, Contact } from "./sections";
 import "./cv.css";
 
-// Premium easing: fast acceleration, long deceleration — the "confident" feel.
 const EASE = "power4.out";
 const EASE_SOFT = "power3.out";
+
+/* ── Hero particle network ──────────────────────────────────────── */
+function initParticles(canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return () => {};
+
+  let w = 0;
+  let h = 0;
+  let mx = -9999;
+  let my = -9999;
+  let raf = 0;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  type P = { x: number; y: number; vx: number; vy: number; r: number };
+  let particles: P[] = [];
+
+  function resize() {
+    const parent = canvas.parentElement!;
+    w = parent.clientWidth;
+    h = parent.clientHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    ctx!.scale(dpr, dpr);
+  }
+
+  function seed() {
+    const count = Math.min(Math.round((w * h) / 12000), 80);
+    particles = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      r: Math.random() * 1.5 + 0.5,
+    }));
+  }
+
+  function draw() {
+    ctx!.clearRect(0, 0, w, h);
+
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+
+      // Cursor repel
+      const dx = p.x - mx;
+      const dy = p.y - my;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 120) {
+        const f = (120 - dist) / 120 * 0.6;
+        p.vx += (dx / dist) * f;
+        p.vy += (dy / dist) * f;
+      }
+
+      // Dampen velocity
+      p.vx *= 0.99;
+      p.vy *= 0.99;
+    }
+
+    // Draw connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const a = particles[i];
+        const b = particles[j];
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < 140) {
+          const alpha = (1 - d / 140) * 0.15;
+          ctx!.strokeStyle = `rgba(110, 168, 255, ${alpha})`;
+          ctx!.lineWidth = 0.5;
+          ctx!.beginPath();
+          ctx!.moveTo(a.x, a.y);
+          ctx!.lineTo(b.x, b.y);
+          ctx!.stroke();
+        }
+      }
+    }
+
+    // Draw particles
+    for (const p of particles) {
+      const dm = Math.hypot(p.x - mx, p.y - my);
+      const glow = dm < 160 ? (1 - dm / 160) * 0.8 : 0;
+
+      ctx!.beginPath();
+      ctx!.arc(p.x, p.y, p.r + glow * 2, 0, Math.PI * 2);
+      ctx!.fillStyle = glow > 0.1
+        ? `rgba(110, 168, 255, ${0.3 + glow * 0.5})`
+        : "rgba(110, 168, 255, 0.2)";
+      ctx!.fill();
+
+      if (glow > 0.2) {
+        ctx!.beginPath();
+        ctx!.arc(p.x, p.y, p.r + glow * 6, 0, Math.PI * 2);
+        ctx!.fillStyle = `rgba(110, 168, 255, ${glow * 0.12})`;
+        ctx!.fill();
+      }
+    }
+
+    raf = requestAnimationFrame(draw);
+  }
+
+  function onMove(e: MouseEvent) {
+    const r = canvas.getBoundingClientRect();
+    mx = e.clientX - r.left;
+    my = e.clientY - r.top;
+  }
+
+  function onLeave() {
+    mx = -9999;
+    my = -9999;
+  }
+
+  resize();
+  seed();
+  draw();
+
+  window.addEventListener("resize", () => { resize(); seed(); });
+  canvas.addEventListener("mousemove", onMove, { passive: true });
+  canvas.addEventListener("mouseleave", onLeave);
+
+  return () => {
+    cancelAnimationFrame(raf);
+    canvas.removeEventListener("mousemove", onMove);
+    canvas.removeEventListener("mouseleave", onLeave);
+  };
+}
 
 export function CvPage({ data }: { data: CvData }) {
   const { locale, setLocale } = useLocale();
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  // ── Main cinematic animation suite ────────────────────────────────
+  // ── Hero particle canvas ─────────────────────────────────────────
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const canvas = root.querySelector<HTMLCanvasElement>(".cv-hero-particles");
+    if (!canvas) return;
+    return initParticles(canvas);
+  }, []);
+
+  // ── Main cinematic animation suite ───────────────────────────────
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -35,7 +172,6 @@ export function CvPage({ data }: { data: CvData }) {
         /* ── Hero sequence ────────────────────────────────────────── */
         const heroTl = gsap.timeline({ delay: 0.05 });
 
-        // Avatar: clip-path circle expand
         heroTl.fromTo(
           ".cv-avatar-reveal",
           { clipPath: "circle(0% at 50% 50%)" },
@@ -43,26 +179,19 @@ export function CvPage({ data }: { data: CvData }) {
           0,
         );
 
-        // Name: character-by-character reveal
         const chars = root.querySelectorAll<HTMLElement>(".cv-hero .cv-char");
         if (chars.length) {
           heroTl.fromTo(
             chars,
             { opacity: 0, y: 40, rotateX: -60 },
             {
-              opacity: 1,
-              y: 0,
-              rotateX: 0,
-              duration: 0.7,
-              stagger: 0.03,
-              ease: "back.out(1.4)",
-              clearProps: "transform",
+              opacity: 1, y: 0, rotateX: 0,
+              duration: 0.7, stagger: 0.03, ease: "back.out(1.4)", clearProps: "transform",
             },
             0.3,
           );
         }
 
-        // Role, tagline, stats: rise in
         heroTl.fromTo(
           ".cv-hero .cv-rise",
           { opacity: 0, y: 24 },
@@ -70,114 +199,115 @@ export function CvPage({ data }: { data: CvData }) {
           0.65,
         );
 
-        // Stats: counter animation
         root.querySelectorAll<HTMLElement>(".cv-stat-value[data-count]").forEach((el) => {
           const raw = el.dataset.count ?? "";
           const num = parseFloat(raw.replace(/[^0-9.]/g, ""));
           if (!raw.includes("∞") && !isNaN(num)) {
             const suffix = raw.replace(/[0-9.]/g, "");
             const obj = { v: 0 };
-            heroTl.to(
-              obj,
+            heroTl.to(obj, {
+              v: num, duration: 1.6, ease: "power2.out",
+              onUpdate() { el.textContent = Math.round(obj.v) + suffix; },
+            }, 0.8);
+          }
+        });
+
+        /* ── Progress bar ─────────────────────────────────────────── */
+        gsap.to(".cv-progress-bar", {
+          scaleX: 1, ease: "none",
+          scrollTrigger: { trigger: root, start: "top top", end: "bottom bottom", scrub: 0.3 },
+        });
+
+        /* ── Hero fade on scroll ──────────────────────────────────── */
+        gsap.to(".cv-hero-inner", {
+          opacity: 0, y: -60, ease: "none",
+          scrollTrigger: { trigger: ".cv-hero", start: "30% top", end: "bottom top", scrub: true },
+        });
+
+        /* ── Section headers: clip-path wipe ──────────────────────── */
+        root.querySelectorAll<HTMLElement>(".cv-clip-reveal").forEach((el) => {
+          gsap.fromTo(el,
+            { clipPath: "inset(0 100% 0 0)" },
+            {
+              clipPath: "inset(0 0% 0 0)", duration: 1.1, ease: "power3.inOut",
+              scrollTrigger: { trigger: el, start: "top 88%", once: true },
+            },
+          );
+        });
+
+        root.querySelectorAll<HTMLElement>(".cv-index-reveal").forEach((el) => {
+          gsap.fromTo(el,
+            { opacity: 0, scale: 0.5 },
+            {
+              opacity: 1, scale: 1, duration: 0.7, ease: "back.out(2)",
+              scrollTrigger: { trigger: el, start: "top 88%", once: true },
+            },
+          );
+        });
+
+        root.querySelectorAll<HTMLElement>(".cv-section-reveal").forEach((el) => {
+          gsap.fromTo(el,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.6, scrollTrigger: { trigger: el, start: "top 90%", once: true } },
+          );
+        });
+
+        /* ── Profile lead ─────────────────────────────────────────── */
+        root.querySelectorAll<HTMLElement>(".cv-lead.cv-reveal").forEach((el) => {
+          gsap.fromTo(el,
+            { opacity: 0, y: 30 },
+            {
+              opacity: 1, y: 0, duration: 0.9, clearProps: "transform",
+              scrollTrigger: { trigger: el, start: "top 88%", once: true },
+            },
+          );
+        });
+
+        /* ── Skill rows: stagger chips ────────────────────────────── */
+        root.querySelectorAll<HTMLElement>(".cv-skill-row").forEach((row) => {
+          const chips = row.querySelectorAll<HTMLElement>(".cv-chip");
+          gsap.fromTo(row,
+            { opacity: 0, x: -20 },
+            {
+              opacity: 1, x: 0, duration: 0.7, clearProps: "transform",
+              scrollTrigger: { trigger: row, start: "top 88%", once: true },
+            },
+          );
+          gsap.fromTo(chips,
+            { opacity: 0, y: 14, scale: 0.9 },
+            {
+              opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.04, ease: EASE_SOFT, clearProps: "transform",
+              scrollTrigger: { trigger: row, start: "top 88%", once: true },
+            },
+          );
+        });
+
+        /* ── Experience: two-column reveal ────────────────────────── */
+        root.querySelectorAll<HTMLElement>(".cv-exp-item").forEach((item) => {
+          const left = item.querySelector<HTMLElement>(".cv-exp-left");
+          const right = item.querySelector<HTMLElement>(".cv-exp-right");
+
+          if (left) {
+            gsap.fromTo(left,
+              { opacity: 0, x: -24 },
               {
-                v: num,
-                duration: 1.6,
-                ease: "power2.out",
-                onUpdate() {
-                  el.textContent = Math.round(obj.v) + suffix;
-                },
+                opacity: 1, x: 0, duration: 0.8, clearProps: "transform",
+                scrollTrigger: { trigger: item, start: "top 85%", once: true },
               },
-              0.8,
+            );
+          }
+          if (right) {
+            gsap.fromTo(right,
+              { opacity: 0, y: 28 },
+              {
+                opacity: 1, y: 0, duration: 0.9, delay: 0.1, clearProps: "transform",
+                scrollTrigger: { trigger: item, start: "top 85%", once: true },
+              },
             );
           }
         });
 
-        // Scroll indicator: gentle loop
-        gsap.to(".cv-hero-scroll-line::after", { yPercent: 200, repeat: -1, duration: 1.8, ease: "none" });
-
-        /* ── Scroll-scrub progress bar ────────────────────────────── */
-        gsap.to(".cv-progress-bar", {
-          scaleX: 1,
-          ease: "none",
-          scrollTrigger: { trigger: root, start: "top top", end: "bottom bottom", scrub: 0.3 },
-        });
-
-        /* ── Section headers: clip-path wipe reveal ──────────────── */
-        root.querySelectorAll<HTMLElement>(".cv-clip-reveal").forEach((el) => {
-          gsap.fromTo(
-            el,
-            { clipPath: "inset(0 100% 0 0)" },
-            {
-              clipPath: "inset(0 0% 0 0)",
-              duration: 1.1,
-              ease: "power3.inOut",
-              scrollTrigger: { trigger: el, start: "top 88%", once: true },
-            },
-          );
-        });
-
-        // Section index number
-        root.querySelectorAll<HTMLElement>(".cv-index-reveal").forEach((el) => {
-          gsap.fromTo(
-            el,
-            { opacity: 0, scale: 0.5 },
-            {
-              opacity: 1,
-              scale: 1,
-              duration: 0.7,
-              ease: "back.out(2)",
-              scrollTrigger: { trigger: el, start: "top 88%", once: true },
-            },
-          );
-        });
-
-        // Section-level wrapper fade (the outer container)
-        root.querySelectorAll<HTMLElement>(".cv-section-reveal").forEach((el) => {
-          gsap.fromTo(
-            el,
-            { opacity: 0 },
-            {
-              opacity: 1,
-              duration: 0.6,
-              scrollTrigger: { trigger: el, start: "top 90%", once: true },
-            },
-          );
-        });
-
-        /* ── Profile: lead text line stagger ─────────────────────── */
-        root.querySelectorAll<HTMLElement>(".cv-lead.cv-reveal").forEach((el) => {
-          gsap.fromTo(
-            el,
-            { opacity: 0, y: 30 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.9,
-              clearProps: "transform",
-              scrollTrigger: { trigger: el, start: "top 88%", once: true },
-            },
-          );
-        });
-
-        /* ── Skill cards: staggered entrance ─────────────────────── */
-        root.querySelectorAll<HTMLElement>(".cv-skills.cv-stagger").forEach((group) => {
-          gsap.fromTo(
-            group.querySelectorAll<HTMLElement>(".cv-stagger-item"),
-            { opacity: 0, y: 50, scale: 0.95 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              duration: 0.8,
-              stagger: 0.1,
-              ease: EASE_SOFT,
-              clearProps: "transform",
-              scrollTrigger: { trigger: group, start: "top 85%", once: true },
-            },
-          );
-        });
-
-        /* ── Card hover: perspective tilt + shadow ───────────────── */
+        /* ── Card hover: perspective tilt ─────────────────────────── */
         if (!reduced && window.matchMedia("(pointer: fine)").matches) {
           onMouseMove = (e: MouseEvent) => {
             root.querySelectorAll<HTMLElement>(".cv-card-hover").forEach((card) => {
@@ -191,11 +321,8 @@ export function CvPage({ data }: { data: CvData }) {
               if (dist < maxDist) {
                 const t = 1 - dist / maxDist;
                 gsap.to(card, {
-                  rotateY: dx * 3 * t,
-                  rotateX: -dy * 3 * t,
-                  duration: 0.5,
-                  ease: "power2.out",
-                  overwrite: "auto",
+                  rotateY: dx * 3 * t, rotateX: -dy * 3 * t,
+                  duration: 0.5, ease: "power2.out", overwrite: "auto",
                 });
               } else {
                 gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, overwrite: "auto" });
@@ -205,112 +332,56 @@ export function CvPage({ data }: { data: CvData }) {
           window.addEventListener("mousemove", onMouseMove, { passive: true });
         }
 
-        /* ── Reveal blocks (experience, contact, generic) ────────── */
-        root.querySelectorAll<HTMLElement>(".cv-reveal").forEach((el) => {
-          // Skip if already handled by a more specific animation
-          if (el.classList.contains("cv-lead")) return;
-          gsap.fromTo(
-            el,
-            { opacity: 0, y: 32 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.9,
-              clearProps: "transform",
-              scrollTrigger: { trigger: el, start: "top 90%", once: true },
-            },
-          );
-        });
-
-        /* ── Timeline: draw line on scroll ───────────────────────── */
-        const line = root.querySelector<HTMLElement>(".cv-timeline-line");
-        if (line) {
-          gsap.fromTo(
-            line,
-            { scaleY: 0 },
-            {
-              scaleY: 1,
-              transformOrigin: "top center",
-              ease: "none",
-              scrollTrigger: {
-                trigger: ".cv-timeline",
-                start: "top 72%",
-                end: "bottom 78%",
-                scrub: 0.6,
-              },
-            },
-          );
-        }
-
-        /* ── Projects: staggered grid entrance ───────────────────── */
+        /* ── Projects: staggered entrance ─────────────────────────── */
         root.querySelectorAll<HTMLElement>(".cv-projects.cv-stagger").forEach((group) => {
           gsap.fromTo(
             group.querySelectorAll<HTMLElement>(".cv-stagger-item"),
             { opacity: 0, y: 40, scale: 0.96 },
             {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              duration: 0.8,
-              stagger: 0.1,
-              ease: EASE_SOFT,
+              opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.1, ease: EASE_SOFT,
               clearProps: "transform",
               scrollTrigger: { trigger: group, start: "top 85%", once: true },
             },
           );
         });
 
-        /* ── Education: stagger ──────────────────────────────────── */
+        /* ── Education: stagger ───────────────────────────────────── */
         root.querySelectorAll<HTMLElement>(".cv-edu.cv-stagger").forEach((group) => {
           gsap.fromTo(
             group.querySelectorAll<HTMLElement>(".cv-stagger-item"),
             { opacity: 0, y: 28 },
             {
-              opacity: 1,
-              y: 0,
-              duration: 0.7,
-              stagger: 0.08,
-              clearProps: "transform",
+              opacity: 1, y: 0, duration: 0.7, stagger: 0.08, clearProps: "transform",
               scrollTrigger: { trigger: group, start: "top 88%", once: true },
             },
           );
         });
 
-        /* ── Contact chips: stagger with subtle rotate ───────────── */
+        /* ── Contact chips: stagger with rotate ───────────────────── */
         root.querySelectorAll<HTMLElement>(".cv-contact-list.cv-stagger").forEach((group) => {
           gsap.fromTo(
             group.querySelectorAll<HTMLElement>(".cv-stagger-item"),
             { opacity: 0, y: 20, rotate: -3 },
             {
-              opacity: 1,
-              y: 0,
-              rotate: 0,
-              duration: 0.65,
-              stagger: 0.06,
-              clearProps: "transform",
+              opacity: 1, y: 0, rotate: 0, duration: 0.65, stagger: 0.06, clearProps: "transform",
               scrollTrigger: { trigger: group, start: "top 88%", once: true },
             },
           );
         });
 
-        /* ── Footer: fade in ─────────────────────────────────────── */
-        gsap.fromTo(
-          ".cv-foot.cv-reveal",
+        /* ── Footer ───────────────────────────────────────────────── */
+        gsap.fromTo(".cv-foot.cv-reveal",
           { opacity: 0, y: 16 },
           {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-            clearProps: "transform",
+            opacity: 1, y: 0, duration: 0.7, clearProps: "transform",
             scrollTrigger: { trigger: ".cv-foot", start: "top 94%", once: true },
           },
         );
 
-        // Hero glow parallax (desktop pointers only)
+        /* ── Glow parallax on scroll ──────────────────────────────── */
         if (!reduced && window.matchMedia("(pointer: fine)").matches) {
           gsap.to(".cv-hero-glow", {
-            yPercent: 28,
-            ease: "none",
+            yPercent: 28, ease: "none",
             scrollTrigger: { trigger: ".cv-hero", start: "top top", end: "bottom top", scrub: true },
           });
         }
@@ -318,7 +389,6 @@ export function CvPage({ data }: { data: CvData }) {
         requestAnimationFrame(() => ScrollTrigger.refresh());
       }, root);
 
-      // Safety net: any reveal still hidden after timeout gets forced visible.
       const safety = window.setTimeout(() => {
         root
           .querySelectorAll<HTMLElement>(
@@ -339,7 +409,6 @@ export function CvPage({ data }: { data: CvData }) {
         ctx?.revert();
       };
     } catch {
-      // If anything fails, never leave content hidden.
       root
         .querySelectorAll<HTMLElement>(
           ".cv-reveal, .cv-rise, .cv-stagger-item, .cv-clip-reveal, .cv-index-reveal, .cv-char, .cv-avatar-reveal",
@@ -352,7 +421,6 @@ export function CvPage({ data }: { data: CvData }) {
     }
   }, []);
 
-  // Language swap changes text length → recompute trigger positions.
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = requestAnimationFrame(() => ScrollTrigger.refresh());
@@ -368,13 +436,11 @@ export function CvPage({ data }: { data: CvData }) {
         <style>{`.cv-reveal,.cv-rise,.cv-stagger-item,.cv-clip-reveal,.cv-index-reveal,.cv-char,.cv-avatar-reveal{opacity:1!important;transform:none!important;clip-path:none!important}.cv-timeline-line{transform:scaleY(1)!important}`}</style>
       </noscript>
 
-      {/* Scroll-scrub progress bar */}
       <div className="cv-progress" aria-hidden>
         <div className="cv-progress-bar" />
       </div>
 
       <div className="cv-topbar">
-        {/* Absolute URL: on the cv subdomain this must leave to the main site. */}
         <a href={siteConfig.url} className="cv-tb-btn cv-back" aria-label={en ? "Back to site" : "返回站点"}>
           <ArrowLeft className="cv-tb-icon" aria-hidden />
           <span>{en ? "Back" : "返回"}</span>
