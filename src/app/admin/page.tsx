@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, LockKeyhole, LogOut, PenLine, ShieldAlert, Sparkles } from "lucide-react";
+import { ArrowRight, FileUser, LockKeyhole, LogOut, PenLine, ShieldAlert, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import { auth, signOut } from "@/auth";
 import { listAllPosts } from "@/db/admin-posts";
@@ -59,6 +59,13 @@ export default async function AdminHome() {
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <Link
+            href="/admin/cv"
+            className="hv-action whitespace-nowrap px-2.5 py-1.5 text-xs sm:px-4 sm:text-sm"
+          >
+            <FileUser className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
+            <span className="hidden sm:inline">简历</span>
+          </Link>
           <Link
             href="/admin/posts/new"
             className="hv-action whitespace-nowrap px-2.5 py-1.5 text-xs font-medium sm:px-4 sm:text-sm"
