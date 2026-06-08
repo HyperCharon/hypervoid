@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { AdminBackLink } from "@/components/admin/AdminBackLink";
+import { AdminTable } from "@/components/admin/AdminTable";
 import { getSubscriberStats, listAllSubscribers } from "@/db/subscribers";
 import { formatDateTimeCN } from "@/lib/datetime";
 import {
@@ -77,88 +78,81 @@ export default async function AdminSubscribersPage() {
         <StatTile label="已退订" value={stats.unsubscribed} />
       </section>
 
-      {subs.length === 0 ? (
-        <p className="hv-panel-sci border-dashed p-8 text-center text-sm text-muted">
-          还没有订阅者。
-        </p>
-      ) : (
-        <div className="hv-panel-sci overflow-x-auto p-0">
-          <table className="w-full min-w-[680px] text-sm">
-            <thead className="border-b border-accent/20 bg-accent/[0.06] text-left font-mono text-xs uppercase text-muted">
-              <tr>
-                <th className="px-4 py-3 font-medium">EMAIL</th>
-                <th className="px-4 py-3 font-medium">STATUS</th>
-                <th className="px-4 py-3 font-medium">SUBSCRIBED</th>
-                <th className="px-4 py-3 font-medium">CONFIRMED</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {subs.map((sub) => {
-                const s = statusOf(sub);
-                return (
-                  <tr
-                    key={sub.id}
-                    className="border-t border-accent/15 transition hover:bg-accent/[0.05]"
-                  >
-                    <td className="px-4 py-3 font-mono text-xs text-foreground">
-                      {sub.email}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={"inline-flex border px-2 py-0.5 font-mono text-[11px] uppercase clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)] " + s.cls}>
-                        {s.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-muted uppercase">
-                      {formatDateTimeCN(sub.createdAt)}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-muted uppercase">
-                      {sub.verifiedAt ? formatDateTimeCN(sub.verifiedAt) : "—"}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-2">
-                        {sub.unsubscribedAt ? (
-                          <form
-                            action={async () => {
-                              "use server";
-                              await restoreAction(sub.id);
-                            }}
-                          >
-                            <button type="submit" className="hv-action min-h-0 px-3 py-1 text-[11px] font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
-                              恢复
-                            </button>
-                          </form>
-                        ) : (
-                          <form
-                            action={async () => {
-                              "use server";
-                              await unsubscribeAction(sub.id);
-                            }}
-                          >
-                            <button type="submit" className="hv-action min-h-0 px-3 py-1 text-[11px] font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)] hover:border-amber-300/60 hover:text-amber-100">
-                              退订
-                            </button>
-                          </form>
-                        )}
-                        <form
-                          action={async () => {
-                            "use server";
-                            await deleteAction(sub.id);
-                          }}
-                        >
-                          <button type="submit" className="min-h-0 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
-                            删除
-                          </button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div className="hv-panel-sci p-0">
+        <AdminTable
+          empty="还没有订阅者。"
+          columns={[
+            { key: "email", label: "EMAIL", primary: true },
+            { key: "status", label: "STATUS" },
+            { key: "subscribed", label: "SUBSCRIBED" },
+            { key: "confirmed", label: "CONFIRMED", hideMobile: true },
+            { key: "actions", label: "", align: "right" },
+          ]}
+          rows={subs.map((sub) => {
+            const s = statusOf(sub);
+            return {
+              key: sub.id,
+              cells: {
+                email: (
+                  <span className="font-mono text-xs">{sub.email}</span>
+                ),
+                status: (
+                  <span className={"inline-flex border px-2 py-0.5 font-mono text-[11px] uppercase clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)] " + s.cls}>
+                    {s.label}
+                  </span>
+                ),
+                subscribed: (
+                  <span className="font-mono text-xs text-muted uppercase">
+                    {formatDateTimeCN(sub.createdAt)}
+                  </span>
+                ),
+                confirmed: (
+                  <span className="font-mono text-xs text-muted uppercase">
+                    {sub.verifiedAt ? formatDateTimeCN(sub.verifiedAt) : "—"}
+                  </span>
+                ),
+                actions: (
+                  <div className="flex justify-end gap-2">
+                    {sub.unsubscribedAt ? (
+                      <form
+                        action={async () => {
+                          "use server";
+                          await restoreAction(sub.id);
+                        }}
+                      >
+                        <button type="submit" className="hv-action min-h-0 px-3 py-1 text-[11px] font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                          恢复
+                        </button>
+                      </form>
+                    ) : (
+                      <form
+                        action={async () => {
+                          "use server";
+                          await unsubscribeAction(sub.id);
+                        }}
+                      >
+                        <button type="submit" className="hv-action min-h-0 px-3 py-1 text-[11px] font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)] hover:border-amber-300/60 hover:text-amber-100">
+                          退订
+                        </button>
+                      </form>
+                    )}
+                    <form
+                      action={async () => {
+                        "use server";
+                        await deleteAction(sub.id);
+                      }}
+                    >
+                      <button type="submit" className="min-h-0 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                        删除
+                      </button>
+                    </form>
+                  </div>
+                ),
+              },
+            };
+          })}
+        />
+      </div>
     </div>
   );
 }

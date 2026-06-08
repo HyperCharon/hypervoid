@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { GitMerge, Pencil, Trash2 } from "lucide-react";
 import { auth } from "@/auth";
 import { AdminBackLink } from "@/components/admin/AdminBackLink";
+import { AdminTable } from "@/components/admin/AdminTable";
 import { listTagsWithUsage } from "@/db/tag-admin";
 import { deleteTagAction, mergeTagsAction, renameTagAction } from "./actions";
 
@@ -73,48 +74,46 @@ export default async function AdminTagsPage() {
         </div>
       </section>
 
-      {tags.length === 0 ? (
-        <p className="hv-panel-sci border-dashed p-8 text-center text-sm text-muted">还没有标签。</p>
-      ) : (
-        <div className="hv-panel-sci overflow-x-auto p-0">
-          <table className="w-full min-w-[520px] text-sm">
-            <thead className="border-b border-accent/20 bg-accent/[0.06] text-left font-mono text-xs uppercase text-muted">
-              <tr>
-                <th className="w-10 px-4 py-3 font-medium"></th>
-                <th className="px-4 py-3 font-medium">TAG</th>
-                <th className="px-4 py-3 font-medium">POSTS</th>
-                <th className="px-4 py-3 font-medium">USED_IN</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {tags.map((t) => (
-                <tr key={t.name} className="border-t border-accent/15 transition hover:bg-accent/[0.05]">
-                  <td className="px-4 py-3"><input type="checkbox" name="sources" value={t.name} form="merge-form" className="h-4 w-4 accent-accent-soft" /></td>
-                  <td className="px-4 py-3 font-mono font-medium text-foreground">#{t.name}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-foreground">{t.count}</td>
-                  <td className="px-4 py-3 text-xs text-muted">
-                    {t.slugs.slice(0, 3).map((s, i) => (
-                      <span key={s}>
-                        <Link href={"/admin/posts/" + s + "/edit"} className="hover:text-foreground">{s}</Link>
-                        {i < Math.min(2, t.slugs.length - 1) ? "，" : ""}
-                      </span>
-                    ))}
-                    {t.slugs.length > 3 ? <span> 等 {t.slugs.length} 篇</span> : null}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <form action={async () => { "use server"; await deleteTagAction(t.name); }}>
-                      <button type="submit" className="inline-flex items-center gap-1 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
-                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />删除
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div className="hv-panel-sci overflow-x-auto p-0">
+        <AdminTable
+          empty="还没有标签。"
+          columns={[
+            { key: "check", label: "", width: "2.5rem" },
+            { key: "tag", label: "TAG", primary: true },
+            { key: "posts", label: "POSTS" },
+            { key: "usedIn", label: "USED_IN", hideMobile: true },
+            { key: "actions", label: "", align: "right" },
+          ]}
+          rows={tags.map((t) => ({
+            key: t.name,
+            cells: {
+              check: (
+                <input type="checkbox" name="sources" value={t.name} form="merge-form" className="h-4 w-4 accent-accent-soft" />
+              ),
+              tag: <span className="font-mono">#{t.name}</span>,
+              posts: <span className="font-mono text-xs">{t.count}</span>,
+              usedIn: (
+                <span className="text-xs text-muted">
+                  {t.slugs.slice(0, 3).map((s, i) => (
+                    <span key={s}>
+                      <Link href={"/admin/posts/" + s + "/edit"} className="hover:text-foreground">{s}</Link>
+                      {i < Math.min(2, t.slugs.length - 1) ? "，" : ""}
+                    </span>
+                  ))}
+                  {t.slugs.length > 3 ? <span> 等 {t.slugs.length} 篇</span> : null}
+                </span>
+              ),
+              actions: (
+                <form action={async () => { "use server"; await deleteTagAction(t.name); }}>
+                  <button type="submit" className="inline-flex items-center gap-1 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />删除
+                  </button>
+                </form>
+              ),
+            },
+          }))}
+        />
+      </div>
     </div>
   );
 }
