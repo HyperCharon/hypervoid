@@ -40,7 +40,26 @@ body:has(.cv-root),
   display: none !important;
 }
 
-/* ── Floating top controls (no global header on this route) ──────── */
+/* ── Scroll-scrub progress bar ──────────────────────────────────── */
+.cv-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 100;
+  pointer-events: none;
+}
+.cv-progress-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--cv-accent), var(--cv-accent-2));
+  transform-origin: left center;
+  transform: scaleX(0);
+  box-shadow: 0 0 12px var(--cv-accent-glow);
+}
+
+/* ── Floating top controls (no global header on this route) ─────── */
 .cv-topbar {
   position: fixed;
   inset: 0 0 auto 0;
@@ -80,6 +99,17 @@ body:has(.cv-root),
   height: 15px;
 }
 
+/* ── Character-by-character text split ──────────────────────────── */
+.cv-name-split {
+  display: inline-flex;
+  flex-wrap: wrap;
+}
+.cv-char {
+  display: inline-block;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
 /* ── Hero ───────────────────────────────────────────────────────── */
 .cv-hero {
   position: relative;
@@ -117,6 +147,7 @@ body:has(.cv-root),
   border-radius: 50%;
   background: radial-gradient(circle, rgba(110, 168, 255, 0.22), transparent 60%);
   filter: blur(48px);
+  will-change: transform;
 }
 .cv-hero-glow-2 {
   top: 32%;
@@ -142,6 +173,11 @@ body:has(.cv-root),
   width: 92px;
   height: 92px;
   margin: 0 auto 1.6rem;
+}
+/* Clip-path reveal initial state (JS animates) */
+.cv-avatar-reveal {
+  clip-path: circle(0% at 50% 50%);
+  will-change: clip-path;
 }
 .cv-hero-avatar-img {
   width: 100%;
@@ -178,6 +214,7 @@ body:has(.cv-root),
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  perspective: 600px;
 }
 .cv-hero-role {
   display: flex;
@@ -243,6 +280,7 @@ body:has(.cv-root),
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  font-variant-numeric: tabular-nums;
 }
 .cv-stat-label {
   font-family: var(--cv-font-mono);
@@ -309,6 +347,11 @@ body:has(.cv-root),
   font-weight: 700;
   color: var(--cv-accent);
 }
+/* Index number: starts hidden, GSAP scales in */
+.cv-index-reveal {
+  opacity: 0;
+  will-change: transform, opacity;
+}
 .cv-kicker {
   display: block;
   font-family: var(--cv-font-mono);
@@ -325,6 +368,11 @@ body:has(.cv-root),
   letter-spacing: -0.01em;
   color: var(--cv-fg);
 }
+/* Section title: clip-path wipe reveal from left */
+.cv-clip-reveal {
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path;
+}
 .cv-lead {
   font-size: clamp(1.05rem, 2.1vw, 1.35rem);
   line-height: 1.7;
@@ -332,19 +380,24 @@ body:has(.cv-root),
   max-width: 62ch;
 }
 
-/* ── Skills ──────────────────────────────────────────────────────── */
+/* ── Skills ─────────────────────────────────────────────────────── */
 .cv-skills {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
 }
 .cv-skill-group {
+  position: relative;
   padding: 1.25rem;
   border: 1px solid var(--cv-panel-border);
   border-radius: 16px;
   background: var(--cv-panel);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: border-color 0.35s, box-shadow 0.35s;
 }
 .cv-skill-name {
   font-family: var(--cv-font-mono);
@@ -353,11 +406,15 @@ body:has(.cv-root),
   text-transform: uppercase;
   color: var(--cv-accent);
   margin-bottom: 0.9rem;
+  position: relative;
+  z-index: 1;
 }
 .cv-skill-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  position: relative;
+  z-index: 1;
 }
 .cv-chip {
   font-family: var(--cv-font-mono);
@@ -367,9 +424,46 @@ body:has(.cv-root),
   border-radius: 999px;
   color: var(--cv-fg-soft);
   background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.25s, color 0.25s;
+}
+.cv-skill-group:hover .cv-chip {
+  border-color: rgba(110, 168, 255, 0.2);
+  color: var(--cv-fg);
 }
 
-/* ── Experience timeline ─────────────────────────────────────────── */
+/* ── Card hover: mask overlay + depth shadow ────────────────────── */
+.cv-card-hover {
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: border-color 0.35s, box-shadow 0.35s;
+}
+.cv-card-hover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(110, 168, 255, 0.08) 0%,
+    rgba(103, 232, 249, 0.04) 100%
+  );
+  transform: translateX(-101%);
+  transition: transform 0.55s cubic-bezier(0.38, 0, 0, 1);
+  z-index: 0;
+  pointer-events: none;
+}
+.cv-card-hover:hover::before {
+  transform: translateX(0);
+}
+.cv-card-hover:hover {
+  border-color: rgba(110, 168, 255, 0.25);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.35),
+    0 0 40px rgba(110, 168, 255, 0.06);
+}
+
+/* ── Experience timeline ────────────────────────────────────────── */
 .cv-timeline {
   position: relative;
 }
@@ -464,7 +558,7 @@ body:has(.cv-root),
   background: var(--cv-accent-2);
 }
 
-/* ── Projects ────────────────────────────────────────────────────── */
+/* ── Projects ───────────────────────────────────────────────────── */
 .cv-projects {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -482,18 +576,21 @@ body:has(.cv-root),
   -webkit-backdrop-filter: blur(8px);
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.25s, transform 0.25s, background 0.25s;
+  transition: border-color 0.35s, box-shadow 0.35s;
 }
 a.cv-project:hover {
   border-color: var(--cv-accent);
-  transform: translateY(-3px);
-  background: rgba(110, 168, 255, 0.06);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.35),
+    0 0 30px rgba(110, 168, 255, 0.08);
 }
 .cv-project-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  position: relative;
+  z-index: 1;
 }
 .cv-project-name {
   font-size: 1.1rem;
@@ -516,6 +613,8 @@ a.cv-project:hover .cv-project-arrow {
   font-size: 0.95rem;
   line-height: 1.55;
   color: var(--cv-fg-soft);
+  position: relative;
+  z-index: 1;
 }
 .cv-project-foot {
   display: flex;
@@ -523,6 +622,8 @@ a.cv-project:hover .cv-project-arrow {
   justify-content: space-between;
   gap: 0.75rem;
   margin-top: 0.3rem;
+  position: relative;
+  z-index: 1;
 }
 .cv-project-stack {
   display: flex;
@@ -551,7 +652,7 @@ a.cv-project:hover .cv-project-arrow {
   color: var(--cv-faint);
 }
 
-/* ── Education ───────────────────────────────────────────────────── */
+/* ── Education ──────────────────────────────────────────────────── */
 .cv-edu {
   display: flex;
   flex-direction: column;
@@ -590,7 +691,7 @@ a.cv-project:hover .cv-project-arrow {
   }
 }
 
-/* ── Contact ─────────────────────────────────────────────────────── */
+/* ── Contact ────────────────────────────────────────────────────── */
 .cv-contact-lead {
   margin-bottom: 1.75rem;
   max-width: 18ch;
@@ -615,12 +716,13 @@ a.cv-project:hover .cv-project-arrow {
   background: var(--cv-panel);
   color: var(--cv-fg-soft);
   text-decoration: none;
-  transition: border-color 0.25s, color 0.25s, background 0.25s;
+  transition: border-color 0.25s, color 0.25s, background 0.25s, box-shadow 0.25s;
 }
 a.cv-contact-link:hover {
   border-color: var(--cv-accent);
   color: var(--cv-fg);
   background: rgba(110, 168, 255, 0.07);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 .cv-contact-icon {
   width: 16px;
@@ -640,7 +742,7 @@ a.cv-contact-link:hover {
   color: var(--cv-faint);
 }
 
-/* ── Reveal initial states (JS animates them in) ─────────────────── */
+/* ── Reveal initial states (JS animates them in) ────────────────── */
 .cv-reveal {
   opacity: 0;
   transform: translateY(28px);
@@ -654,6 +756,7 @@ a.cv-contact-link:hover {
   transform: translateY(18px);
 }
 
+/* ── Keyframes ──────────────────────────────────────────────────── */
 @keyframes cv-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
@@ -663,13 +766,24 @@ a.cv-contact-link:hover {
   100% { transform: translateY(300%); }
 }
 
-/* Reduced motion: show everything, kill loops. */
+/* ── Reduced motion: show everything, kill transforms, skip split ─ */
 @media (prefers-reduced-motion: reduce) {
   .cv-reveal,
   .cv-rise,
-  .cv-stagger-item {
+  .cv-stagger-item,
+  .cv-clip-reveal,
+  .cv-index-reveal,
+  .cv-avatar-reveal {
     opacity: 1 !important;
     transform: none !important;
+    clip-path: none !important;
+  }
+  .cv-char {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .cv-card-hover::before {
+    display: none !important;
   }
   .cv-timeline-line {
     transform: scaleY(1) !important;

@@ -16,19 +16,32 @@ const isEn = (l: Locale) => l === "en";
 
 type SectionProps = { locale: Locale; data: CvData };
 
+/* ── Character split for cinematic text reveals ─────────────────── */
+function TextSplit({ text }: { text: string }) {
+  return (
+    <span className="cv-name-split" aria-label={text}>
+      {text.split("").map((ch, i) => (
+        <span key={i} className="cv-char" aria-hidden>
+          {ch === " " ? " " : ch}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function SectionHeader({ index, kicker, title }: { index: string; kicker: string; title: string }) {
   return (
-    <div className="cv-section-head cv-reveal">
-      <span className="cv-section-index" aria-hidden>{index}</span>
+    <div className="cv-section-head cv-section-reveal">
+      <span className="cv-section-index cv-index-reveal" aria-hidden>{index}</span>
       <div className="cv-section-heading">
         <span className="cv-kicker">{kicker}</span>
-        <h2 className="cv-section-title">{title}</h2>
+        <h2 className="cv-section-title cv-clip-reveal">{title}</h2>
       </div>
     </div>
   );
 }
 
-/* ── Hero ─────────────────────────────────────────────────────── */
+/* ── Hero ───────────────────────────────────────────────────────── */
 export function Hero({ locale, data }: SectionProps) {
   const id = data.identity;
   return (
@@ -41,13 +54,15 @@ export function Hero({ locale, data }: SectionProps) {
       </div>
 
       <div className="cv-hero-inner">
-        <div className="cv-hero-avatar cv-rise" aria-hidden>
+        <div className="cv-hero-avatar cv-avatar-reveal" aria-hidden>
           <Image src={id.avatar} alt="" width={132} height={132} priority className="cv-hero-avatar-img" />
           <span className="cv-hero-avatar-ring" />
         </div>
 
         <p className="cv-hero-kicker cv-rise">{isEn(locale) ? "Curriculum Vitae" : "个人简历"}</p>
-        <h1 className="cv-hero-name cv-rise">{pick(id.name, locale)}</h1>
+        <h1 className="cv-hero-name">
+          <TextSplit text={pick(id.name, locale)} />
+        </h1>
 
         <div className="cv-hero-role cv-rise">
           <span className="cv-hero-role-text">{pick(id.role, locale)}</span>
@@ -62,7 +77,7 @@ export function Hero({ locale, data }: SectionProps) {
         <ul className="cv-hero-stats cv-rise">
           {data.stats.map((s, i) => (
             <li key={i} className="cv-stat">
-              <span className="cv-stat-value">{s.value}</span>
+              <span className="cv-stat-value" data-count={s.value}>{s.value}</span>
               <span className="cv-stat-label">{pick(s.label, locale)}</span>
             </li>
           ))}
@@ -77,7 +92,7 @@ export function Hero({ locale, data }: SectionProps) {
   );
 }
 
-/* ── Profile / Summary ────────────────────────────────────────── */
+/* ── Profile / Summary ──────────────────────────────────────────── */
 export function Profile({ locale, data }: SectionProps) {
   return (
     <section className="cv-section" id="profile">
@@ -87,14 +102,14 @@ export function Profile({ locale, data }: SectionProps) {
   );
 }
 
-/* ── Skills ───────────────────────────────────────────────────── */
+/* ── Skills ─────────────────────────────────────────────────────── */
 export function Skills({ locale, data }: SectionProps) {
   return (
     <section className="cv-section" id="skills">
       <SectionHeader index="02" kicker="SKILLS" title={isEn(locale) ? "Skills" : "技能"} />
       <div className="cv-skills cv-stagger">
         {data.skills.map((g, i) => (
-          <div key={i} className="cv-skill-group cv-stagger-item">
+          <div key={i} className="cv-skill-group cv-stagger-item cv-card-hover">
             <h3 className="cv-skill-name">{pick(g.name, locale)}</h3>
             <ul className="cv-skill-chips">
               {g.items.map((it) => (
@@ -108,7 +123,7 @@ export function Skills({ locale, data }: SectionProps) {
   );
 }
 
-/* ── Experience (cinematic timeline) ──────────────────────────── */
+/* ── Experience (cinematic timeline) ────────────────────────────── */
 export function Experience({ locale, data }: SectionProps) {
   return (
     <section className="cv-section" id="experience">
@@ -139,7 +154,7 @@ export function Experience({ locale, data }: SectionProps) {
   );
 }
 
-/* ── Projects ─────────────────────────────────────────────────── */
+/* ── Projects ───────────────────────────────────────────────────── */
 export function Projects({ locale, data }: SectionProps) {
   return (
     <section className="cv-section" id="projects">
@@ -169,12 +184,12 @@ export function Projects({ locale, data }: SectionProps) {
               href={p.href}
               target="_blank"
               rel="noreferrer noopener"
-              className="cv-project cv-stagger-item"
+              className="cv-project cv-stagger-item cv-card-hover"
             >
               {inner}
             </a>
           ) : (
-            <div key={i} className="cv-project cv-stagger-item">
+            <div key={i} className="cv-project cv-stagger-item cv-card-hover">
               {inner}
             </div>
           );
@@ -184,7 +199,7 @@ export function Projects({ locale, data }: SectionProps) {
   );
 }
 
-/* ── Education ────────────────────────────────────────────────── */
+/* ── Education ──────────────────────────────────────────────────── */
 export function Education({ locale, data }: SectionProps) {
   return (
     <section className="cv-section" id="education">
@@ -205,7 +220,7 @@ export function Education({ locale, data }: SectionProps) {
   );
 }
 
-/* ── Contact ──────────────────────────────────────────────────── */
+/* ── Contact ────────────────────────────────────────────────────── */
 const CONTACT_ICON: Record<CvContactType, LucideIcon> = {
   email: Mail,
   github: GitBranch,
@@ -252,7 +267,7 @@ export function Contact({ locale, data }: SectionProps) {
         })}
       </ul>
       <footer className="cv-foot cv-reveal">
-        © {year} {name} · {isEn(locale) ? "Built with Next.js" : "由 Next.js 构建"}
+        &copy; {year} {name} &middot; {isEn(locale) ? "Built with Next.js" : "由 Next.js 构建"}
       </footer>
     </section>
   );
