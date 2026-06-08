@@ -131,40 +131,32 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ScrollProgress />
         <RouteChromeState />
-        {!isFullScreenRoute ? (
-          <a
-            href="#main-content"
-            className="hv-chrome-only sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[9999] focus:rounded-full focus:bg-primary focus:px-5 focus:py-2.5 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-lg focus:outline-none"
-          >
-            跳到内容
-          </a>
-        ) : null}
+        <a
+          href="#main-content"
+          className="hv-chrome-only sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[9999] focus:rounded-full focus:bg-primary focus:px-5 focus:py-2.5 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-lg focus:outline-none"
+        >
+          跳到内容
+        </a>
         <SettingsProvider>
-          {!isFullScreenRoute ? (
-            <div className="hv-chrome-only contents">
-              <Backdrop />
-              <CustomWallpaper />
-            </div>
-          ) : null}
+          <div className="hv-chrome-only contents">
+            <Backdrop />
+            <CustomWallpaper />
+          </div>
           <Providers nonce={nonce}>
-            {isFullScreenRoute ? (
-              children
-            ) : (
-              <div className="hv-route-chrome contents">
-                <div className="hv-chrome-only contents">
-                  <AnnouncementWrapper />
-                  <SiteHeader cvVisible={cvVisible} />
-                  <BannerStrip />
-                </div>
-                <main id="main-content" tabIndex={-1} className="page-fade hv-main-shell w-full flex-1">
-                  {children}
-                </main>
-                <div className="hv-chrome-only contents">
-                  <SiteFooter />
-                </div>
+            <div className="hv-route-chrome contents">
+              <div className="hv-chrome-only contents">
+                <AnnouncementWrapper />
+                <SiteHeader cvVisible={cvVisible} />
+                <BannerStrip />
               </div>
-            )}
-            <DeferredClientUI forceHide={isFullScreenRoute} />
+              <main id="main-content" tabIndex={-1} className="page-fade hv-main-shell w-full flex-1">
+                {children}
+              </main>
+              <div className="hv-chrome-only contents">
+                <SiteFooter />
+              </div>
+            </div>
+            <DeferredClientUI />
           </Providers>
         </SettingsProvider>
         <UmamiScript />

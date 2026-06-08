@@ -59,10 +59,9 @@ const SparkleEffect = dynamic(
 const HIDE_FLOATING_UI_PREFIXES = ["/sign-in", "/cv"];
 const HIDE_FLOATING_UI_EXACT: string[] = [];
 
-export function DeferredClientUI({ forceHide = false }: { forceHide?: boolean }) {
+export function DeferredClientUI() {
   const pathname = usePathname();
   const hideFloating =
-    forceHide ||
     isCvContext(pathname) ||
     HIDE_FLOATING_UI_EXACT.includes(pathname) ||
     HIDE_FLOATING_UI_PREFIXES.some((p) => pathname.startsWith(p));
