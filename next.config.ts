@@ -6,6 +6,7 @@ import path from "node:path";
 // routes get a static permissive policy below so they can still be cached.
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   turbopack: {
     root: path.resolve(__dirname),
   },
@@ -15,6 +16,7 @@ const nextConfig: NextConfig = {
       allowedOrigins: [
         "hypervoid.top",
         "www.hypervoid.top",
+        "cv.hypervoid.top",
         "*.vercel.app",
       ],
       bodySizeLimit: "4mb",

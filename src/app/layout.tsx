@@ -3,7 +3,6 @@ import { headers } from "next/headers";
 import Script from "next/script";
 import { Geist, JetBrains_Mono, Orbitron } from "next/font/google";
 import "./globals.css";
-import "aplayer/dist/APlayer.min.css";
 import "remark-github-blockquote-alert/alert.css";
 import { Providers } from "@/components/Providers";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -20,6 +19,8 @@ import { CustomThemeStyles, CustomWallpaper } from "@/components/CustomThemeStyl
 import { DeferredClientUI } from "@/components/DeferredClientUI";
 import { RouteChromeState } from "@/components/RouteChromeState";
 import { getSiteOverride } from "@/lib/site-config-server";
+import { FULLSCREEN_PATHS, isFullScreenPath, CV_SUBDOMAIN } from "@/lib/fullscreen-routes";
+import { isCvVisible } from "@/lib/cv-store";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -101,7 +102,8 @@ export default async function RootLayout({
   const headersList = await headers();
   const nonce = headersList.get("x-nonce") ?? undefined;
   const pathname = headersList.get("x-pathname") ?? "";
-  const isFullScreenRoute = pathname === "/sign-in" || pathname.startsWith("/sign-in/");
+  const isFullScreenRoute = isFullScreenPath(pathname);
+  const cvVisible = await isCvVisible();
   return (
     <html
       lang="zh-CN"
@@ -118,7 +120,7 @@ export default async function RootLayout({
           id="route-chrome-state"
           strategy="beforeInteractive"
           nonce={nonce}
-        >{`!function(){var p=location.pathname,f=p==="/sign-in"||p.indexOf("/sign-in/")===0;document.documentElement.dataset.fullscreenRoute=f?"true":"false"}()`}</Script>
+        >{`!function(){var ps=${JSON.stringify(FULLSCREEN_PATHS)},p=location.pathname,f=ps.some(function(x){return p===x||p.indexOf(x+"/")===0})||location.hostname===${JSON.stringify(CV_SUBDOMAIN)};document.documentElement.dataset.fullscreenRoute=f?"true":"false"}()`}</Script>
         <Script
           id="sw-cleanup"
           strategy="beforeInteractive"
@@ -151,7 +153,7 @@ export default async function RootLayout({
               <div className="hv-route-chrome contents">
                 <div className="hv-chrome-only contents">
                   <AnnouncementWrapper />
-                  <SiteHeader />
+                  <SiteHeader cvVisible={cvVisible} />
                   <BannerStrip />
                 </div>
                 <main id="main-content" tabIndex={-1} className="page-fade hv-main-shell w-full flex-1">
@@ -162,7 +164,7 @@ export default async function RootLayout({
                 </div>
               </div>
             )}
-            <DeferredClientUI />
+            <DeferredClientUI forceHide={isFullScreenRoute} />
           </Providers>
         </SettingsProvider>
         <UmamiScript />

@@ -51,8 +51,8 @@ export async function ProfileCard() {
         <div className="hv-spectrum-line-fade mx-auto mt-3 h-px w-28" />
         <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-muted sm:text-base" style={{ textShadow: "var(--text-shadow-subtle)" }}>{bio}</p>
 
-        {/* Social icons — larger */}
-        <div className="mt-4 flex flex-nowrap items-center justify-center gap-1 overflow-hidden sm:mt-5 sm:gap-2">
+        {/* Social icons — wrap instead of clip when they exceed card width */}
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5 sm:mt-5 sm:gap-2">
           {socials.map((s) => (
             <a
               key={s.name}

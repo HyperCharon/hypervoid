@@ -175,7 +175,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
       >
         <Bell className="h-4 w-4" aria-hidden />
         {unreadCount > 0 ? (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center border border-accent/40 bg-foreground px-1 font-mono text-xs font-bold text-black">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center border border-accent/40 bg-foreground px-1 font-mono text-xs font-bold text-background">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         ) : null}

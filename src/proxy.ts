@@ -25,9 +25,64 @@ const COMMON_DIRECTIVES = [
 const SCRIPT_HOSTS =
   "https://giscus.app https://cloud.umami.is https://umami.hypervoid.top";
 
+// Résumé subdomain. The whole subdomain *is* the /cv page. Enabled only once the
+// DNS/Vercel domain exists — gated by env so behaviour is unchanged until then.
+const CV_SUBDOMAIN = "cv.hypervoid.top";
+const MAIN_DOMAIN = "hypervoid.top";
+const CV_SUBDOMAIN_ENABLED = process.env.CV_SUBDOMAIN_ENABLED === "1";
+
+function hostOf(req: NextRequest): string {
+  return (req.headers.get("host") || "").split(":")[0].toLowerCase();
+}
+
+/**
+ * Host-based routing for the résumé subdomain. Returns a response when it has
+ * handled the request, or null to fall through to normal routing.
+ */
+function routeCvSubdomain(req: NextRequest): NextResponse | null {
+  if (!CV_SUBDOMAIN_ENABLED) return null;
+  const host = hostOf(req);
+  const { pathname, search } = req.nextUrl;
+
+  // On the résumé subdomain: serve only /cv; everything else bounces to main.
+  if (host === CV_SUBDOMAIN) {
+    if (
+      pathname === "/cv" ||
+      pathname.startsWith("/cv/") ||
+      pathname.startsWith("/_next/") ||
+      pathname.startsWith("/api/") ||
+      pathname === "/favicon.ico" ||
+      /\.[a-z0-9]+$/i.test(pathname)
+    ) {
+      return null; // pass through to normal handling
+    }
+    if (pathname === "/") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/cv";
+      // Tell the server layout this is the /cv (fullscreen) route, since the
+      // browser path stays "/" after a rewrite.
+      const headers = new Headers(req.headers);
+      headers.set("x-pathname", "/cv");
+      return NextResponse.rewrite(url, { request: { headers } });
+    }
+    // Any other path on the subdomain → corresponding page on the main domain.
+    return NextResponse.redirect(`https://${MAIN_DOMAIN}${pathname}${search}`, 308);
+  }
+
+  // On the main domain: /cv lives on the subdomain now → send visitors there.
+  if (host === MAIN_DOMAIN || host === `www.${MAIN_DOMAIN}`) {
+    if (pathname === "/cv" || pathname.startsWith("/cv/")) {
+      return NextResponse.redirect(`https://${CV_SUBDOMAIN}/`, 308);
+    }
+  }
+
+  return null;
+}
+
 // Paths exempt from site-wide login check
 const PUBLIC_PATHS = [
   "/sign-in",
+  "/cv", // public résumé — recruiter-facing, must bypass the site-login gate
   "/api/auth",
   "/api/og",
   "/favicon.ico",
@@ -103,6 +158,10 @@ async function checkSiteLogin(req: NextRequest): Promise<NextResponse | null> {
 }
 
 export default async function proxy(req: NextRequest): Promise<NextResponse> {
+  // Résumé subdomain host-routing runs first (rewrite/redirect short-circuits).
+  const cvRoute = routeCvSubdomain(req);
+  if (cvRoute) return cvRoute;
+
   const { pathname } = req.nextUrl;
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-pathname", pathname);

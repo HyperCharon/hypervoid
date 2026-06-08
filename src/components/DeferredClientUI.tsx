@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
+import { isCvContext } from "@/lib/fullscreen-routes";
 
 /**
  * Non-critical floating UI is deferred so it doesn't ship in the initial
@@ -55,12 +56,14 @@ const SparkleEffect = dynamic(
 );
 
 /** Routes where floating UI (mascot, back-to-top, etc.) should be hidden. */
-const HIDE_FLOATING_UI_PREFIXES = ["/sign-in"];
+const HIDE_FLOATING_UI_PREFIXES = ["/sign-in", "/cv"];
 const HIDE_FLOATING_UI_EXACT: string[] = [];
 
-export function DeferredClientUI() {
+export function DeferredClientUI({ forceHide = false }: { forceHide?: boolean }) {
   const pathname = usePathname();
   const hideFloating =
+    forceHide ||
+    isCvContext(pathname) ||
     HIDE_FLOATING_UI_EXACT.includes(pathname) ||
     HIDE_FLOATING_UI_PREFIXES.some((p) => pathname.startsWith(p));
 

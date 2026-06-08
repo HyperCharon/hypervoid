@@ -112,6 +112,11 @@ const DEFAULT_ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         desc: "作者名、头像、简介、首页名句、公告文本",
       },
       {
+        href: "/admin/cv",
+        title: "简历管理",
+        desc: "编辑网页简历内容、控制导航入口显示（默认隐藏）",
+      },
+      {
         href: "/admin/themes",
         title: "主题定制",
         desc: "调色板、实时预览、JSON 主题包导入导出",

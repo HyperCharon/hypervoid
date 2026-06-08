@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Home } from "lucide-react";
+import Image from "next/image";
+import { Home, ArrowUpRight } from "lucide-react";
 import { NavGroups } from "@/components/NavGroups";
 import { HypervoidWordmark } from "@/components/HypervoidWordmark";
 import { HeaderDock } from "@/components/HeaderDock";
 import { MobileDock } from "@/components/MobileDock";
-import { useT } from "@/components/LocaleProvider";
+import { useT, useLocale } from "@/components/LocaleProvider";
 
-export function SiteHeader() {
+export function SiteHeader({ cvVisible = false }: { cvVisible?: boolean }) {
   const t = useT();
+  const { locale } = useLocale();
   return (
     <header
       className="hv-site-header hv-grad-header sticky top-0 z-40 w-full text-foreground backdrop-blur-[24px] saturate-[1.4]"
@@ -53,6 +55,28 @@ export function SiteHeader() {
           >
             <HypervoidWordmark className="h-5 w-auto" />
           </Link>
+          {cvVisible ? (
+            <Link
+              href="/cv"
+              className="hv-cv-chip group ml-1 hidden items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-2.5 transition hover:border-accent/60 hover:bg-card-hover xl:inline-flex"
+              aria-label={locale === "en" ? "View résumé" : "查看简历"}
+            >
+              <span className="relative inline-flex h-6 w-6 shrink-0">
+                <Image
+                  src="/avatar.jpg"
+                  alt=""
+                  width={24}
+                  height={24}
+                  className="h-6 w-6 rounded-full object-cover ring-1 ring-border"
+                />
+                <span className="absolute -bottom-px -right-px h-2 w-2 rounded-full border border-card bg-[#3ddc97]" />
+              </span>
+              <span className="text-xs font-semibold text-foreground transition group-hover:text-accent">
+                {locale === "en" ? "Résumé" : "简历"}
+              </span>
+              <ArrowUpRight className="h-3.5 w-3.5 text-muted-soft transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
+            </Link>
+          ) : null}
         </div>
 
         {/* Center: Desktop nav — flex-1 on both sides to truly center */}
