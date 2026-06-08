@@ -305,7 +305,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
           ) : (
             <motion.div
               key="login"
-              className="grid w-full max-w-5xl grid-cols-1 items-center gap-4 px-4 md:grid-cols-[minmax(0,440px)_280px]"
+              className="grid w-full max-w-md items-center gap-4 px-5 sm:max-w-lg md:max-w-5xl md:grid-cols-[minmax(0,440px)_280px] md:px-4"
               style={{
                 x: parallaxEnabled && !reducedMotion ? panelX : 0,
                 y: parallaxEnabled && !reducedMotion ? panelY : 0,
@@ -318,21 +318,21 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
               exit={{ opacity: 0, y: -28, scale: 0.96, filter: "blur(14px)" }}
               transition={{ type: "spring", stiffness: 120, damping: 20, mass: 0.8 }}
             >
-              <section className="hypervoid-glass transform-gpu border border-white/20 bg-white/10 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_0_60px_rgba(34,211,238,0.18)] backdrop-blur-xl sm:p-7">
-                <div className="mb-6 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="font-mono text-[11px] uppercase text-emerald-100/70">Secure Gateway / 身份入口</p>
-                    <h2 className="mt-2 text-2xl font-semibold tracking-normal text-white">登录 Hypervoid</h2>
-                    <p className="mt-2 text-sm leading-6 text-white/58">GitHub 为主要登录方式，邮箱 magic link 作为备用入口。</p>
+              <section className="hypervoid-glass transform-gpu border border-white/20 bg-white/10 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_0_60px_rgba(34,211,238,0.18)] backdrop-blur-xl sm:p-6 md:p-7">
+                <div className="mb-5 flex items-start justify-between gap-3 sm:mb-6 sm:items-center sm:gap-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-mono text-[10px] uppercase text-emerald-100/70 sm:text-[11px]">Secure Gateway / 身份入口</p>
+                    <h2 className="mt-1.5 text-xl font-semibold tracking-normal text-white sm:mt-2 sm:text-2xl">登录 Hypervoid</h2>
+                    <p className="mt-1.5 text-xs leading-5 text-white/58 sm:mt-2 sm:text-sm sm:leading-6">GitHub 为主要登录方式，邮箱 magic link 作为备用入口。</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setEntryState("explore")}
                     aria-label="Back to explore"
                     title="Back to explore"
-                    className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center border border-white/15 bg-white/10 text-white/80 transition hover:border-emerald-100/50 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/80"
+                    className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center border border-white/15 bg-white/10 text-white/80 transition hover:border-emerald-100/50 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/80 sm:h-11 sm:w-11"
                   >
-                    <ArrowLeft className="h-4 w-4" aria-hidden />
+                    <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
                   </button>
                 </div>
 
@@ -369,7 +369,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                         <p className="mt-2 break-all text-sm leading-6 text-white/70">
                           当前身份 <span className="font-semibold text-white">{currentIdentity}</span>，会话已生效。
                         </p>
-                        <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                        <div className="mt-4 grid gap-2.5 sm:mt-5 sm:gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                           <Link
                             href={primaryHref}
                             className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 whitespace-nowrap border px-4 text-sm font-black uppercase transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/80"
@@ -448,13 +448,13 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                       </span>
                     </button>
 
-                    <div className="my-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+                    <div className="my-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:my-5">
                       <div className="h-px bg-white/18" />
-                      <span className="font-mono text-xs uppercase text-white/45">邮箱备用登录</span>
+                      <span className="font-mono text-[10px] uppercase text-white/45 sm:text-xs">邮箱备用登录</span>
                       <div className="h-px bg-white/18" />
                     </div>
 
-                    <form className="space-y-3" onSubmit={handleEmail} noValidate>
+                    <form className="space-y-2.5 sm:space-y-3" onSubmit={handleEmail} noValidate>
                       <label htmlFor={emailId} className="flex items-center gap-2 font-mono text-xs uppercase text-emerald-50/72">
                         <Mail className="h-3.5 w-3.5" aria-hidden />
                         邮箱地址
@@ -507,7 +507,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                 {/* Guest mode */}
                 {!currentUser ? (
                   <>
-                    <div className="my-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+                    <div className="my-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:my-4">
                       <div className="h-px bg-white/12" />
                       <span className="font-mono text-[10px] uppercase text-white/35">或</span>
                       <div className="h-px bg-white/12" />
@@ -525,17 +525,19 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                   </>
                 ) : null}
 
-                <div className="mt-5 hidden grid-cols-3 border-y border-white/12 py-3 font-mono text-xs uppercase text-white/50 sm:grid">
+                <div className="mt-4 grid grid-cols-3 border-y border-white/12 py-2.5 font-mono text-[10px] uppercase text-white/50 sm:mt-5 sm:py-3 sm:text-xs">
                   <span className="flex items-center gap-1.5">
-                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-100" aria-hidden />
-                    GitHub 主登录
+                    <ShieldCheck className="h-3 w-3 text-emerald-100 sm:h-3.5 sm:w-3.5" aria-hidden />
+                    <span className="hidden sm:inline">GitHub 主登录</span>
+                    <span className="sm:hidden">GitHub</span>
                   </span>
                   <span className="flex items-center justify-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-emerald-100" aria-hidden />
-                    邮箱备用
+                    <Sparkles className="h-3 w-3 text-emerald-100 sm:h-3.5 sm:w-3.5" aria-hidden />
+                    <span className="hidden sm:inline">邮箱备用</span>
+                    <span className="sm:hidden">邮箱</span>
                   </span>
                   <span className="flex items-center justify-end gap-1.5">
-                    <BadgeCheck className="h-3.5 w-3.5 text-emerald-100" aria-hidden />
+                    <BadgeCheck className="h-3 w-3 text-emerald-100 sm:h-3.5 sm:w-3.5" aria-hidden />
                     已验证
                   </span>
                 </div>
