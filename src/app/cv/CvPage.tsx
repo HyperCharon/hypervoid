@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLocale } from "@/components/LocaleProvider";
 import { siteConfig } from "@/lib/site-config";
 import type { CvData } from "@/lib/cv-data";
-import { Hero, Profile, Skills, Experience, Projects, Education, Contact } from "./sections";
+import { Hero, Dashboard, Contact } from "./sections";
 import "./cv.css";
 
 const EASE = "power4.out";
@@ -52,37 +52,29 @@ function initParticles(canvas: HTMLCanvasElement) {
 
   function draw() {
     ctx!.clearRect(0, 0, w, h);
-
     for (const p of particles) {
       p.x += p.vx;
       p.y += p.vy;
       if (p.x < 0 || p.x > w) p.vx *= -1;
       if (p.y < 0 || p.y > h) p.vy *= -1;
-
-      // Cursor repel
       const dx = p.x - mx;
       const dy = p.y - my;
       const dist = Math.hypot(dx, dy);
       if (dist < 120) {
-        const f = (120 - dist) / 120 * 0.6;
+        const f = ((120 - dist) / 120) * 0.6;
         p.vx += (dx / dist) * f;
         p.vy += (dy / dist) * f;
       }
-
-      // Dampen velocity
       p.vx *= 0.99;
       p.vy *= 0.99;
     }
-
-    // Draw connections
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
         const a = particles[i];
         const b = particles[j];
         const d = Math.hypot(a.x - b.x, a.y - b.y);
         if (d < 140) {
-          const alpha = (1 - d / 140) * 0.15;
-          ctx!.strokeStyle = `rgba(110, 168, 255, ${alpha})`;
+          ctx!.strokeStyle = `rgba(110,168,255,${(1 - d / 140) * 0.15})`;
           ctx!.lineWidth = 0.5;
           ctx!.beginPath();
           ctx!.moveTo(a.x, a.y);
@@ -91,27 +83,20 @@ function initParticles(canvas: HTMLCanvasElement) {
         }
       }
     }
-
-    // Draw particles
     for (const p of particles) {
       const dm = Math.hypot(p.x - mx, p.y - my);
       const glow = dm < 160 ? (1 - dm / 160) * 0.8 : 0;
-
       ctx!.beginPath();
       ctx!.arc(p.x, p.y, p.r + glow * 2, 0, Math.PI * 2);
-      ctx!.fillStyle = glow > 0.1
-        ? `rgba(110, 168, 255, ${0.3 + glow * 0.5})`
-        : "rgba(110, 168, 255, 0.2)";
+      ctx!.fillStyle = glow > 0.1 ? `rgba(110,168,255,${0.3 + glow * 0.5})` : "rgba(110,168,255,0.2)";
       ctx!.fill();
-
       if (glow > 0.2) {
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, p.r + glow * 6, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(110, 168, 255, ${glow * 0.12})`;
+        ctx!.fillStyle = `rgba(110,168,255,${glow * 0.12})`;
         ctx!.fill();
       }
     }
-
     raf = requestAnimationFrame(draw);
   }
 
@@ -120,7 +105,6 @@ function initParticles(canvas: HTMLCanvasElement) {
     mx = e.clientX - r.left;
     my = e.clientY - r.top;
   }
-
   function onLeave() {
     mx = -9999;
     my = -9999;
@@ -129,7 +113,6 @@ function initParticles(canvas: HTMLCanvasElement) {
   resize();
   seed();
   draw();
-
   window.addEventListener("resize", () => { resize(); seed(); });
   canvas.addEventListener("mousemove", onMove, { passive: true });
   canvas.addEventListener("mouseleave", onLeave);
@@ -145,7 +128,7 @@ export function CvPage({ data }: { data: CvData }) {
   const { locale, setLocale } = useLocale();
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  // ── Hero particle canvas ─────────────────────────────────────────
+  // ── Particle canvas ─────────────────────────────────────────────
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -155,11 +138,12 @@ export function CvPage({ data }: { data: CvData }) {
     return initParticles(canvas);
   }, []);
 
-  // ── Main cinematic animation suite ───────────────────────────────
+  // ── Main animation suite ────────────────────────────────────────
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const mobile = window.matchMedia("(max-width: 768px)").matches;
 
     gsap.registerPlugin(ScrollTrigger);
     gsap.defaults({ ease: EASE, duration: 1 });
@@ -184,10 +168,7 @@ export function CvPage({ data }: { data: CvData }) {
           heroTl.fromTo(
             chars,
             { opacity: 0, y: 40, rotateX: -60 },
-            {
-              opacity: 1, y: 0, rotateX: 0,
-              duration: 0.7, stagger: 0.03, ease: "back.out(1.4)", clearProps: "transform",
-            },
+            { opacity: 1, y: 0, rotateX: 0, duration: 0.7, stagger: 0.03, ease: "back.out(1.4)", clearProps: "transform" },
             0.3,
           );
         }
@@ -199,7 +180,8 @@ export function CvPage({ data }: { data: CvData }) {
           0.65,
         );
 
-        root.querySelectorAll<HTMLElement>(".cv-stat-value[data-count]").forEach((el) => {
+        // Stats counter
+        root.querySelectorAll<HTMLElement>(".cv-hero .cv-stat-value[data-count]").forEach((el) => {
           const raw = el.dataset.count ?? "";
           const num = parseFloat(raw.replace(/[^0-9.]/g, ""));
           if (!raw.includes("∞") && !isNaN(num)) {
@@ -224,161 +206,134 @@ export function CvPage({ data }: { data: CvData }) {
           scrollTrigger: { trigger: ".cv-hero", start: "30% top", end: "bottom top", scrub: true },
         });
 
-        /* ── Section headers: clip-path wipe ──────────────────────── */
-        root.querySelectorAll<HTMLElement>(".cv-clip-reveal").forEach((el) => {
-          gsap.fromTo(el,
-            { clipPath: "inset(0 100% 0 0)" },
-            {
-              clipPath: "inset(0 0% 0 0)", duration: 1.1, ease: "power3.inOut",
-              scrollTrigger: { trigger: el, start: "top 88%", once: true },
-            },
-          );
-        });
+        /* ── Dashboard: pinned scrub (desktop only) ───────────────── */
+        if (!mobile && !reduced) {
+          const dashEl = root.querySelector<HTMLElement>(".cv-dash");
+          if (dashEl) {
+            const panels = dashEl.querySelectorAll<HTMLElement>(".cv-dash-panel");
 
-        root.querySelectorAll<HTMLElement>(".cv-index-reveal").forEach((el) => {
-          gsap.fromTo(el,
-            { opacity: 0, scale: 0.5 },
-            {
-              opacity: 1, scale: 1, duration: 0.7, ease: "back.out(2)",
-              scrollTrigger: { trigger: el, start: "top 88%", once: true },
-            },
-          );
-        });
-
-        root.querySelectorAll<HTMLElement>(".cv-section-reveal").forEach((el) => {
-          gsap.fromTo(el,
-            { opacity: 0 },
-            { opacity: 1, duration: 0.6, scrollTrigger: { trigger: el, start: "top 90%", once: true } },
-          );
-        });
-
-        /* ── Profile lead ─────────────────────────────────────────── */
-        root.querySelectorAll<HTMLElement>(".cv-lead.cv-reveal").forEach((el) => {
-          gsap.fromTo(el,
-            { opacity: 0, y: 30 },
-            {
-              opacity: 1, y: 0, duration: 0.9, clearProps: "transform",
-              scrollTrigger: { trigger: el, start: "top 88%", once: true },
-            },
-          );
-        });
-
-        /* ── Skill rows: stagger chips ────────────────────────────── */
-        root.querySelectorAll<HTMLElement>(".cv-skill-row").forEach((row) => {
-          const chips = row.querySelectorAll<HTMLElement>(".cv-chip");
-          gsap.fromTo(row,
-            { opacity: 0, x: -20 },
-            {
-              opacity: 1, x: 0, duration: 0.7, clearProps: "transform",
-              scrollTrigger: { trigger: row, start: "top 88%", once: true },
-            },
-          );
-          gsap.fromTo(chips,
-            { opacity: 0, y: 14, scale: 0.9 },
-            {
-              opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.04, ease: EASE_SOFT, clearProps: "transform",
-              scrollTrigger: { trigger: row, start: "top 88%", once: true },
-            },
-          );
-        });
-
-        /* ── Experience: two-column reveal ────────────────────────── */
-        root.querySelectorAll<HTMLElement>(".cv-exp-item").forEach((item) => {
-          const left = item.querySelector<HTMLElement>(".cv-exp-left");
-          const right = item.querySelector<HTMLElement>(".cv-exp-right");
-
-          if (left) {
-            gsap.fromTo(left,
-              { opacity: 0, x: -24 },
+            gsap.fromTo(panels,
+              { opacity: 0, y: 30, scale: 0.97 },
               {
-                opacity: 1, x: 0, duration: 0.8, clearProps: "transform",
-                scrollTrigger: { trigger: item, start: "top 85%", once: true },
+                opacity: 1, y: 0, scale: 1,
+                duration: 0.6, stagger: 0.08, ease: EASE_SOFT, clearProps: "transform",
+                scrollTrigger: {
+                  trigger: dashEl,
+                  start: "top 80%",
+                  once: true,
+                },
+              },
+            );
+
+            // Dashboard stats counter
+            dashEl.querySelectorAll<HTMLElement>(".cv-dash-stat-val[data-count]").forEach((el) => {
+              const raw = el.dataset.count ?? "";
+              const num = parseFloat(raw.replace(/[^0-9.]/g, ""));
+              if (!raw.includes("∞") && !isNaN(num)) {
+                const suffix = raw.replace(/[0-9.]/g, "");
+                const obj = { v: 0 };
+                gsap.to(obj, {
+                  v: num, duration: 1.4, ease: "power2.out", delay: 0.3,
+                  onUpdate() { el.textContent = Math.round(obj.v) + suffix; },
+                  scrollTrigger: { trigger: dashEl, start: "top 80%", once: true },
+                });
+              }
+            });
+
+            // Skill chips stagger
+            const chips = dashEl.querySelectorAll<HTMLElement>(".cv-dash-chip");
+            gsap.fromTo(chips,
+              { opacity: 0, y: 10, scale: 0.9 },
+              {
+                opacity: 1, y: 0, scale: 1,
+                duration: 0.4, stagger: 0.025, ease: EASE_SOFT, clearProps: "transform", delay: 0.4,
+                scrollTrigger: { trigger: dashEl, start: "top 80%", once: true },
+              },
+            );
+
+            // Timeline items stagger
+            const tlItems = dashEl.querySelectorAll<HTMLElement>(".cv-dash-tl-item");
+            gsap.fromTo(tlItems,
+              { opacity: 0, x: -16 },
+              {
+                opacity: 1, x: 0,
+                duration: 0.5, stagger: 0.1, ease: EASE_SOFT, clearProps: "transform", delay: 0.3,
+                scrollTrigger: { trigger: dashEl, start: "top 80%", once: true },
+              },
+            );
+
+            // Project cards stagger
+            const projCards = dashEl.querySelectorAll<HTMLElement>(".cv-dash-proj");
+            gsap.fromTo(projCards,
+              { opacity: 0, y: 16, scale: 0.95 },
+              {
+                opacity: 1, y: 0, scale: 1,
+                duration: 0.5, stagger: 0.08, ease: EASE_SOFT, clearProps: "transform", delay: 0.5,
+                scrollTrigger: { trigger: dashEl, start: "top 80%", once: true },
               },
             );
           }
-          if (right) {
-            gsap.fromTo(right,
-              { opacity: 0, y: 28 },
+        } else {
+          // Mobile: simple stagger reveal (no pin)
+          root.querySelectorAll<HTMLElement>(".cv-dash-panel").forEach((panel) => {
+            gsap.fromTo(panel,
+              { opacity: 0, y: 24 },
               {
-                opacity: 1, y: 0, duration: 0.9, delay: 0.1, clearProps: "transform",
-                scrollTrigger: { trigger: item, start: "top 85%", once: true },
+                opacity: 1, y: 0, duration: 0.7, clearProps: "transform",
+                scrollTrigger: { trigger: panel, start: "top 90%", once: true },
               },
             );
-          }
-        });
+          });
+        }
+
+        /* ── Contact: cinematic reveal ────────────────────────────── */
+        gsap.fromTo(".cv-contact-head",
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1, y: 0, duration: 1, clearProps: "transform",
+            scrollTrigger: { trigger: ".cv-contact", start: "top 75%", once: true },
+          },
+        );
+
+        const contactChips = root.querySelectorAll<HTMLElement>(".cv-contact-chip");
+        gsap.fromTo(contactChips,
+          { opacity: 0, y: 16, rotate: -2 },
+          {
+            opacity: 1, y: 0, rotate: 0, duration: 0.55, stagger: 0.06, clearProps: "transform",
+            scrollTrigger: { trigger: ".cv-contact-list", start: "top 85%", once: true },
+          },
+        );
+
+        gsap.fromTo(".cv-foot",
+          { opacity: 0, y: 12 },
+          {
+            opacity: 1, y: 0, duration: 0.6, clearProps: "transform",
+            scrollTrigger: { trigger: ".cv-foot", start: "top 94%", once: true },
+          },
+        );
 
         /* ── Card hover: perspective tilt ─────────────────────────── */
         if (!reduced && window.matchMedia("(pointer: fine)").matches) {
           onMouseMove = (e: MouseEvent) => {
-            root.querySelectorAll<HTMLElement>(".cv-card-hover").forEach((card) => {
+            root.querySelectorAll<HTMLElement>(".cv-dash-proj-link").forEach((card) => {
               const r = card.getBoundingClientRect();
               const cx = r.left + r.width / 2;
               const cy = r.top + r.height / 2;
               const dx = (e.clientX - cx) / (r.width / 2);
               const dy = (e.clientY - cy) / (r.height / 2);
               const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
-              const maxDist = 360;
-              if (dist < maxDist) {
-                const t = 1 - dist / maxDist;
-                gsap.to(card, {
-                  rotateY: dx * 3 * t, rotateX: -dy * 3 * t,
-                  duration: 0.5, ease: "power2.out", overwrite: "auto",
-                });
+              if (dist < 300) {
+                const t = 1 - dist / 300;
+                gsap.to(card, { rotateY: dx * 4 * t, rotateX: -dy * 4 * t, duration: 0.4, overwrite: "auto" });
               } else {
-                gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, overwrite: "auto" });
+                gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.5, overwrite: "auto" });
               }
             });
           };
           window.addEventListener("mousemove", onMouseMove, { passive: true });
         }
 
-        /* ── Projects: staggered entrance ─────────────────────────── */
-        root.querySelectorAll<HTMLElement>(".cv-projects.cv-stagger").forEach((group) => {
-          gsap.fromTo(
-            group.querySelectorAll<HTMLElement>(".cv-stagger-item"),
-            { opacity: 0, y: 40, scale: 0.96 },
-            {
-              opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.1, ease: EASE_SOFT,
-              clearProps: "transform",
-              scrollTrigger: { trigger: group, start: "top 85%", once: true },
-            },
-          );
-        });
-
-        /* ── Education: stagger ───────────────────────────────────── */
-        root.querySelectorAll<HTMLElement>(".cv-edu.cv-stagger").forEach((group) => {
-          gsap.fromTo(
-            group.querySelectorAll<HTMLElement>(".cv-stagger-item"),
-            { opacity: 0, y: 28 },
-            {
-              opacity: 1, y: 0, duration: 0.7, stagger: 0.08, clearProps: "transform",
-              scrollTrigger: { trigger: group, start: "top 88%", once: true },
-            },
-          );
-        });
-
-        /* ── Contact chips: stagger with rotate ───────────────────── */
-        root.querySelectorAll<HTMLElement>(".cv-contact-list.cv-stagger").forEach((group) => {
-          gsap.fromTo(
-            group.querySelectorAll<HTMLElement>(".cv-stagger-item"),
-            { opacity: 0, y: 20, rotate: -3 },
-            {
-              opacity: 1, y: 0, rotate: 0, duration: 0.65, stagger: 0.06, clearProps: "transform",
-              scrollTrigger: { trigger: group, start: "top 88%", once: true },
-            },
-          );
-        });
-
-        /* ── Footer ───────────────────────────────────────────────── */
-        gsap.fromTo(".cv-foot.cv-reveal",
-          { opacity: 0, y: 16 },
-          {
-            opacity: 1, y: 0, duration: 0.7, clearProps: "transform",
-            scrollTrigger: { trigger: ".cv-foot", start: "top 94%", once: true },
-          },
-        );
-
-        /* ── Glow parallax on scroll ──────────────────────────────── */
+        /* ── Glow parallax ────────────────────────────────────────── */
         if (!reduced && window.matchMedia("(pointer: fine)").matches) {
           gsap.to(".cv-hero-glow", {
             yPercent: 28, ease: "none",
@@ -389,18 +344,15 @@ export function CvPage({ data }: { data: CvData }) {
         requestAnimationFrame(() => ScrollTrigger.refresh());
       }, root);
 
+      // Safety net
       const safety = window.setTimeout(() => {
-        root
-          .querySelectorAll<HTMLElement>(
-            ".cv-reveal, .cv-stagger-item, .cv-rise, .cv-clip-reveal, .cv-index-reveal, .cv-char, .cv-avatar-reveal",
-          )
-          .forEach((el) => {
-            if (getComputedStyle(el).opacity === "0" || getComputedStyle(el).clipPath !== "none") {
-              el.style.opacity = "1";
-              el.style.transform = "none";
-              el.style.clipPath = "none";
-            }
-          });
+        root.querySelectorAll<HTMLElement>(".cv-hero .cv-char, .cv-avatar-reveal, .cv-rise, .cv-dash-panel, .cv-contact-head, .cv-contact-chip").forEach((el) => {
+          if (getComputedStyle(el).opacity === "0") {
+            el.style.opacity = "1";
+            el.style.transform = "none";
+            el.style.clipPath = "none";
+          }
+        });
       }, 2000);
 
       return () => {
@@ -409,15 +361,11 @@ export function CvPage({ data }: { data: CvData }) {
         ctx?.revert();
       };
     } catch {
-      root
-        .querySelectorAll<HTMLElement>(
-          ".cv-reveal, .cv-rise, .cv-stagger-item, .cv-clip-reveal, .cv-index-reveal, .cv-char, .cv-avatar-reveal",
-        )
-        .forEach((el) => {
-          el.style.opacity = "1";
-          el.style.transform = "none";
-          el.style.clipPath = "none";
-        });
+      root.querySelectorAll<HTMLElement>(".cv-hero .cv-char, .cv-avatar-reveal, .cv-rise, .cv-dash-panel").forEach((el) => {
+        el.style.opacity = "1";
+        el.style.transform = "none";
+        el.style.clipPath = "none";
+      });
     }
   }, []);
 
@@ -433,7 +381,7 @@ export function CvPage({ data }: { data: CvData }) {
   return (
     <div ref={rootRef} className="cv-root dark-locked">
       <noscript>
-        <style>{`.cv-reveal,.cv-rise,.cv-stagger-item,.cv-clip-reveal,.cv-index-reveal,.cv-char,.cv-avatar-reveal{opacity:1!important;transform:none!important;clip-path:none!important}.cv-timeline-line{transform:scaleY(1)!important}`}</style>
+        <style>{`.cv-char,.cv-avatar-reveal,.cv-rise,.cv-dash-panel,.cv-contact-head,.cv-contact-chip{opacity:1!important;transform:none!important;clip-path:none!important}`}</style>
       </noscript>
 
       <div className="cv-progress" aria-hidden>
@@ -445,12 +393,7 @@ export function CvPage({ data }: { data: CvData }) {
           <ArrowLeft className="cv-tb-icon" aria-hidden />
           <span>{en ? "Back" : "返回"}</span>
         </a>
-        <button
-          type="button"
-          className="cv-tb-btn cv-lang"
-          onClick={toggleLocale}
-          aria-label={en ? "Switch to Chinese" : "切换为英文"}
-        >
+        <button type="button" className="cv-tb-btn cv-lang" onClick={toggleLocale} aria-label={en ? "Switch to Chinese" : "切换为英文"}>
           <Languages className="cv-tb-icon" aria-hidden />
           <span>{en ? "中文" : "EN"}</span>
         </button>
@@ -458,14 +401,8 @@ export function CvPage({ data }: { data: CvData }) {
 
       <main className="cv-main">
         <Hero locale={locale} data={data} />
-        <div className="cv-body">
-          <Profile locale={locale} data={data} />
-          <Skills locale={locale} data={data} />
-          <Experience locale={locale} data={data} />
-          <Projects locale={locale} data={data} />
-          <Education locale={locale} data={data} />
-          <Contact locale={locale} data={data} />
-        </div>
+        <Dashboard locale={locale} data={data} />
+        <Contact locale={locale} data={data} />
       </main>
     </div>
   );
