@@ -31,8 +31,24 @@ const CV_SUBDOMAIN = "cv.hypervoid.top";
 const MAIN_DOMAIN = "hypervoid.top";
 const CV_SUBDOMAIN_ENABLED = process.env.CV_SUBDOMAIN_ENABLED === "1";
 
+// Study-tools subdomain (考研工具) — a private, admin-only mini-app. The whole
+// subdomain *is* the /tools route tree: every non-passthrough path is rewritten
+// under /tools/* so the browser URL stays clean (study.hypervoid.top/flashcards).
+// Env-gated like the résumé subdomain; needs AUTH_COOKIE_DOMAIN set so the admin
+// session created on the main domain is shared to this subdomain (see auth.ts).
+const TOOLS_SUBDOMAIN = "study.hypervoid.top";
+const TOOLS_SUBDOMAIN_ENABLED = process.env.TOOLS_SUBDOMAIN_ENABLED === "1";
+
 function hostOf(req: NextRequest): string {
   return (req.headers.get("host") || "").split(":")[0].toLowerCase();
+}
+
+// Local dev: *.localhost resolves to 127.0.0.1 in modern browsers, so accept
+// study.localhost to exercise the rewrite without DNS. Never matched in prod.
+function isToolsHost(host: string): boolean {
+  if (!TOOLS_SUBDOMAIN_ENABLED) return false;
+  if (host === TOOLS_SUBDOMAIN) return true;
+  return process.env.NODE_ENV !== "production" && host === "study.localhost";
 }
 
 /**
@@ -79,6 +95,78 @@ function routeCvSubdomain(req: NextRequest): NextResponse | null {
   return null;
 }
 
+/**
+ * Host-based routing for the private study-tools subdomain. Gates on the admin
+ * session (redirecting unauthenticated visitors to the main-domain sign-in),
+ * then rewrites the clean URL under /tools/*. Returns a response when handled,
+ * or null to fall through to normal routing.
+ */
+async function routeToolsSubdomain(req: NextRequest): Promise<NextResponse | null> {
+  if (!TOOLS_SUBDOMAIN_ENABLED) return null;
+  const host = hostOf(req);
+  const { pathname, search } = req.nextUrl;
+
+  // On the main domain: /tools lives on the subdomain now → send visitors there.
+  if (!isToolsHost(host)) {
+    if (host === MAIN_DOMAIN || host === `www.${MAIN_DOMAIN}`) {
+      if (pathname === "/tools" || pathname.startsWith("/tools/")) {
+        const clean = pathname.replace(/^\/tools/, "") || "/";
+        return NextResponse.redirect(`https://${TOOLS_SUBDOMAIN}${clean}${search}`, 308);
+      }
+    }
+    return null;
+  }
+
+  // On the tools subdomain. Framework internals, APIs (gated separately), and
+  // static files keep their real path so they resolve normally.
+  if (
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/api/") ||
+    pathname === "/favicon.ico" ||
+    /\.[a-z0-9]+$/i.test(pathname)
+  ) {
+    return null;
+  }
+
+  // A bare /tools(/…) should never arrive from this host; normalise to the clean
+  // URL so we never double-prefix into /tools/tools.
+  if (pathname === "/tools" || pathname.startsWith("/tools/")) {
+    const clean = pathname.replace(/^\/tools/, "") || "/";
+    return NextResponse.redirect(new URL(`${clean}${search}`, req.nextUrl), 308);
+  }
+
+  // Private space: require the admin session before serving any page. The cookie
+  // is domain-wide (AUTH_COOKIE_DOMAIN), set on the main domain at sign-in.
+  const session = await auth();
+  const user = session?.user as
+    | { login?: string | null; isAdmin?: boolean | null }
+    | undefined;
+  const allowed = user?.isAdmin === true || user?.login === ADMIN_LOGIN;
+  if (!allowed) {
+    // Sign-in must happen on the main domain (the GitHub OAuth callback is
+    // registered there); the domain-wide cookie then unlocks this subdomain.
+    // Sign-in happens on the main domain (the GitHub OAuth callback is
+    // registered there); the domain-wide session cookie then unlocks this
+    // subdomain. The absolute cross-host target is what makes the browser leave
+    // the subdomain — mirrors the résumé subdomain's cross-host redirects.
+    const proto = req.nextUrl.protocol; // "https:" | "http:"
+    const mainHost =
+      host === TOOLS_SUBDOMAIN ? MAIN_DOMAIN : `localhost:${req.nextUrl.port || "3000"}`;
+    const signIn = new URL(`${proto}//${mainHost}/sign-in`);
+    signIn.searchParams.set("callbackUrl", `${proto}//${host}${pathname}${search}`);
+    if (user) signIn.searchParams.set("error", "AccessDenied");
+    return NextResponse.redirect(signIn.toString());
+  }
+
+  // Blanket rewrite: /<p> → /tools/<p>, / → /tools. The server layout reads
+  // x-pathname (the rewritten path) for fullscreen-chrome detection.
+  const url = req.nextUrl.clone();
+  url.pathname = pathname === "/" ? "/tools" : `/tools${pathname}`;
+  const headers = new Headers(req.headers);
+  headers.set("x-pathname", url.pathname);
+  return NextResponse.rewrite(url, { request: { headers } });
+}
+
 // Paths exempt from site-wide login check
 const PUBLIC_PATHS = [
   "/sign-in",
@@ -117,7 +205,8 @@ async function denyUnauthorized(req: NextRequest): Promise<NextResponse | null> 
   const { pathname } = req.nextUrl;
   const isAdminPath = pathname.startsWith("/admin");
   const isAdminApi = pathname.startsWith("/api/admin");
-  if (!isAdminPath && !isAdminApi) {
+  const isToolsApi = pathname.startsWith("/api/tools");
+  if (!isAdminPath && !isAdminApi && !isToolsApi) {
     return null;
   }
 
@@ -128,7 +217,7 @@ async function denyUnauthorized(req: NextRequest): Promise<NextResponse | null> 
   const allowed = user?.isAdmin === true || user?.login === ADMIN_LOGIN;
   if (allowed) return null;
 
-  if (isAdminApi) {
+  if (isAdminApi || isToolsApi) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -162,6 +251,10 @@ export default async function proxy(req: NextRequest): Promise<NextResponse> {
   const cvRoute = routeCvSubdomain(req);
   if (cvRoute) return cvRoute;
 
+  // Study-tools subdomain — gates + rewrites the private mini-app.
+  const toolsRoute = await routeToolsSubdomain(req);
+  if (toolsRoute) return toolsRoute;
+
   const { pathname } = req.nextUrl;
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-pathname", pathname);
@@ -169,6 +262,7 @@ export default async function proxy(req: NextRequest): Promise<NextResponse> {
   const isAdminOrSearch =
     pathname.startsWith("/admin") ||
     pathname.startsWith("/api/admin") ||
+    pathname.startsWith("/api/tools") ||
     pathname.startsWith("/api/cron") ||
     pathname === "/search";
 

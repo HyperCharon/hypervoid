@@ -5,6 +5,7 @@ import {
   pgEnum,
   pgTable,
   primaryKey,
+  real,
   text,
   timestamp,
   uuid,
@@ -475,4 +476,157 @@ export const quickNotes = pgTable("quick_notes", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+});
+
+// ───────────────────────────  STUDY TOOLS (考研)  ───────────────────────────
+// Private, admin-only mini-app served on study.hypervoid.top. Flashcards use
+// SM-2 spaced repetition; the mistake notebook uses a simpler Leitner box.
+
+export const studySubject = pgEnum("study_subject", [
+  "politics", // 政治
+  "english", // 英语
+  "math", // 数学
+  "major", // 专业课
+]);
+
+export const studyCardState = pgEnum("study_card_state", [
+  "new",
+  "learning",
+  "review",
+]);
+
+/** Single-row (id=1) settings: exam date + daily goals. Mirrors customTheme. */
+export const studySettings = pgTable("study_settings", {
+  id: integer("id").primaryKey().default(1),
+  examDate: timestamp("exam_date", { withTimezone: true }), // 考研初试日期
+  dailyNewCards: integer("daily_new_cards").notNull().default(20),
+  dailyReviewCap: integer("daily_review_cap").notNull().default(200),
+  /** Per-subject minute goals: { politics: 60, english: 90, … } */
+  dailyMinuteGoals: jsonb("daily_minute_goals")
+    .$type<Partial<Record<"politics" | "english" | "math" | "major", number>>>()
+    .notNull()
+    .default({}),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/** Flashcard decks (背单词 grouping). */
+export const studyDecks = pgTable("study_decks", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  subject: studySubject("subject").notNull().default("english"),
+  description: text("description"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/** Flashcards with SM-2 scheduling state. */
+export const studyCards = pgTable("study_cards", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  deckId: uuid("deck_id")
+    .notNull()
+    .references(() => studyDecks.id, { onDelete: "cascade" }),
+  front: text("front").notNull(), // word / prompt
+  back: text("back").notNull(), // definition
+  notes: text("notes"), // example sentence, mnemonic (KaTeX ok)
+  // ── SM-2 state ──
+  ease: real("ease").notNull().default(2.5), // ease factor (EF)
+  intervalDays: integer("interval_days").notNull().default(0),
+  reps: integer("reps").notNull().default(0), // successful reviews in a row
+  lapses: integer("lapses").notNull().default(0),
+  state: studyCardState("state").notNull().default("new"),
+  dueAt: timestamp("due_at", { withTimezone: true }).notNull().defaultNow(),
+  lastReviewedAt: timestamp("last_reviewed_at", { withTimezone: true }),
+  suspended: boolean("suspended").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/** Review log — one row per rating; powers the heatmap + retention stats. */
+export const studyReviews = pgTable("study_reviews", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  cardId: uuid("card_id")
+    .notNull()
+    .references(() => studyCards.id, { onDelete: "cascade" }),
+  rating: integer("rating").notNull(), // 0=again 1=hard 2=good 3=easy
+  prevIntervalDays: integer("prev_interval_days").notNull().default(0),
+  nextIntervalDays: integer("next_interval_days").notNull().default(0),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/** 错题本 — mistake notebook with photo + Leitner-box review scheduling. */
+export const studyMistakes = pgTable("study_mistakes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  subject: studySubject("subject").notNull(),
+  topic: text("topic"), // chapter / knowledge point
+  tags: jsonb("tags").$type<string[]>().notNull().default([]),
+  questionImage: text("question_image"), // blob url, nullable
+  questionText: text("question_text"),
+  myAnswer: text("my_answer"),
+  correctAnswer: text("correct_answer"),
+  analysis: text("analysis"), // 解析 (KaTeX ok)
+  // ── Leitner box review (1..5; higher box = longer gap) ──
+  box: integer("box").notNull().default(1),
+  reviewCount: integer("review_count").notNull().default(0),
+  nextReviewAt: timestamp("next_review_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  mastered: boolean("mastered").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/** Study sessions — Pomodoro + per-subject time log (P1). */
+export const studySessions = pgTable("study_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  subject: studySubject("subject").notNull(),
+  startedAt: timestamp("started_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  endedAt: timestamp("ended_at", { withTimezone: true }),
+  durationSec: integer("duration_sec").notNull().default(0),
+  note: text("note"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/** MCQ question bank — 政治 selection practice (P1). */
+export const studyQuestions = pgTable("study_questions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  subject: studySubject("subject").notNull().default("politics"),
+  stem: text("stem").notNull(),
+  options: jsonb("options").$type<string[]>().notNull().default([]), // ["A…","B…",…]
+  answer: integer("answer").notNull(), // correct option index (single-choice)
+  answerMask: integer("answer_mask"), // bitmask for 多选; null for 单选
+  explanation: text("explanation"),
+  tags: jsonb("tags").$type<string[]>().notNull().default([]),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/** MCQ attempts (P1). */
+export const studyAttempts = pgTable("study_attempts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  questionId: uuid("question_id")
+    .notNull()
+    .references(() => studyQuestions.id, { onDelete: "cascade" }),
+  chosen: integer("chosen").notNull(), // chosen option index (single) …
+  chosenMask: integer("chosen_mask"), // … or bitmask (multi)
+  correct: boolean("correct").notNull(),
+  at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
 });

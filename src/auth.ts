@@ -8,6 +8,14 @@ const ADMIN_GITHUB_LOGIN =
   process.env.ADMIN_GITHUB_LOGIN?.trim() || "";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.trim().toLowerCase() || null;
 
+// Sharing the admin session across subdomains (cv./tools.) needs a domain-wide
+// cookie. Opt-in via AUTH_COOKIE_DOMAIN=".hypervoid.top"; unset → host-only
+// cookie (unchanged behaviour). COOKIE_ROOT (the registrable domain) gates the
+// cross-subdomain redirect allow-list below.
+const AUTH_COOKIE_DOMAIN = process.env.AUTH_COOKIE_DOMAIN?.trim() || undefined;
+const COOKIE_ROOT = AUTH_COOKIE_DOMAIN?.replace(/^\./, "") || null;
+const USE_SECURE_COOKIES = process.env.NODE_ENV === "production";
+
 function isAuthEmailConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY);
 }
@@ -104,11 +112,47 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   adapter: isAuthEmailConfigured() ? HypervoidAuthAdapter() : undefined,
   session: { strategy: "jwt" },
+  // When AUTH_COOKIE_DOMAIN is set, scope the session cookie to the registrable
+  // domain so cv./tools. subdomains share the admin's login. Left default
+  // (host-only) otherwise.
+  ...(AUTH_COOKIE_DOMAIN
+    ? {
+        cookies: {
+          sessionToken: {
+            name: `${USE_SECURE_COOKIES ? "__Secure-" : ""}authjs.session-token`,
+            options: {
+              httpOnly: true,
+              sameSite: "lax" as const,
+              path: "/",
+              secure: USE_SECURE_COOKIES,
+              domain: AUTH_COOKIE_DOMAIN,
+            },
+          },
+        },
+      }
+    : {}),
   providers: [GitHub, ...emailProviders],
   pages: {
     signIn: "/sign-in",
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      // Keep default same-origin behaviour, but also allow redirects to sibling
+      // subdomains of the same registrable domain (main ↔ tools./cv.) so
+      // post-login can return to the tools app. Else fall back to baseUrl.
+      try {
+        const target = new URL(url, baseUrl);
+        const base = new URL(baseUrl);
+        if (target.origin === base.origin) return target.toString();
+        const root = COOKIE_ROOT || base.hostname;
+        if (target.hostname === root || target.hostname.endsWith(`.${root}`)) {
+          return target.toString();
+        }
+      } catch {
+        // malformed url → fall through to baseUrl
+      }
+      return baseUrl;
+    },
     async session({ session, token }) {
       if (session.user) {
         if (token?.login) {

@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
         "hypervoid.top",
         "www.hypervoid.top",
         "cv.hypervoid.top",
+        "study.hypervoid.top",
         "*.vercel.app",
       ],
       bodySizeLimit: "4mb",

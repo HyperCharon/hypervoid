@@ -19,7 +19,7 @@ import { CustomThemeStyles, CustomWallpaper } from "@/components/CustomThemeStyl
 import { DeferredClientUI } from "@/components/DeferredClientUI";
 import { RouteChromeState } from "@/components/RouteChromeState";
 import { getSiteOverride } from "@/lib/site-config-server";
-import { FULLSCREEN_PATHS, isFullScreenPath, CV_SUBDOMAIN } from "@/lib/fullscreen-routes";
+import { FULLSCREEN_PATHS, isFullScreenPath, CV_SUBDOMAIN, TOOLS_SUBDOMAIN } from "@/lib/fullscreen-routes";
 import { isCvVisible } from "@/lib/cv-store";
 
 const geistSans = Geist({
@@ -120,7 +120,7 @@ export default async function RootLayout({
           id="route-chrome-state"
           strategy="beforeInteractive"
           nonce={nonce}
-        >{`!function(){var ps=${JSON.stringify(FULLSCREEN_PATHS)},p=location.pathname,f=ps.some(function(x){return p===x||p.indexOf(x+"/")===0})||location.hostname===${JSON.stringify(CV_SUBDOMAIN)};document.documentElement.dataset.fullscreenRoute=f?"true":"false"}()`}</Script>
+        >{`!function(){var ps=${JSON.stringify(FULLSCREEN_PATHS)},p=location.pathname,h=location.hostname,f=ps.some(function(x){return p===x||p.indexOf(x+"/")===0})||h===${JSON.stringify(CV_SUBDOMAIN)}||h===${JSON.stringify(TOOLS_SUBDOMAIN)}||h==="study.localhost";document.documentElement.dataset.fullscreenRoute=f?"true":"false"}()`}</Script>
         <Script
           id="sw-cleanup"
           strategy="beforeInteractive"

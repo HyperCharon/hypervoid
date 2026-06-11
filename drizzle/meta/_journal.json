@@ -78,6 +78,13 @@
       "when": 1779989685418,
       "tag": "0010_majestic_mole_man",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1781174106110,
+      "tag": "0011_sour_zuras",
+      "breakpoints": true
     }
   ]
 }
