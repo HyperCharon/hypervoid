@@ -22,12 +22,25 @@ function parseTags(v: string): string[] {
     .filter(Boolean);
 }
 
+// Only accept image URLs that came from our own Vercel Blob upload route. The
+// field is a hidden form input, so without this an attacker who can drive the
+// action could store a data:/javascript:/external URL that later renders in an
+// <img src>. Empty → no image.
+function sanitizeImageUrl(v: string): string | null {
+  const url = v.trim();
+  if (!url) return null;
+  if (/^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//i.test(url)) {
+    return url;
+  }
+  throw new Error("图片地址无效");
+}
+
 export async function createMistakeAction(formData: FormData) {
   await requireAdmin();
   const subject = parseSubject(String(formData.get("subject") ?? ""));
   const topic = String(formData.get("topic") ?? "").trim() || null;
   const tags = parseTags(String(formData.get("tags") ?? ""));
-  const questionImage = String(formData.get("questionImage") ?? "").trim() || null;
+  const questionImage = sanitizeImageUrl(String(formData.get("questionImage") ?? ""));
   const questionText = String(formData.get("questionText") ?? "").trim() || null;
   const myAnswer = String(formData.get("myAnswer") ?? "").trim() || null;
   const correctAnswer = String(formData.get("correctAnswer") ?? "").trim() || null;

@@ -254,14 +254,12 @@ export async function getAdjacentPosts(
   prev: AdjacentPost | null;
   next: AdjacentPost | null;
 }> {
-  // Reuses the request-scoped cached fetch; ordering matches getAllPosts
-  // (pinned desc, publish desc, created desc) which differs from the
-  // previous standalone query — pinned-first reads better as "next post"
-  // when the active post is also pinned.
-  const all = await getAllPosts(opts);
+  // Uses the metadata projection (no article bodies) — this runs on every
+  // article render, so pulling full content for prev/next titles was wasteful.
+  const all = await getAllPostMeta(opts);
   const i = all.findIndex((r) => r.slug === slug);
   if (i < 0) return { prev: null, next: null };
-  const toAdjacent = (p: Post): AdjacentPost => ({
+  const toAdjacent = (p: PostMeta): AdjacentPost => ({
     slug: p.slug,
     title: p.frontmatter.title,
     cover: p.frontmatter.cover ?? null,
@@ -277,9 +275,9 @@ export async function getRelatedPosts(
   slug: string,
   tags: string[],
   opts: ViewerOpts = {},
-): Promise<Post[]> {
+): Promise<PostMeta[]> {
   if (tags.length === 0) return [];
-  const all = await getAllPosts(opts);
+  const all = await getAllPostMeta(opts);
   return all
     .filter((p) => p.slug !== slug)
     .map((p) => ({
@@ -300,7 +298,7 @@ export async function getRelatedPosts(
 export async function getBacklinks(
   slug: string,
   opts: ViewerOpts = {},
-): Promise<Post[]> {
+): Promise<PostMeta[]> {
   if (!slug) return [];
   const db = getDb();
   // Match `/posts/<slug>` as URL substring and `[[<slug>]]` wiki-style links.
@@ -309,8 +307,10 @@ export async function getBacklinks(
   const safeSlug = slug.replace(/[%_]/g, "");
   const urlPattern = `%/posts/${safeSlug}%`;
   const wikiPattern = `%[[${safeSlug}]]%`;
+  // Filter on content (ILIKE) but project metadata only — the cards never
+  // render the body, so there's no need to ship every matched article's text.
   const rows = await db
-    .select()
+    .select(META_COLS)
     .from(schema.posts)
     .where(
       and(
@@ -327,7 +327,7 @@ export async function getBacklinks(
       desc(schema.posts.createdAt),
     )
     .limit(12);
-  return rows.map((r) => toPost(r));
+  return rows.map((r) => toPostMeta(r));
 }
 
 export async function getAllTags(

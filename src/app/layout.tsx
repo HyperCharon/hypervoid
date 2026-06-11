@@ -37,7 +37,9 @@ const jetbrainsMono = JetBrains_Mono({
 const orbitron = Orbitron({
   variable: "--font-orbitron",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  // Only the weights actually used by the display face (--font-display):
+  // 600 (ToolsTopBar), 700 (tools headings), 900 (Hero). Trimmed from 6.
+  weight: ["600", "700", "900"],
   display: "swap",
 });
 

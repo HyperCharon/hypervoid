@@ -2,7 +2,7 @@ import "server-only";
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { auth, requireAdmin } from "@/auth";
 
 /**
  * URL prefix for in-app links. Empty on the tools subdomain (clean URLs like
@@ -17,12 +17,15 @@ export async function getToolsBase(): Promise<string> {
 
 /**
  * Server-side auth backstop for every /tools page. The proxy already gates the
- * subdomain, but /tools/* reachable via the main domain or a preview URL would
- * otherwise be ungated — so the layout enforces admin here too.
+ * subdomain and the /tools tree, but the layout enforces admin here too as
+ * defence in depth. Delegates to the canonical requireAdmin so the check can't
+ * drift; redirects (rather than throwing) since this fronts a page render.
  */
 export async function requireToolsAdmin() {
-  const session = await auth();
-  const user = session?.user as { isAdmin?: boolean } | undefined;
-  if (!user?.isAdmin) redirect("/sign-in");
-  return session;
+  try {
+    await requireAdmin();
+  } catch {
+    redirect("/sign-in");
+  }
+  return auth();
 }

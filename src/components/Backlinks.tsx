@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { CornerDownRight } from "lucide-react";
-import type { Post } from "@/lib/posts";
+import type { PostMeta } from "@/lib/posts";
 
-export function Backlinks({ posts }: { posts: Post[] }) {
+export function Backlinks({ posts }: { posts: PostMeta[] }) {
   if (posts.length === 0) return null;
   return (
     <section className="mt-12">

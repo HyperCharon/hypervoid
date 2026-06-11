@@ -206,7 +206,11 @@ async function denyUnauthorized(req: NextRequest): Promise<NextResponse | null> 
   const isAdminPath = pathname.startsWith("/admin");
   const isAdminApi = pathname.startsWith("/api/admin");
   const isToolsApi = pathname.startsWith("/api/tools");
-  if (!isAdminPath && !isAdminApi && !isToolsApi) {
+  // Gate the /tools page tree at the edge on every host, not just the
+  // subdomain. Reached via the main domain or a *.vercel.app preview, /tools/*
+  // would otherwise rely solely on the layout backstop — defence in depth.
+  const isToolsPath = pathname === "/tools" || pathname.startsWith("/tools/");
+  if (!isAdminPath && !isAdminApi && !isToolsApi && !isToolsPath) {
     return null;
   }
 
