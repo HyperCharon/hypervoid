@@ -18,6 +18,7 @@ import { CommandPaletteHost } from "@/components/CommandPaletteHost";
 import { CustomThemeStyles, CustomWallpaper } from "@/components/CustomThemeStyles";
 import { DeferredClientUI } from "@/components/DeferredClientUI";
 import { RouteChromeState } from "@/components/RouteChromeState";
+import { StudyThemeProvider } from "@/components/tools/StudyThemeProvider";
 import { getSiteOverride } from "@/lib/site-config-server";
 import { FULLSCREEN_PATHS, isFullScreenPath, CV_SUBDOMAIN, TOOLS_SUBDOMAIN } from "@/lib/fullscreen-routes";
 import { isCvVisible } from "@/lib/cv-store";
@@ -104,6 +105,26 @@ export default async function RootLayout({
   const headersList = await headers();
   const nonce = headersList.get("x-nonce") ?? undefined;
   const pathname = headersList.get("x-pathname") ?? "";
+
+  // The study subdomain (rewritten to /tools/*) is a self-contained app. Give it
+  // a minimal, independent shell — its own ThemeProvider + shared fonts/globals
+  // utility classes only — instead of the main site's chrome, global scripts,
+  // Backdrop/wallpaper/command-palette/analytics and Settings/Locale/Player
+  // providers. Keeps study runtime-isolated from the blog.
+  if (pathname === "/tools" || pathname.startsWith("/tools/")) {
+    return (
+      <html
+        lang="zh-CN"
+        suppressHydrationWarning
+        className={`${geistSans.variable} ${jetbrainsMono.variable} ${orbitron.variable} h-full antialiased`}
+      >
+        <body className="min-h-full bg-background text-foreground">
+          <StudyThemeProvider nonce={nonce}>{children}</StudyThemeProvider>
+        </body>
+      </html>
+    );
+  }
+
   const isFullScreenRoute = isFullScreenPath(pathname);
   const cvVisible = await isCvVisible();
   return (
