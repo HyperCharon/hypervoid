@@ -15,12 +15,9 @@ export function Providers({
   nonce?: string;
 }) {
   const pathname = usePathname();
-  // Admin is a dark-first control panel and /cv is a dark-by-design résumé;
-  // force dark on both regardless of the user's site theme (their light-on-dark
-  // UI is unreadable / leaky in light mode). isCvContext also covers the cv
-  // subdomain root, where the path is "/" after a rewrite. Reverts on leaving.
-  const forcedTheme =
-    pathname?.startsWith("/admin") || isCvContext(pathname ?? "") ? "dark" : undefined;
+  // /cv is a dark-by-design résumé — force dark regardless of user theme.
+  // Admin now follows the user's theme preference (supports light/dark).
+  const forcedTheme = isCvContext(pathname ?? "") ? "dark" : undefined;
 
   return (
     <ThemeProvider
