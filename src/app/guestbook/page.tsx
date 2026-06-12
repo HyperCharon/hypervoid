@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { auth, ADMIN_LOGIN } from "@/auth";
 import { listVisibleMessages } from "@/db/guestbook";
@@ -11,7 +12,12 @@ import {
   signOutFromGuestbook,
 } from "@/app/guestbook/actions";
 
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "留言板",
+  description: "留下你的足迹",
+};
+
+export const revalidate = 60;
 
 const formatDate = formatDateTimeCN;
 

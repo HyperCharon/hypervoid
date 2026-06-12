@@ -131,8 +131,9 @@ export async function rateLimit(
       resetInSec,
       dbReachable: true,
     };
-  } catch {
+  } catch (e) {
     // DB unreachable — fall back to per-container in-memory limiter.
+    console.warn("[rate-limit] DB unreachable, using in-memory fallback:", e instanceof Error ? e.message : e);
     maybeEvictMem();
     return memRateLimit(identifier, opts);
   }

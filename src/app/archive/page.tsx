@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Archive, Pin, Radio } from "lucide-react";
 import { getAllPostMeta } from "@/lib/posts";
@@ -5,6 +6,11 @@ import { ArchiveLayout } from "@/components/ArchiveLayout";
 import { getMessages } from "@/lib/i18n-server";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "归档",
+  description: "所有文章按时间线归档",
+};
 
 export default async function ArchivePage() {
   const [posts, t] = await Promise.all([getAllPostMeta(), getMessages()]);

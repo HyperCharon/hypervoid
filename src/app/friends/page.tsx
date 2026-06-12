@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { listFriends } from "@/db/friends";
 import { FriendApplyForm } from "@/components/FriendApplyForm";
 import { getMessages } from "@/lib/i18n-server";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "友链",
+  description: "友情链接 · 互换链接申请",
+};
 
 export default async function FriendsPage() {
   const [friends, t] = await Promise.all([listFriends(), getMessages()]);

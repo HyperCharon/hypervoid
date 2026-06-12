@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bot, Send, TriangleAlert } from "lucide-react";
 
 export function AskAIImpl({ slug }: { slug: string }) {
@@ -8,6 +8,16 @@ export function AskAIImpl({ slug }: { slug: string }) {
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,11 +27,15 @@ export function AskAIImpl({ slug }: { slug: string }) {
     setAnswer("");
     setError(null);
 
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     try {
       const res = await fetch("/api/posts/" + slug + "/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: trimmed }),
+        signal: controller.signal,
       });
 
       if (!res.ok) {
@@ -36,13 +50,16 @@ export function AskAIImpl({ slug }: { slug: string }) {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+        if (!mountedRef.current) { reader.cancel(); return; }
         const chunk = decoder.decode(value, { stream: true });
         setAnswer((prev) => prev + chunk);
       }
     } catch (e) {
-      setError((e as Error).message);
+      if (!mountedRef.current) return;
+      if (e instanceof DOMException && e.name === "AbortError") return;
+      setError(e instanceof Error ? e.message : "未知错误");
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   };
 

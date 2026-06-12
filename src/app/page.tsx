@@ -150,7 +150,7 @@ export default async function Home() {
                             </div>
                             {post.frontmatter.cover ? (
                               <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md">
-                                <Image src={post.frontmatter.cover} alt="" width={80} height={80} sizes="80px" className="h-full w-full object-cover opacity-70" />
+                                <Image src={post.frontmatter.cover} alt={post.frontmatter.title} width={80} height={80} sizes="80px" className="h-full w-full object-cover opacity-70" />
                               </div>
                             ) : null}
                             <svg aria-hidden className="h-3.5 w-3.5 shrink-0 text-muted-soft/25 transition group-hover:translate-x-0.5 group-hover:text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -174,7 +174,7 @@ export default async function Home() {
                             >
                               {hasCover ? (
                                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg">
-                                  <Image src={post.frontmatter.cover!} alt="" width={144} height={144} sizes="144px" loading="lazy" className="h-full w-full object-cover opacity-80 saturate-[0.85] transition duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100" />
+                                  <Image src={post.frontmatter.cover!} alt={post.frontmatter.title} width={144} height={144} sizes="144px" loading="lazy" className="h-full w-full object-cover opacity-80 saturate-[0.85] transition duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100" />
                                 </div>
                               ) : null}
                               <div className="flex min-w-0 flex-1 flex-col gap-1.5">

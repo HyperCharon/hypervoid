@@ -65,7 +65,8 @@ export async function POST(
       question,
     });
   } catch (e) {
-    return Response.json({ error: (e as Error).message }, { status: 502 });
+    const msg = e instanceof Error ? e.message : "AI 请求失败";
+    return Response.json({ error: msg }, { status: 502 });
   }
 
   const encoder = new TextEncoder();
@@ -79,7 +80,7 @@ export async function POST(
       } catch (e) {
         controller.enqueue(
           encoder.encode(
-            `\n\n[AI 错误:${(e as Error).message.slice(0, 200)}]`,
+            `\n\n[AI 错误:${(e instanceof Error ? e.message : "未知错误").slice(0, 200)}]`,
           ),
         );
         controller.close();

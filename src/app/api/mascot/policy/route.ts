@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSiteOverride } from "@/lib/site-config-server";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 function isOn(value: string): boolean {
   return value !== "off";

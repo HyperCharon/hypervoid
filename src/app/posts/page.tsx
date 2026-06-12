@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Tags } from "lucide-react";
 import { PostCard } from "@/components/PostCard";
@@ -6,6 +7,11 @@ import { getAllPostMeta } from "@/lib/posts";
 import { getMessages } from "@/lib/i18n-server";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "文章",
+  description: "所有已发布的文章",
+};
 
 export default async function PostsIndex() {
   const [posts, t] = await Promise.all([

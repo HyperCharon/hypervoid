@@ -6,7 +6,7 @@ import { QuickNoteForm } from "./QuickNoteForm";
 import { DeleteNoteButton } from "./DeleteNoteButton";
 
 export const metadata: Metadata = { title: "日记" };
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function DiaryPage() {
   const session = await auth();

@@ -42,7 +42,8 @@ export async function getReactionCounts(
       if (isValidEmoji(r.emoji)) counts[r.emoji] = r.count;
     }
     return counts;
-  } catch {
+  } catch (e) {
+    console.warn("[reactions]", e instanceof Error ? e.message : e);
     return null;
   }
 }
@@ -66,7 +67,8 @@ export async function incrementReaction(
       })
       .returning({ count: schema.postReactions.count });
     return rows[0]?.count ?? null;
-  } catch {
+  } catch (e) {
+    console.warn("[reactions]", e instanceof Error ? e.message : e);
     return null;
   }
 }
@@ -92,7 +94,8 @@ export async function decrementReaction(
       )
       .returning({ count: schema.postReactions.count });
     return rows[0]?.count ?? 0;
-  } catch {
+  } catch (e) {
+    console.warn("[reactions]", e instanceof Error ? e.message : e);
     return null;
   }
 }

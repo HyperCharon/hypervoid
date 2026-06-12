@@ -25,7 +25,7 @@ export function PostCard({ post }: { post: PostMeta }) {
           {frontmatter.cover ? (
             <Image
               src={frontmatter.cover}
-              alt=""
+              alt={frontmatter.title}
               fill
               sizes="(min-width: 640px) 112px, 64px"
               loading="lazy"

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getAllPosts } from "@/lib/posts";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const HINTS = [
   "宇宙在膨胀，这条路径已经远去了",

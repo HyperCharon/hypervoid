@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Hash, Tags } from "lucide-react";
 import { getAllTags } from "@/lib/posts";
 import { getMessages } from "@/lib/i18n-server";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "标签",
+  description: "按标签浏览文章",
+};
 
 export default async function TagsIndex() {
   const [tags, t] = await Promise.all([getAllTags(), getMessages()]);

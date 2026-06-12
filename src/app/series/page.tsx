@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Layers3 } from "lucide-react";
@@ -5,6 +6,11 @@ import { getPublicSeriesList } from "@/lib/series-public";
 import { getMessages } from "@/lib/i18n-server";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "系列",
+  description: "文章系列 · 多篇文章组成一个主题",
+};
 
 export default async function SeriesIndexPage() {
   const [series, t] = await Promise.all([getPublicSeriesList(), getMessages()]);
