@@ -18,7 +18,7 @@
 - 拉姆组件：`src/components/RamMascot.tsx`
 - 雷姆组件：`src/components/GifMascot.tsx`
 - Spine widget 裁剪 helper：`src/lib/spine-widget-focus.ts`
-- 转换器资源包：`public/resources/tools/spine-skeleton-data-converter-v3.7-hypervoid.zip`
+- 转换器资源包：已从仓库移除（体积优化）。需要时从 https://github.com/wang606/SpineSkeletonDataConverter 重新编译
 
 ## 转换器来源和打包
 
