@@ -3,8 +3,11 @@ import { ArrowLeft } from "lucide-react";
 
 export function AdminBackLink({ href, label }: { href: string; label: string }) {
   return (
-    <Link href={href} className="hv-action w-fit px-3 py-1 text-xs font-medium">
-      <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+    <Link
+      href={href}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted hover:text-foreground hover:bg-card-hover transition-colors"
+    >
+      <ArrowLeft className="h-4 w-4" aria-hidden />
       {label}
     </Link>
   );

@@ -1,18 +1,19 @@
 import type { ReactNode } from "react";
+import type { Metadata, Viewport } from "next";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
-/**
- * Shared admin layout. Provides a sidebar on desktop and a
- * slide-out drawer on mobile. Individual pages still handle
- * their own auth checks.
- */
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
+export const viewport: Viewport = { viewportFit: "cover" };
+
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-dvh bg-zinc-950 text-zinc-100">
+    <div className="relative min-h-dvh bg-background text-foreground">
       <AdminSidebar />
-      {/* Main content: offset for desktop sidebar */}
-      <div className="lg:pl-56">
-        <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <div className="lg:pl-60">
+        <main className="mx-auto max-w-5xl px-4 py-4 pb-20 sm:px-6 sm:py-6 lg:py-8">
           {children}
         </main>
       </div>
