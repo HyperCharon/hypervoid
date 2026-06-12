@@ -170,33 +170,32 @@ export default async function Home() {
                           <ScrollReveal key={post.slug} variant="fade-up" delay={i * 40} duration={400}>
                             <Link
                               href={`/posts/${post.slug}`}
-                              className="group relative mb-3 flex flex-row items-center gap-3 break-inside-avoid overflow-hidden rounded-xl border border-border/30 bg-card/40 p-3.5 transition-all duration-250 hover:border-accent/30 hover:bg-card/70 hover:shadow-[0_0_20px_var(--accent-glow)]"
+                              className="group relative mb-3 flex flex-row items-center gap-3 break-inside-avoid overflow-hidden rounded-xl border border-border bg-card p-3.5 transition-all duration-200 hover:border-accent/30 hover:bg-card-hover hover:shadow-md"
                             >
                               {hasCover ? (
                                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg">
-                                  <Image src={post.frontmatter.cover!} alt={post.frontmatter.title} width={144} height={144} sizes="144px" loading="lazy" className="h-full w-full object-cover opacity-80 saturate-[0.85] transition duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:saturate-100" />
+                                  <Image src={post.frontmatter.cover!} alt={post.frontmatter.title} width={144} height={144} sizes="144px" loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                                 </div>
                               ) : null}
                               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                                 <div className="flex items-center gap-2">
-                                  <span className="pointer-events-none font-mono text-[11px] font-bold tracking-wider text-muted-soft/20 transition-colors group-hover:text-accent/25">{String(i + 1).padStart(2, "0")}</span>
-                                  <time className="font-mono text-[11px] tracking-wider text-muted-soft/50 transition-colors group-hover:text-accent/60">{post.frontmatter.date}</time>
-                                  <span className="h-px flex-1 bg-border/20" />
-                                  <span className="font-mono text-[11px] text-muted-soft/35">{post.frontmatter.readingMinutes}{t.post.readingTimeSuffix}</span>
+                                  <span className="pointer-events-none font-mono text-[11px] font-bold tracking-wider text-muted">{String(i + 1).padStart(2, "0")}</span>
+                                  <time className="font-mono text-[11px] tracking-wider text-muted">{post.frontmatter.date}</time>
+                                  <span className="h-px flex-1 bg-border" />
+                                  <span className="font-mono text-[11px] text-muted">{post.frontmatter.readingMinutes}{t.post.readingTimeSuffix}</span>
                                 </div>
-                                <h3 className="line-clamp-2 text-[15px] font-semibold tracking-tight text-foreground/90 transition-colors duration-200 group-hover:text-accent">{post.frontmatter.title}</h3>
+                                <h3 className="line-clamp-2 text-[15px] font-semibold tracking-tight text-foreground transition-colors duration-200 group-hover:text-accent">{post.frontmatter.title}</h3>
                                 {!hasCover && post.frontmatter.description ? (
-                                  <p className="line-clamp-2 text-xs leading-relaxed text-muted-soft/60">{post.frontmatter.description}</p>
+                                  <p className="line-clamp-2 text-xs leading-relaxed text-muted">{post.frontmatter.description}</p>
                                 ) : null}
                                 {post.frontmatter.tags?.length ? (
                                   <div className="mt-auto flex flex-wrap gap-1.5 pt-1.5">
                                     {post.frontmatter.tags.slice(0, 2).map((tag) => (
-                                      <span key={tag} className="rounded-md border border-border/25 bg-background/50 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-soft/50 transition-colors group-hover:border-accent/20 group-hover:text-muted-soft/70">{tag}</span>
+                                      <span key={tag} className="rounded-md border border-border bg-background px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted transition-colors group-hover:border-accent/20">{tag}</span>
                                     ))}
                                   </div>
                                 ) : null}
                               </div>
-                              <span className="absolute inset-x-3 bottom-0 h-px scale-x-0 bg-gradient-to-r from-transparent via-accent/40 to-transparent transition-transform duration-300 group-hover:scale-x-100" />
                             </Link>
                           </ScrollReveal>
                         );

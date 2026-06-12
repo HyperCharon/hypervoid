@@ -50,28 +50,33 @@ export default async function SeriesIndexPage() {
                     className="object-cover opacity-60 transition duration-300 group-hover:scale-105 group-hover:opacity-75"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  <div className="relative z-10 p-5">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <h2 className="text-lg font-bold tracking-tight text-white drop-shadow-sm">{s.name}</h2>
+                      <span className="shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+                        {s.count} {t.archive.postsCount}
+                      </span>
+                    </div>
+                    {s.description && <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-white/80">{s.description}</p>}
+                    <span className="mt-2 inline-flex items-center gap-1 text-xs text-white/70 group-hover:text-white transition-colors">
+                      {t.series.openRoute} <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5" aria-hidden />
+                    </span>
+                  </div>
                 </>
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent" />
-              )}
-              <div className="relative z-10 p-5">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="text-lg font-bold tracking-tight text-white drop-shadow-sm">
-                    {s.name}
-                  </h2>
-                  <span className="shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
-                    {s.count} {t.archive.postsCount}
+                <div className="relative z-10 p-5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h2 className="text-lg font-bold tracking-tight">{s.name}</h2>
+                    <span className="shrink-0 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
+                      {s.count} {t.archive.postsCount}
+                    </span>
+                  </div>
+                  {s.description && <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">{s.description}</p>}
+                  <span className="mt-2 inline-flex items-center gap-1 text-xs text-accent group-hover:text-accent-soft transition-colors">
+                    {t.series.openRoute} <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5" aria-hidden />
                   </span>
                 </div>
-                {s.description ? (
-                  <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-white/80">
-                    {s.description}
-                  </p>
-                ) : null}
-                <span className="mt-2 inline-flex items-center gap-1 text-xs text-white/70 group-hover:text-white transition-colors">
-                  {t.series.openRoute} <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5" aria-hidden />
-                </span>
-              </div>
+              )}
             </Link>
           ))}
         </div>
