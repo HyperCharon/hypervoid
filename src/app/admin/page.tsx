@@ -3,7 +3,9 @@ import Link from "next/link";
 import {
   ArrowRight, FileUser, LockKeyhole, LogOut, PenLine, ShieldAlert,
   FileText, Bot, BarChart3, Palette, Eye, Heart, Users, Clock,
-  FileEdit, Lock, Sparkles,
+  FileEdit, Lock, Sparkles, Upload, Tag, Layers, BookOpen, Image,
+  ImageIcon, Megaphone, MessageSquare, LinkIcon, AtSign, Settings,
+  Cat, Music, Search, Database, ArrowRightLeft, ClipboardList,
 } from "lucide-react";
 import type { Metadata } from "next";
 import { auth, signOut } from "@/auth";
@@ -20,14 +22,25 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-const QUICK_LINKS = [
-  { href: "/admin/posts/new", icon: PenLine, label: "写文章", primary: true },
-  { href: "/admin/posts", icon: FileText, label: "文章" },
-  { href: "/admin/ai", icon: Bot, label: "AI" },
-  { href: "/admin/stats", icon: BarChart3, label: "统计" },
-  { href: "/admin/themes", icon: Palette, label: "主题" },
-  { href: "/admin/cv", icon: FileUser, label: "简历" },
-];
+const GROUP_ICONS: Record<string, typeof FileText> = {
+  "内容": FileText,
+  "互动": MessageSquare,
+  "外观": Palette,
+  "系统": BarChart3,
+  "其他": ArrowRightLeft,
+};
+
+const ITEM_ICONS: Record<string, typeof FileText> = {
+  "/admin/posts": FileText, "/admin/import": Upload, "/admin/tags": Tag,
+  "/admin/series": Layers, "/admin/resources": BookOpen, "/admin/albums": ImageIcon,
+  "/admin/media": Image, "/admin/notes": Megaphone, "/admin/guestbook": MessageSquare,
+  "/admin/subscribers": Users, "/admin/friends": LinkIcon, "/admin/reactions": Heart,
+  "/admin/webmentions": AtSign, "/admin/settings": Settings, "/admin/cv": FileUser,
+  "/admin/themes": Palette, "/admin/mascot": Cat, "/admin/music": Music,
+  "/admin/effects": Sparkles, "/admin/stats": BarChart3, "/admin/search-log": Search,
+  "/admin/ai": Bot, "/admin/link-check": ShieldAlert, "/admin/backup": Database,
+  "/admin/redirects": ArrowRightLeft, "/admin/audit": ClipboardList,
+};
 
 export default async function AdminHome() {
   const session = await auth();
@@ -58,7 +71,7 @@ export default async function AdminHome() {
         <div className="flex items-center gap-2">
           <Link
             href="/admin/posts/new"
-            className="flex items-center gap-1.5 rounded-lg bg-foreground px-3.5 py-2 text-sm font-medium text-background hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3.5 py-2 text-sm font-medium text-white hover:bg-zinc-800 transition-colors dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             <PenLine className="h-4 w-4" /> 写文章
           </Link>
@@ -73,12 +86,12 @@ export default async function AdminHome() {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { icon: Eye, label: "已发布", value: stats.posts, color: "text-blue-500", bg: "bg-blue-500/10 dark:bg-blue-400/10" },
-          { icon: BarChart3, label: "总浏览", value: stats.views, color: "text-emerald-500", bg: "bg-emerald-500/10 dark:bg-emerald-400/10" },
-          { icon: Heart, label: "总反应", value: stats.likes, color: "text-rose-500", bg: "bg-rose-500/10 dark:bg-rose-400/10" },
-          { icon: Users, label: "订阅者", value: subscriberCount, color: "text-violet-500", bg: "bg-violet-500/10 dark:bg-violet-400/10" },
+          { icon: Eye, label: "已发布", value: stats.posts, color: "text-blue-500", bg: "bg-blue-500/10" },
+          { icon: BarChart3, label: "总浏览", value: stats.views, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+          { icon: Heart, label: "总反应", value: stats.likes, color: "text-rose-500", bg: "bg-rose-500/10" },
+          { icon: Users, label: "订阅者", value: subscriberCount, color: "text-violet-500", bg: "bg-violet-500/10" },
         ].map(({ icon: Icon, label, value, color, bg }) => (
-          <div key={label} className="rounded-xl border border-border bg-card p-4 transition-colors hover:border-border/60">
+          <div key={label} className="rounded-xl border border-border bg-card p-4">
             <div className={`mb-2 inline-flex h-8 w-8 items-center justify-center rounded-lg ${bg}`}>
               <Icon className={`h-4 w-4 ${color}`} />
             </div>
@@ -90,17 +103,20 @@ export default async function AdminHome() {
 
       {/* Quick actions */}
       <div className="flex gap-2 overflow-x-auto pb-1">
-        {QUICK_LINKS.map(({ href, icon: Icon, label, primary }) => (
+        {[
+          { href: "/admin/posts/new", icon: PenLine, label: "写文章" },
+          { href: "/admin/posts", icon: FileText, label: "文章" },
+          { href: "/admin/ai", icon: Bot, label: "AI" },
+          { href: "/admin/stats", icon: BarChart3, label: "统计" },
+          { href: "/admin/themes", icon: Palette, label: "主题" },
+          { href: "/admin/cv", icon: FileUser, label: "简历" },
+        ].map(({ href, icon: Icon, label }) => (
           <Link
             key={href}
             href={href}
-            className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors ${
-              primary
-                ? "bg-foreground text-background hover:opacity-90"
-                : "border border-border bg-card hover:bg-card-hover"
-            }`}
+            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-card-hover transition-colors"
           >
-            <Icon className="h-4 w-4" /> {label}
+            <Icon className="h-4 w-4 text-accent" /> {label}
           </Link>
         ))}
       </div>
@@ -165,25 +181,38 @@ export default async function AdminHome() {
       <div>
         <h2 className="mb-3 text-sm font-medium text-muted">管理功能</h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          {DEFAULT_ADMIN_NAV_GROUPS.map((group) => (
-            <div key={group.title} className="rounded-xl border border-border bg-card">
-              <div className="border-b border-border px-4 py-3">
-                <h3 className="text-sm font-semibold">{group.title}</h3>
-                <p className="mt-0.5 text-xs text-muted">{group.desc}</p>
+          {DEFAULT_ADMIN_NAV_GROUPS.map((group) => {
+            const GroupIcon = GROUP_ICONS[group.title] || FileText;
+            return (
+              <div key={group.title} className="rounded-xl border border-border bg-card overflow-hidden">
+                <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
+                    <GroupIcon className="h-4 w-4 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold">{group.title}</h3>
+                    <p className="text-xs text-muted">{group.desc}</p>
+                  </div>
+                </div>
+                <div className="p-2">
+                  {group.items.map((item) => {
+                    const ItemIcon = ITEM_ICONS[item.href] || FileText;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-card-hover hover:text-foreground transition-colors"
+                      >
+                        <ItemIcon className="h-3.5 w-3.5 shrink-0 text-muted-soft" />
+                        <span>{item.title}</span>
+                        <span className="ml-auto text-xs text-muted-soft">{item.desc}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-0.5 p-2">
-                {group.items.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="flex items-center rounded-lg px-3 py-2 text-sm text-muted hover:bg-card-hover hover:text-foreground transition-colors"
-                  >
-                    {item.title}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
