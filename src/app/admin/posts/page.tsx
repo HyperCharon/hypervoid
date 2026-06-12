@@ -52,7 +52,7 @@ export default async function AdminPostsList(props: {
         </div>
         <Link
           href="/admin/posts/new"
-          className="flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3.5 py-2 text-sm font-medium text-white hover:bg-zinc-800 transition-colors dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+          className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
         >
           <PenLine className="h-4 w-4" /> 新文章
         </Link>
