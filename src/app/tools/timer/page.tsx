@@ -74,62 +74,64 @@ export default async function TimerPage() {
       </section>
 
       {/* Per-subject totals (all-time) */}
-      {allTime.length > 0 && (
-        <section className="rounded-2xl border border-border bg-card p-4">
-          <h2 className="mb-3 text-sm font-medium text-muted">各科总时长</h2>
-          <div className="flex flex-col gap-2.5">
-            {SUBJECTS.map((s) => {
-              const total = allTimeMap.get(s) ?? 0;
-              if (total === 0) return null;
-              const maxSec = Math.max(...allTime.map((t) => t.seconds));
-              const pct = maxSec > 0 ? Math.round((total / maxSec) * 100) : 0;
-              return (
-                <div key={s}>
-                  <div className="mb-1 flex items-center justify-between text-sm">
-                    <span>{subjectLabel(s)}</span>
-                    <span className="tabular-nums text-muted">{fmtHours(total)}</span>
+      <section className="rounded-2xl border border-border bg-card p-4">
+        <h2 className="mb-3 text-sm font-medium text-muted">各科总时长</h2>
+        {allTime.length > 0 ? (
+          <>
+            <div className="flex flex-col gap-2.5">
+              {SUBJECTS.map((s) => {
+                const total = allTimeMap.get(s) ?? 0;
+                if (total === 0) return null;
+                const maxSec = Math.max(...allTime.map((t) => t.seconds));
+                const pct = maxSec > 0 ? Math.round((total / maxSec) * 100) : 0;
+                return (
+                  <div key={s}>
+                    <div className="mb-1 flex items-center justify-between text-sm">
+                      <span>{subjectLabel(s)}</span>
+                      <span className="tabular-nums text-muted">{fmtHours(total)}</span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-background">
+                      <div
+                        className="h-full bg-accent/70 transition-all"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-background">
-                    <div
-                      className="h-full bg-accent/70 transition-all"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-3 border-t border-border pt-3 flex items-center justify-between text-sm">
-            <span className="text-muted">总计</span>
-            <span className="font-semibold tabular-nums">{fmtHours(summary.totalSeconds)}</span>
-          </div>
-        </section>
-      )}
+                );
+              })}
+            </div>
+            <div className="mt-3 flex items-center justify-between border-t border-border pt-3 text-sm">
+              <span className="text-muted">总计</span>
+              <span className="font-semibold tabular-nums">{fmtHours(summary.totalSeconds)}</span>
+            </div>
+          </>
+        ) : (
+          <p className="text-sm text-muted">用番茄钟学习后，各科时长会在这里显示。</p>
+        )}
+      </section>
 
       {/* Study summary stats */}
-      {summary.totalSessions > 0 && (
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { label: "总专注次数", value: `${summary.totalSessions}` },
-            { label: "平均时长", value: `${Math.round(summary.avgSessionSec / 60)} 分钟` },
-            { label: "最长一次", value: `${Math.round(summary.longestSessionSec / 60)} 分钟` },
-            { label: "学习天数", value: `${summary.activeDays} 天` },
-          ].map(({ label, value }) => (
-            <div key={label} className="rounded-xl border border-border bg-card px-3 py-2.5 text-center">
-              <p className="text-sm font-semibold tabular-nums">{value}</p>
-              <p className="text-xs text-muted">{label}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-2 gap-2">
+        {[
+          { label: "总专注次数", value: summary.totalSessions > 0 ? `${summary.totalSessions}` : "—" },
+          { label: "平均时长", value: summary.avgSessionSec > 0 ? `${Math.round(summary.avgSessionSec / 60)} 分钟` : "—" },
+          { label: "最长一次", value: summary.longestSessionSec > 0 ? `${Math.round(summary.longestSessionSec / 60)} 分钟` : "—" },
+          { label: "学习天数", value: summary.activeDays > 0 ? `${summary.activeDays} 天` : "—" },
+        ].map(({ label, value }) => (
+          <div key={label} className="rounded-xl border border-border bg-card px-3 py-2.5 text-center">
+            <p className="text-sm font-semibold tabular-nums">{value}</p>
+            <p className="text-xs text-muted">{label}</p>
+          </div>
+        ))}
+      </div>
 
       {/* Weekly breakdown by subject */}
-      {weekly.length > 0 && (
-        <section className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-baseline justify-between mb-3">
-            <h2 className="text-sm font-medium text-muted">本周各科</h2>
-            <span className="text-xs text-muted">{fmtHours(weeklyTotalSec)}</span>
-          </div>
+      <section className="rounded-2xl border border-border bg-card p-4">
+        <div className="mb-3 flex items-baseline justify-between">
+          <h2 className="text-sm font-medium text-muted">本周各科</h2>
+          {weeklyTotalSec > 0 && <span className="text-xs text-muted">{fmtHours(weeklyTotalSec)}</span>}
+        </div>
+        {weekly.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {SUBJECTS.map((s) => {
               const sec = weeklyMap.get(s) ?? 0;
@@ -148,8 +150,10 @@ export default async function TimerPage() {
               );
             })}
           </div>
-        </section>
-      )}
+        ) : (
+          <p className="text-sm text-muted">本周还没有学习记录。</p>
+        )}
+      </section>
 
       {/* 7-day chart */}
       <section className="rounded-2xl border border-border bg-card p-4">

@@ -14,7 +14,7 @@ export function SiteFooter() {
           <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-border" />
           <div>
             <p className="text-xs font-medium text-muted-soft">Hypervoid</p>
-            <p className="mt-0.5 text-[11px] text-muted-soft sm:mt-1 sm:text-xs">
+            <p className="mt-0.5 text-xs text-muted-soft sm:mt-1">
               &copy; {year} &middot; <span className="italic">One &amp; Only</span>
             </p>
           </div>
@@ -23,7 +23,7 @@ export function SiteFooter() {
           </div>
         </div>
         {/* Links row */}
-        <div className="flex flex-col gap-2 text-[11px] sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:text-xs">
+        <div className="flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:justify-between sm:gap-3">
           <p className="flex flex-wrap items-center gap-2 text-muted-soft sm:gap-3">
             <span className="inline-flex items-center gap-1.5 text-accent">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />

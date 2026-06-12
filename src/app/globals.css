@@ -1745,22 +1745,19 @@ html[data-style="banner"] .hv-cosmic-hero {
   .hv-card {
     border-radius: 0.625rem;
   }
-  /* Chips smaller */
-  .hv-chip {
-    font-size: 0.65rem;
-    padding: 0.0625rem 0.375rem;
-    min-height: 1.25rem;
-  }
-  /* Actions smaller */
+  /* Actions: keep touch-friendly size */
   .hv-action {
-    min-height: 2rem;
-    padding: 0 0.75rem;
-    font-size: 0.8125rem;
+    min-height: 2.75rem;
   }
   /* Panel tighter */
   .hv-panel {
     border-radius: 0.625rem;
   }
+}
+
+/* ── Touch targets: eliminate tap delay globally ──────────── */
+button, a, input, select, textarea, [role="button"] {
+  touch-action: manipulation;
 }
 
 

@@ -183,7 +183,7 @@ export function AnimeBrowser({
           没有匹配的条目。
         </p>
       ) : (
-        <div className="grid gap-3 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {filtered.map((item) => (
             <AnimeCard
               key={`${item.status}-${item.id}`}
@@ -239,11 +239,11 @@ function AnimeCard({
           </div>
         )}
         {item.myRating > 0 ? (
-          <span className="dark-locked absolute right-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black px-1.5 py-0.5 text-[10px] font-mono font-bold text-white shadow-sm">
+          <span className="dark-locked absolute right-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black px-1.5 py-0.5 text-[11px] font-mono font-bold text-white shadow-sm">
             ★ {item.myRating}
           </span>
         ) : null}
-        <span className="dark-locked absolute left-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
+        <span className="dark-locked absolute left-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black px-1.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
           {statusLabel}
         </span>
       </div>

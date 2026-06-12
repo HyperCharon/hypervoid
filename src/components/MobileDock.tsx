@@ -34,7 +34,7 @@ import { useT } from "@/components/LocaleProvider";
 import { LOCALES } from "@/lib/i18n";
 import { SiteSettings } from "@/components/SiteSettings";
 
-/* ── Mobile Dock (top-right, visible <lg) ─────────────────── */
+/* ── Mobile Dock (top-right, visible <xl) ─────────────────── */
 export function MobileDock() {
   const { resolvedTheme, setTheme } = useTheme();
   const { locale, setLocale } = useLocale();
@@ -49,55 +49,57 @@ export function MobileDock() {
 
   // Prevent hydration mismatch — render placeholder until mounted
   if (!mounted) {
-    return <div className="flex h-8 w-[168px] xl:hidden" />;
+    return <div className="flex h-11 w-[220px] xl:hidden" />;
   }
+
+  const btnClass = "grid h-11 w-11 place-items-center rounded-xl text-muted-soft transition-colors hover:bg-card-hover hover:text-foreground active:bg-card-hover";
 
   return (
     <div className="flex items-center gap-0.5 xl:hidden">
       {/* Search */}
       <Link
         href="/search"
-        className="grid h-8 w-8 place-items-center rounded-lg text-muted-soft transition hover:bg-card-hover hover:text-foreground"
+        className={btnClass}
         aria-label={t.common.search}
       >
-        <Search className="h-4 w-4" />
+        <Search className="h-5 w-5" />
       </Link>
 
       {/* Locale */}
       <button
         type="button"
         onClick={() => setLocale(nextLocale)}
-        className="grid h-8 w-8 place-items-center rounded-lg text-muted-soft transition hover:bg-card-hover hover:text-foreground"
+        className={btnClass}
         aria-label={t.common.toggleLocale}
       >
-        <span className="text-[11px] font-bold uppercase">{nextLocale}</span>
+        <span className="text-xs font-bold uppercase">{nextLocale}</span>
       </button>
 
       {/* Theme */}
       <button
         type="button"
         onClick={() => setTheme(isDark ? "light" : "dark")}
-        className="grid h-8 w-8 place-items-center rounded-lg text-muted-soft transition hover:bg-card-hover hover:text-foreground"
+        className={btnClass}
         aria-label={isDark ? "浅色" : "深色"}
       >
-        {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+        {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
       </button>
 
       {/* Settings */}
       <SiteSettings
-        triggerClassName="grid h-8 w-8 place-items-center rounded-lg text-muted-soft transition hover:bg-card-hover hover:text-foreground"
-        triggerChildren={<Settings2 className="h-4 w-4" />}
+        triggerClassName={btnClass}
+        triggerChildren={<Settings2 className="h-5 w-5" />}
       />
 
       {/* Nav */}
       <button
         type="button"
         onClick={() => setNavOpen((v) => !v)}
-        className="grid h-8 w-8 place-items-center rounded-lg text-muted-soft transition hover:bg-card-hover hover:text-foreground"
+        className={btnClass}
         aria-label={navOpen ? "关闭导航" : "打开导航"}
         aria-expanded={navOpen}
       >
-        {navOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+        {navOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
 
       {/* Nav drawer */}
@@ -161,18 +163,18 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   }, [open]);
 
   // Close on route change
-  useEffect(() => { onClose(); }, [pathname]);
+  useEffect(() => { onClose(); }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Close on outside click
+  // Close on outside click (pointerdown works on both mouse and touch)
   useEffect(() => {
     if (!open) return;
-    function onClick(e: MouseEvent) {
+    function onPointer(e: PointerEvent) {
       if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) {
         onClose();
       }
     }
-    const timer = setTimeout(() => document.addEventListener("mousedown", onClick), 50);
-    return () => { clearTimeout(timer); document.removeEventListener("mousedown", onClick); };
+    const timer = setTimeout(() => document.addEventListener("pointerdown", onPointer), 50);
+    return () => { clearTimeout(timer); document.removeEventListener("pointerdown", onPointer); };
   }, [open, onClose]);
 
   if (!open) return null;
@@ -185,13 +187,13 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className="fixed inset-x-0 top-12 z-[50] max-h-[calc(100dvh-3rem)] overflow-y-auto border-b border-border shadow-lg sm:top-14 sm:max-h-[calc(100dvh-3.5rem)] xl:hidden"
-        style={{ background: "var(--card)" }}
+        className="fixed inset-x-0 top-11 z-[50] max-h-[calc(100dvh-2.75rem)] overflow-y-auto border-b border-border shadow-lg sm:top-14 sm:max-h-[calc(100dvh-3.5rem)] overscroll-contain xl:hidden"
+        style={{ background: "var(--card)", paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}
       >
         <div className="px-3 py-3">
           {NAV_GROUPS.map((group) => (
             <div key={group.title} className="mb-3 last:mb-0">
-              <p className="mb-1.5 px-2 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-soft/45">
+              <p className="mb-1.5 px-2 text-xs font-medium uppercase tracking-wider text-muted-soft/45">
                 {group.title}
               </p>
               <div className="grid grid-cols-2 gap-1">
@@ -201,13 +203,13 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
                     <Link
                       key={href}
                       href={href}
-                      className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] font-medium transition ${
+                      className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                         active
                           ? "bg-accent/10 text-accent"
-                          : "text-foreground/70 hover:bg-card-hover hover:text-foreground"
+                          : "text-foreground/70 hover:bg-card-hover hover:text-foreground active:bg-card-hover"
                       }`}
                     >
-                      <Icon className="h-4 w-4 shrink-0" />
+                      <Icon className="h-4.5 w-4.5 shrink-0" />
                       <span>{label}</span>
                     </Link>
                   );

@@ -132,7 +132,7 @@ export function GamesBrowser({ games }: { games: SteamGame[] }) {
           没有匹配的游戏。
         </p>
       ) : (
-        <div className="grid gap-3 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {filtered.map((g) => (
             <GameCard
               key={g.appId}
@@ -182,7 +182,7 @@ function GameCard({
           </div>
         )}
         {game.playtimeForeverMin > 0 ? (
-          <span className="dark-locked absolute right-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black px-1.5 py-0.5 text-[10px] font-mono font-bold text-white shadow-sm">
+          <span className="dark-locked absolute right-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-black px-1.5 py-0.5 text-[11px] font-mono font-bold text-white shadow-sm">
             {formatHours(game.playtimeForeverMin)}
           </span>
         ) : null}

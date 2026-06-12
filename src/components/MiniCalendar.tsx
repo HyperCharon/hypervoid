@@ -24,7 +24,7 @@ export async function MiniCalendar() {
 
       <div className="mt-1 grid grid-cols-7 gap-0.5">
         {cal.weeks.flat().map((cell) => {
-          let cls = "grid aspect-square place-items-center rounded text-[11px] transition ";
+          let cls = "grid aspect-square place-items-center rounded text-xs transition ";
           if (!cell.isInMonth) {
             cls += "text-muted-soft/20";
           } else if (cell.isToday) {

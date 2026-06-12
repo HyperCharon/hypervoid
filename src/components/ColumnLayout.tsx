@@ -45,7 +45,7 @@ export function ColumnToggleButton({
         aria-label="单列"
         aria-pressed={!twoCol}
         title="单列"
-        className={`grid h-8 w-8 place-items-center rounded-md transition ${
+        className={`grid h-10 w-10 place-items-center rounded-md transition ${
           !twoCol
             ? "bg-accent/15 text-accent"
             : "text-muted-soft hover:bg-card-hover hover:text-foreground"
@@ -59,7 +59,7 @@ export function ColumnToggleButton({
         aria-label="双列"
         aria-pressed={twoCol}
         title="双列"
-        className={`grid h-8 w-8 place-items-center rounded-md transition ${
+        className={`grid h-10 w-10 place-items-center rounded-md transition ${
           twoCol
             ? "bg-accent/15 text-accent"
             : "text-muted-soft hover:bg-card-hover hover:text-foreground"

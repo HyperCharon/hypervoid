@@ -136,21 +136,21 @@ export default async function Home() {
                             href={`/posts/${post.slug}`}
                             className="group flex items-center gap-3 rounded-xl border border-border/30 bg-card/40 px-3 py-2.5 transition-all duration-200 hover:border-accent/30 hover:bg-card/70"
                           >
-                            <span className="w-5 shrink-0 text-center font-mono text-[10px] text-muted-soft/30">
+                            <span className="w-5 shrink-0 text-center font-mono text-[11px] text-muted-soft/30">
                               {String(i + 1).padStart(2, "0")}
                             </span>
                             <div className="min-w-0 flex-1">
                               <h3 className="truncate text-[13px] font-semibold tracking-tight text-foreground/90 group-hover:text-accent">
                                 {post.frontmatter.title}
                               </h3>
-                              <div className="mt-0.5 flex items-center gap-2 text-[10px] text-muted-soft/50">
+                              <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-soft/50">
                                 <time className="font-mono">{post.frontmatter.date}</time>
                                 <span>{post.frontmatter.readingMinutes}{t.post.readingTimeSuffix}</span>
                               </div>
                             </div>
                             {post.frontmatter.cover ? (
                               <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md">
-                                <Image src={post.frontmatter.cover} alt="" width={80} height={80} className="h-full w-full object-cover opacity-70" unoptimized />
+                                <Image src={post.frontmatter.cover} alt="" width={80} height={80} sizes="80px" className="h-full w-full object-cover opacity-70" />
                               </div>
                             ) : null}
                             <svg aria-hidden className="h-3.5 w-3.5 shrink-0 text-muted-soft/25 transition group-hover:translate-x-0.5 group-hover:text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -179,10 +179,10 @@ export default async function Home() {
                               ) : null}
                               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                                 <div className="flex items-center gap-2">
-                                  <span className="pointer-events-none font-mono text-[10px] font-bold tracking-wider text-muted-soft/20 transition-colors group-hover:text-accent/25">{String(i + 1).padStart(2, "0")}</span>
-                                  <time className="font-mono text-[10px] tracking-wider text-muted-soft/50 transition-colors group-hover:text-accent/60">{post.frontmatter.date}</time>
+                                  <span className="pointer-events-none font-mono text-[11px] font-bold tracking-wider text-muted-soft/20 transition-colors group-hover:text-accent/25">{String(i + 1).padStart(2, "0")}</span>
+                                  <time className="font-mono text-[11px] tracking-wider text-muted-soft/50 transition-colors group-hover:text-accent/60">{post.frontmatter.date}</time>
                                   <span className="h-px flex-1 bg-border/20" />
-                                  <span className="font-mono text-[10px] text-muted-soft/35">{post.frontmatter.readingMinutes}{t.post.readingTimeSuffix}</span>
+                                  <span className="font-mono text-[11px] text-muted-soft/35">{post.frontmatter.readingMinutes}{t.post.readingTimeSuffix}</span>
                                 </div>
                                 <h3 className="line-clamp-2 text-[15px] font-semibold tracking-tight text-foreground/90 transition-colors duration-200 group-hover:text-accent">{post.frontmatter.title}</h3>
                                 {!hasCover && post.frontmatter.description ? (
@@ -191,7 +191,7 @@ export default async function Home() {
                                 {post.frontmatter.tags?.length ? (
                                   <div className="mt-auto flex flex-wrap gap-1.5 pt-1.5">
                                     {post.frontmatter.tags.slice(0, 2).map((tag) => (
-                                      <span key={tag} className="rounded-md border border-border/25 bg-background/50 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-soft/50 transition-colors group-hover:border-accent/20 group-hover:text-muted-soft/70">{tag}</span>
+                                      <span key={tag} className="rounded-md border border-border/25 bg-background/50 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-soft/50 transition-colors group-hover:border-accent/20 group-hover:text-muted-soft/70">{tag}</span>
                                     ))}
                                   </div>
                                 ) : null}
@@ -216,7 +216,7 @@ export default async function Home() {
                     <div className="relative z-20 flex justify-center pt-6 pb-1">
                       <Link
                         href="/posts"
-                        className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-card/60 px-4 py-1.5 font-mono text-[11px] uppercase tracking-wider text-muted-soft transition-all duration-200 hover:border-accent/40 hover:bg-accent/8 hover:text-accent"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-card/60 px-4 py-1.5 font-mono text-xs uppercase tracking-wider text-muted-soft transition-all duration-200 hover:border-accent/40 hover:bg-accent/8 hover:text-accent"
                       >
                         {t.hero.enterPosts}
                         <svg aria-hidden className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
