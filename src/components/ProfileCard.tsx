@@ -52,7 +52,7 @@ export async function ProfileCard() {
         <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-muted sm:text-base" style={{ textShadow: "var(--text-shadow-subtle)" }}>{bio}</p>
 
         {/* Social icons — wrap instead of clip when they exceed card width */}
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5 sm:mt-5 sm:gap-2">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-1 sm:mt-5 sm:gap-2">
           {socials.map((s) => (
             <a
               key={s.name}
@@ -63,7 +63,7 @@ export async function ProfileCard() {
               aria-label={s.name}
               className="hv-grad-social inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition hover:shadow-[0_0_20px_var(--rainbow-glow)] sm:h-10 sm:w-10"
             >
-              <SocialIcon name={s.icon} className="h-3 w-3 sm:h-4 sm:w-4" />
+              <SocialIcon name={s.icon} className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </a>
           ))}
         </div>
