@@ -12,9 +12,9 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_CLASS: Record<string, string> = {
-  draft: "border-zinc-300/25 bg-zinc-300/10 text-zinc-200",
-  scheduled: "border-amber-300/30 bg-amber-300/10 text-amber-200",
-  published: "border-emerald-300/30 bg-emerald-300/10 text-emerald-200",
+  draft: "border-border bg-card text-muted",
+  scheduled: "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-300",
+  published: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300",
 };
 
 export type PostRow = {
@@ -80,66 +80,35 @@ export function PostsTable({
   return (
     <div className="flex flex-col gap-3">
       {selected.size > 0 ? (
-        <div className="hv-panel sticky top-2 z-10 flex flex-wrap items-center gap-2 p-3 text-xs shadow-2xl">
-          <span className="font-medium">
-            已选 <span className="font-mono text-violet-100">{selected.size}</span> 篇
-          </span>
-          <BulkBtn onClick={() => run("publish")} disabled={pending}>
-            发布
-          </BulkBtn>
-          <BulkBtn onClick={() => run("draft")} disabled={pending}>
-            转草稿
-          </BulkBtn>
-          <BulkBtn onClick={() => run("set-public")} disabled={pending}>
-            公开
-          </BulkBtn>
-          <BulkBtn onClick={() => run("set-private")} disabled={pending}>
-            私密
-          </BulkBtn>
-          <BulkBtn onClick={() => run("pin")} disabled={pending}>
-            置顶
-          </BulkBtn>
-          <BulkBtn onClick={() => run("unpin")} disabled={pending}>
-            取消置顶
-          </BulkBtn>
-          <BulkBtn
-            onClick={() =>
-              run(
-                "delete",
-                "确定要删除选中的 {n} 篇文章吗？此操作不可恢复。",
-              )
-            }
-            disabled={pending}
-            danger
-          >
-            删除
-          </BulkBtn>
-          <button
-            type="button"
-            onClick={() => setSelected(new Set())}
-            className="ml-auto px-2 py-1 text-xs text-violet-50/55 hover:text-violet-50"
-          >
-            取消选择
-          </button>
+        <div className="sticky top-2 z-10 flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3 text-xs shadow-lg">
+          <span className="font-medium">已选 {selected.size} 篇</span>
+          <BulkBtn onClick={() => run("publish")} disabled={pending}>发布</BulkBtn>
+          <BulkBtn onClick={() => run("draft")} disabled={pending}>转草稿</BulkBtn>
+          <BulkBtn onClick={() => run("set-public")} disabled={pending}>公开</BulkBtn>
+          <BulkBtn onClick={() => run("set-private")} disabled={pending}>私密</BulkBtn>
+          <BulkBtn onClick={() => run("pin")} disabled={pending}>置顶</BulkBtn>
+          <BulkBtn onClick={() => run("unpin")} disabled={pending}>取消置顶</BulkBtn>
+          <BulkBtn onClick={() => run("delete", "确定要删除选中的 {n} 篇文章吗？此操作不可恢复。")} disabled={pending} danger>删除</BulkBtn>
+          <button type="button" onClick={() => setSelected(new Set())} className="ml-auto px-2 py-1 text-xs text-muted hover:text-foreground">取消选择</button>
         </div>
       ) : null}
 
-      {status ? (
-        <p className="border border-emerald-300/30 bg-emerald-300/10 px-3 py-1.5 text-xs text-emerald-200">
+      {status && (
+        <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-600 dark:text-emerald-300">
           {status}
         </p>
-      ) : null}
+      )}
 
-      <div className="hv-panel overflow-x-auto p-0">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full min-w-[640px] text-sm">
-          <thead className="border-b border-violet-100/12 bg-violet-50/[0.035] text-left text-violet-50/72">
+          <thead className="border-b border-border text-left text-xs text-muted">
             <tr>
               <th className="w-10 px-2 py-3">
                 <input
                   type="checkbox"
                   checked={selected.size === posts.length && posts.length > 0}
                   onChange={toggleAll}
-                  className="accent-violet-300"
+                  className="accent-accent"
                   aria-label="全选"
                 />
               </th>
@@ -153,10 +122,8 @@ export function PostsTable({
           <tbody>
             {posts.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-violet-50/58">
-                  {activeCategoryEmpty
-                    ? "该分类下还没有文章。"
-                    : "还没有文章。点右上角新建。"}
+                <td colSpan={6} className="px-4 py-8 text-center text-muted">
+                  {activeCategoryEmpty ? "该分类下还没有文章。" : "还没有文章。点右上角新建。"}
                 </td>
               </tr>
             ) : (
@@ -166,8 +133,8 @@ export function PostsTable({
                 return (
                   <tr
                     key={post.slug}
-                    className={`border-t border-violet-100/10 ${
-                      checked ? "bg-violet-100/10" : "bg-transparent"
+                    className={`border-t border-border transition-colors ${
+                      checked ? "bg-accent/5" : "hover:bg-card-hover"
                     }`}
                   >
                     <td className="px-2 py-3 text-center">
@@ -175,49 +142,32 @@ export function PostsTable({
                         type="checkbox"
                         checked={checked}
                         onChange={() => toggle(post.slug)}
-                        className="accent-violet-300"
+                        className="accent-accent"
                         aria-label={`选择 ${post.title}`}
                       />
                     </td>
                     <td className="px-4 py-3 font-medium">
-                      {post.pinned ? (
-                        <Pin className="mr-1 inline h-3.5 w-3.5 text-violet-100/70" aria-label="置顶" />
-                      ) : null}
-                      {post.visibility === "private" ? (
-                        <LockKeyhole className="mr-1 inline h-3.5 w-3.5 text-amber-200/80" aria-label="私密" />
-                      ) : null}
+                      {post.pinned && <Pin className="mr-1 inline h-3.5 w-3.5 text-muted" aria-label="置顶" />}
+                      {post.visibility === "private" && <LockKeyhole className="mr-1 inline h-3.5 w-3.5 text-amber-500" aria-label="私密" />}
                       {post.title}
-                      {post.category ? (
-                        <span className="ml-2 inline-flex items-center border border-violet-100/14 bg-violet-100/10 px-1.5 py-0.5 text-[10px] text-violet-100">
+                      {post.category && (
+                        <span className="ml-2 inline-flex rounded bg-card-hover px-1.5 py-0.5 text-[10px] text-muted">
                           {post.category}
                         </span>
-                      ) : null}
+                      )}
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-violet-50/45">
-                      {post.slug}
-                    </td>
+                    <td className="px-4 py-3 font-mono text-xs text-muted">{post.slug}</td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex border px-2 py-0.5 text-xs ${STATUS_CLASS[eff.key]}`}
-                      >
+                      <span className={`inline-flex rounded border px-2 py-0.5 text-xs ${STATUS_CLASS[eff.key]}`}>
                         {STATUS_LABEL[eff.key]}
-                        {eff.suffix ? (
-                          <span className="text-violet-50/45">{eff.suffix}</span>
-                        ) : null}
+                        {eff.suffix && <span className="text-muted">{eff.suffix}</span>}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-violet-50/45">
-                      {post.publishAt
-                        ? new Date(post.publishAt).toLocaleString("zh-CN")
-                        : "—"}
+                    <td className="px-4 py-3 text-xs text-muted">
+                      {post.publishAt ? new Date(post.publishAt).toLocaleString("zh-CN") : "—"}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Link
-                        href={`/admin/posts/${post.slug}/edit`}
-                        className="text-violet-100 hover:underline"
-                      >
-                        编辑
-                      </Link>
+                      <Link href={`/admin/posts/${post.slug}/edit`} className="text-accent hover:underline">编辑</Link>
                     </td>
                   </tr>
                 );
@@ -232,34 +182,34 @@ export function PostsTable({
 
 const LABELS: Record<BulkOp, string> = {
   publish: "已发布",
-  draft: "转为草稿",
-  "set-public": "已设为公开",
-  "set-private": "已设为私密",
-  pin: "已置顶",
-  unpin: "已取消置顶",
-  delete: "已删除",
+  draft: "转草稿",
+  "set-public": "公开",
+  "set-private": "私密",
+  pin: "置顶",
+  unpin: "取消置顶",
+  delete: "删除",
 };
 
 function BulkBtn({
-  children,
   onClick,
   disabled,
   danger,
+  children,
 }: {
-  children: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
   danger?: boolean;
+  children: React.ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`border px-2.5 py-1 transition disabled:opacity-50 ${
+      className={`rounded-lg px-2.5 py-1.5 text-xs transition-colors disabled:opacity-50 ${
         danger
-          ? "border-red-400/35 bg-red-500/10 text-red-200 hover:border-red-300 hover:bg-red-500/15"
-          : "border-violet-100/16 bg-white/[0.035] text-violet-50/72 hover:border-violet-100/40 hover:text-violet-50"
+          ? "border border-red-500/30 text-red-600 dark:text-red-300 hover:bg-red-500/10"
+          : "border border-border text-muted hover:text-foreground hover:bg-card-hover"
       }`}
     >
       {children}

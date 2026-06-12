@@ -41,52 +41,46 @@ export default async function AdminPostsList(props: {
     : allPosts;
 
   return (
-    <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci relative overflow-hidden p-5 sm:p-6 flex items-center justify-between gap-3">
-        {/* Corner accents */}
-        <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
-        <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
-
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <AdminBackLink href="/admin" label="后台" />
-          <h1 className="hv-title font-mono text-2xl font-black tracking-wider uppercase">POST_MANAGER</h1>
-          <span className="font-mono text-sm text-muted uppercase">
-            {allPosts.length} POSTS · {categories.length} CATS
-          </span>
+          <div>
+            <h1 className="text-lg font-bold tracking-tight">文章管理</h1>
+            <p className="text-xs text-muted">{allPosts.length} 篇 · {categories.length} 个分类</p>
+          </div>
         </div>
         <Link
           href="/admin/posts/new"
-          className="hv-action px-4 py-2 text-sm font-medium font-mono uppercase clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_20px_var(--accent-glow)]"
+          className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
         >
-          <PenLine className="h-4 w-4" aria-hidden />
-          NEW_POST
+          <PenLine className="h-4 w-4" /> 新文章
         </Link>
-      </header>
+      </div>
 
-      <div className="grid gap-5 lg:grid-cols-[200px_minmax(0,1fr)]">
-        <aside className="hv-panel-sci flex flex-col gap-1 p-3 text-sm">
-          <p className="hv-kicker mb-1 flex items-center gap-1 px-2 uppercase">
-            <Folder className="h-3.5 w-3.5" aria-hidden /> CATEGORIES
+      <div className="grid gap-4 lg:grid-cols-[180px_minmax(0,1fr)]">
+        <aside className="rounded-xl border border-border bg-card p-3 text-sm">
+          <p className="mb-2 flex items-center gap-1.5 px-2 text-xs text-muted">
+            <Folder className="h-3.5 w-3.5" /> 分类
           </p>
-          <CategoryLink
-            href="/admin/posts"
-            label="全部"
-            count={allPosts.length}
-            active={!activeCategory}
-          />
-          {categories.map(([cat, count]) => (
+          <div className="flex flex-col gap-0.5">
             <CategoryLink
-              key={cat}
-              href={`/admin/posts?category=${encodeURIComponent(cat)}`}
-              label={cat === UNCATEGORIZED ? "未分类" : cat}
-              count={count}
-              active={activeCategory === cat}
-              muted={cat === UNCATEGORIZED}
+              href="/admin/posts"
+              label="全部"
+              count={allPosts.length}
+              active={!activeCategory}
             />
-          ))}
-          <p className="mt-3 px-2 text-[10px] leading-snug text-muted">
-            分类来自每篇文章的 <code>category</code> 字段。在编辑页修改。
-          </p>
+            {categories.map(([cat, count]) => (
+              <CategoryLink
+                key={cat}
+                href={`/admin/posts?category=${encodeURIComponent(cat)}`}
+                label={cat === UNCATEGORIZED ? "未分类" : cat}
+                count={count}
+                active={activeCategory === cat}
+                muted={cat === UNCATEGORIZED}
+              />
+            ))}
+          </div>
         </aside>
 
         <PostsTable
@@ -123,16 +117,14 @@ function CategoryLink({
   return (
     <Link
       href={href}
-      className={`flex items-center justify-between px-2 py-1.5 transition clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)] ${
+      className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
         active
-          ? "bg-accent/12 text-foreground border-l-2 border-accent"
-          : "text-foreground hover:bg-accent/5 hover:text-foreground"
-      } ${muted && !active ? "italic text-muted" : ""}`}
+          ? "bg-accent/10 text-accent font-medium"
+          : "text-muted hover:text-foreground hover:bg-card-hover"
+      } ${muted && !active ? "italic" : ""}`}
     >
       <span className="truncate">{label}</span>
-      <span className="ml-2 shrink-0 font-mono text-[10px] opacity-70">
-        {count}
-      </span>
+      <span className="ml-2 shrink-0 text-xs opacity-60">{count}</span>
     </Link>
   );
 }
