@@ -17,7 +17,7 @@ export default async function SeriesIndexPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="group relative overflow-hidden border border-border bg-gradient-to-br from-card to-background p-5 sm:p-7" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
+      <header className="group relative overflow-hidden border border-border bg-card p-5 sm:p-7" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
         {/* Corner accents */}
         <div aria-hidden className="pointer-events-none absolute left-0 top-0 h-px w-24 bg-gradient-to-r from-accent/60 to-transparent" />
         <div aria-hidden className="pointer-events-none absolute left-0 top-0 h-24 w-px bg-gradient-to-b from-accent/60 to-transparent" />
@@ -54,7 +54,7 @@ export default async function SeriesIndexPage() {
             <Link
               key={s.slug}
               href={`/series/${encodeURIComponent(s.name)}`}
-              className="group relative flex min-h-[180px] flex-col justify-end overflow-hidden border border-border bg-gradient-to-br from-card to-background p-5 transition hover:border-accent/35 hover:shadow-[0_0_24px_var(--accent-glow)]"
+              className="group relative flex min-h-[180px] flex-col justify-end overflow-hidden border border-border bg-card p-5 transition hover:border-accent/35 hover:shadow-[0_0_24px_var(--accent-glow)]"
               style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)' }}
             >
               {/* Corner accent */}
