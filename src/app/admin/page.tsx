@@ -71,7 +71,8 @@ export default async function AdminHome() {
         <div className="flex items-center gap-2">
           <Link
             href="/admin/posts/new"
-            className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium hover:opacity-90 transition-opacity"
+            style={{ background: "var(--accent)", color: "#fff" }}
           >
             <PenLine className="h-4 w-4" /> 写文章
           </Link>
