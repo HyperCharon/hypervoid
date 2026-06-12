@@ -1,8 +1,12 @@
 import "server-only";
 
+import { lookup } from "node:dns/promises";
 import { getSiteOverride } from "@/lib/site-config-server";
 import { getPlaylistWithUrls } from "@/lib/ncm";
 import type { MusicTrack } from "@/lib/music-types";
+
+const PRIVATE_IP_RE =
+  /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|169\.254\.|0\.|::1|fc[0-9a-f]{2}:|fe[89ab][0-9a-f]:|localhost)/i;
 
 export type MusicSourceMode = "deployed" | "lx" | "local";
 
@@ -145,6 +149,23 @@ function buildLxUrl(template: string, playlistId: string): string {
 async function getLxTracks(config: MusicSourceConfig): Promise<MusicTrack[]> {
   const url = buildLxUrl(config.lxApiUrl, config.playlistId);
   if (!url) return [];
+
+  // SSRF guard: reject private/internal IPs even after DNS resolution.
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return [];
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return [];
+  if (PRIVATE_IP_RE.test(parsed.hostname)) return [];
+  try {
+    const { address } = await lookup(parsed.hostname);
+    if (PRIVATE_IP_RE.test(address)) return [];
+  } catch {
+    // DNS failure — let the fetch fail naturally.
+  }
+
   const res = await fetch(url, {
     headers: {
       Accept: "application/json,text/plain,*/*",

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { desc, gte, sql } from "drizzle-orm";
+import { desc, eq, gte, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db/client";
 import { addDays, dayKey, startOfDay } from "@/lib/study/dates";
 import type { Subject } from "@/lib/study/subjects";
@@ -49,6 +49,67 @@ export async function getTodayTotals(
   return rows as { subject: Subject; seconds: number }[];
 }
 
+/** All-time total seconds per subject. */
+export async function getSubjectTotals(): Promise<{ subject: Subject; seconds: number }[]> {
+  const rows = await getDb()
+    .select({
+      subject: schema.studySessions.subject,
+      seconds: sql<number>`sum(${schema.studySessions.durationSec})::int`,
+    })
+    .from(schema.studySessions)
+    .groupBy(schema.studySessions.subject);
+  return rows as { subject: Subject; seconds: number }[];
+}
+
+/** Aggregate study stats across all sessions. */
+export async function getStudySummary(): Promise<{
+  totalSessions: number;
+  totalSeconds: number;
+  avgSessionSec: number;
+  longestSessionSec: number;
+  activeDays: number;
+}> {
+  const [row] = await getDb()
+    .select({
+      totalSessions: sql<number>`count(*)::int`,
+      totalSeconds: sql<number>`coalesce(sum(${schema.studySessions.durationSec}), 0)::int`,
+      avgSessionSec: sql<number>`coalesce(avg(${schema.studySessions.durationSec}), 0)::int`,
+      longestSessionSec: sql<number>`coalesce(max(${schema.studySessions.durationSec}), 0)::int`,
+    })
+    .from(schema.studySessions);
+
+  // Count distinct days with at least one session
+  const [dayRow] = await getDb()
+    .select({
+      activeDays: sql<number>`count(distinct date(${schema.studySessions.startedAt}))::int`,
+    })
+    .from(schema.studySessions);
+
+  return {
+    totalSessions: row?.totalSessions ?? 0,
+    totalSeconds: row?.totalSeconds ?? 0,
+    avgSessionSec: row?.avgSessionSec ?? 0,
+    longestSessionSec: row?.longestSessionSec ?? 0,
+    activeDays: dayRow?.activeDays ?? 0,
+  };
+}
+
+/** Weekly per-subject totals (last 7 days). */
+export async function getWeeklySubjectTotals(
+  now: Date = new Date(),
+): Promise<{ subject: Subject; seconds: number }[]> {
+  const since = addDays(startOfDay(now), -6);
+  const rows = await getDb()
+    .select({
+      subject: schema.studySessions.subject,
+      seconds: sql<number>`sum(${schema.studySessions.durationSec})::int`,
+    })
+    .from(schema.studySessions)
+    .where(gte(schema.studySessions.startedAt, since))
+    .groupBy(schema.studySessions.subject);
+  return rows as { subject: Subject; seconds: number }[];
+}
+
 /** Per-day total minutes for the last `days` days (oldest→newest, zero-filled). */
 export async function getDailyTotals(
   days = 7,
@@ -75,4 +136,8 @@ export async function getDailyTotals(
     out.push({ date: k, minutes: Math.round((byDay.get(k) ?? 0) / 60) });
   }
   return out;
+}
+
+export async function deleteSession(id: string): Promise<void> {
+  await getDb().delete(schema.studySessions).where(eq(schema.studySessions.id, id));
 }

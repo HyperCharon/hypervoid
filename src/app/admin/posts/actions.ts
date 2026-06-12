@@ -3,7 +3,7 @@
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
-import { requireAdmin } from "@/auth";
+import { requireAdmin, requireAdminAiQuota } from "@/auth";
 import {
   bulkDelete,
   bulkSetPinned,
@@ -263,7 +263,7 @@ export async function broadcastPostAction(
 export async function generateSummaryAction(
   slug: string,
 ): Promise<{ summary: string } | { error: string }> {
-  await requireAuth();
+  await requireAdminAiQuota();
   if (!(await isAiConfigured())) {
     return { error: "AI 未配置：当前模型未配置可用 API Key" };
   }
@@ -294,7 +294,7 @@ export async function suggestTagsAction(args: {
   title: string;
   content: string;
 }): Promise<{ tags: string[] } | { error: string }> {
-  await requireAuth();
+  await requireAdminAiQuota();
   if (!(await isAiConfigured())) {
     return { error: "AI 未配置：当前模型未配置可用 API Key" };
   }
@@ -318,7 +318,7 @@ export async function generateOutlineAction(args: {
   title: string;
   content: string;
 }): Promise<{ outline: string } | { error: string }> {
-  await requireAuth();
+  await requireAdminAiQuota();
   if (!(await isAiConfigured())) return { error: "AI 未配置" };
   if (!args.title.trim()) return { error: "需要标题才能生成大纲" };
   try {
@@ -335,7 +335,7 @@ export async function generateOutlineAction(args: {
 export async function polishTextAction(
   text: string,
 ): Promise<{ text: string } | { error: string }> {
-  await requireAuth();
+  await requireAdminAiQuota();
   if (!(await isAiConfigured())) return { error: "AI 未配置" };
   const trimmed = text.trim();
   if (!trimmed) return { error: "请先选中或粘贴一段文字" };
@@ -352,7 +352,7 @@ export async function suggestTitlesAction(args: {
   title: string;
   content: string;
 }): Promise<{ titles: string[] } | { error: string }> {
-  await requireAuth();
+  await requireAdminAiQuota();
   if (!(await isAiConfigured())) return { error: "AI 未配置" };
   if (!args.content.trim()) return { error: "正文为空，无法建议标题" };
   try {
@@ -370,7 +370,7 @@ export async function generateTldrAction(args: {
   title: string;
   content: string;
 }): Promise<{ tldr: string } | { error: string }> {
-  await requireAuth();
+  await requireAdminAiQuota();
   if (!(await isAiConfigured())) return { error: "AI 未配置" };
   if (!args.content.trim()) return { error: "正文为空" };
   try {

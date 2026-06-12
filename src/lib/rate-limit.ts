@@ -12,12 +12,12 @@ import { getDb } from "@/db/client";
  * Shared across Vercel Lambdas — the previous in-memory Map version was
  * per-container and let attackers bypass limits by rotating cold starts.
  *
- * Failure mode: if Neon is unreachable, we fail OPEN (allow the request).
- * This is the right tradeoff for non-critical endpoints — better to serve
- * than to error out the whole API on a transient DB blip. AskAI / Kanna /
- * subscribe are not security-critical (they cost money but won't leak
- * data), so fail-open is acceptable. Callers that want fail-closed should
- * check `dbReachable` (false means the limit wasn't actually enforced).
+ * Failure mode: if Neon is unreachable, an **in-memory fallback** kicks in
+ * (per-container). This means the limit isn't globally shared during an
+ * outage, but each container still enforces its own ceiling — far better
+ * than no limit at all for cost-bearing endpoints (AI, mascot chat).
+ * Callers that want strict global limiting can check `dbReachable` and
+ * reject when false.
  */
 
 export interface RateLimitOptions {
@@ -35,6 +35,49 @@ export interface RateLimitResult {
   resetInSec: number;
   dbReachable: boolean;
 }
+
+// ---------------------------------------------------------------------------
+// In-memory fallback — per-container sliding window. Only used when the DB
+// is unreachable. Stale entries are evicted lazily on access.
+// ---------------------------------------------------------------------------
+
+const _memBuckets = new Map<string, { count: number; windowStart: number; windowSec: number }>();
+
+function memRateLimit(
+  identifier: string,
+  opts: RateLimitOptions,
+): RateLimitResult {
+  const memKey = `${opts.key}:${identifier}`;
+  const now = Date.now() / 1000;
+  const bucket = _memBuckets.get(memKey);
+
+  if (!bucket || now - bucket.windowStart >= bucket.windowSec) {
+    _memBuckets.set(memKey, { count: 1, windowStart: now, windowSec: opts.windowSec });
+    return { ok: true, remaining: opts.limit - 1, resetInSec: opts.windowSec, dbReachable: false };
+  }
+
+  bucket.count += 1;
+  const resetInSec = Math.max(0, Math.round(bucket.windowStart + bucket.windowSec - now));
+  if (bucket.count > opts.limit) {
+    return { ok: false, remaining: 0, resetInSec, dbReachable: false };
+  }
+  return { ok: true, remaining: Math.max(0, opts.limit - bucket.count), resetInSec, dbReachable: false };
+}
+
+// Evict stale entries every 5 minutes to bound memory.
+let _lastMemPurge = 0;
+function maybeEvictMem(): void {
+  const now = Date.now() / 1000;
+  if (now - _lastMemPurge < 300) return;
+  _lastMemPurge = now;
+  for (const [k, v] of _memBuckets) {
+    if (now - v.windowStart >= v.windowSec) _memBuckets.delete(k);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Primary: Postgres-backed rate limit
+// ---------------------------------------------------------------------------
 
 export async function rateLimit(
   identifier: string,
@@ -89,13 +132,9 @@ export async function rateLimit(
       dbReachable: true,
     };
   } catch {
-    // Fail open — see file header comment.
-    return {
-      ok: true,
-      remaining: opts.limit,
-      resetInSec: opts.windowSec,
-      dbReachable: false,
-    };
+    // DB unreachable — fall back to per-container in-memory limiter.
+    maybeEvictMem();
+    return memRateLimit(identifier, opts);
   }
 }
 

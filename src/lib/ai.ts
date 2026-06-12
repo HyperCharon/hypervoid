@@ -1,5 +1,6 @@
 import "server-only";
 
+import Anthropic from "@anthropic-ai/sdk";
 import { chat, chatStream, type ChatMessage } from "@/lib/ai-client";
 import { isProviderConfigured, getActiveAiModel } from "@/lib/ai-config";
 import { getBlogCorpus, ROUTE_REFERENCE } from "@/lib/blog-corpus";
@@ -245,6 +246,92 @@ export async function streamRamChat(args: {
 export async function isActiveProviderConfigured(): Promise<boolean> {
   const m = await getActiveAiModel();
   return isProviderConfigured(m.provider);
+}
+
+const OCR_SYSTEM = `你是一个考试题目 OCR 助手。用户会发给你一张考试题目的照片。
+请识别图中的题目内容，返回一个 JSON 对象，格式如下：
+{
+  "questionText": "完整题干文字",
+  "options": ["选项A的文字", "选项B的文字", "选项C的文字", "选项D的文字"],
+  "correctAnswer": "正确选项的字母，如 B"
+}
+规则：
+- 只返回 JSON，不要任何其他文字
+- 如果图中没有选项（如填空题、简答题），options 为空数组 []
+- 如果图中没有标注正确答案，correctAnswer 为空字符串 ""
+- 忠实还原题目文字，不要自行修改或补充
+- 如果图片模糊或无法识别，返回 {"questionText":"","options":[],"correctAnswer":""}`;
+
+/**
+ * Use the active AI provider's vision capability to extract question data from
+ * an image. Returns structured OCR result. Only Anthropic is supported for now
+ * (Claude Haiku is cheap and fast for this). Falls back to error if the active
+ * provider doesn't support vision.
+ */
+export async function ocrQuestionFromImage(
+  imageUrl: string,
+): Promise<{ questionText: string; options: string[]; correctAnswer: string }> {
+  const model = await getActiveAiModel();
+
+  if (model.provider !== "anthropic") {
+    throw new Error("当前 AI 模型不支持图片识别，请切换到 Claude 模型");
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY 未配置");
+
+  // Fetch the image and convert to base64.
+  const imgRes = await fetch(imageUrl);
+  if (!imgRes.ok) throw new Error("图片下载失败");
+  const contentType = imgRes.headers.get("content-type") ?? "image/jpeg";
+  const mediaType = contentType.split(";")[0].trim() as
+    | "image/jpeg"
+    | "image/png"
+    | "image/gif"
+    | "image/webp";
+  const arrayBuffer = await imgRes.arrayBuffer();
+  const base64 = Buffer.from(arrayBuffer).toString("base64");
+
+  const client = new Anthropic({ apiKey });
+  const res = await client.messages.create({
+    model: model.upstreamId,
+    max_tokens: 1024,
+    system: OCR_SYSTEM,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "image",
+            source: { type: "base64", media_type: mediaType, data: base64 },
+          },
+          { type: "text", text: "请识别这张考试题目的内容。" },
+        ],
+      },
+    ],
+  });
+
+  const text = res.content
+    .filter((b): b is Anthropic.TextBlock => b.type === "text")
+    .map((b) => b.text)
+    .join("")
+    .trim();
+
+  // Extract JSON from the response (may be wrapped in ```json ... ```).
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error("AI 未返回有效 JSON");
+
+  const parsed = JSON.parse(jsonMatch[0]) as {
+    questionText?: unknown;
+    options?: unknown;
+    correctAnswer?: unknown;
+  };
+
+  return {
+    questionText: typeof parsed.questionText === "string" ? parsed.questionText : "",
+    options: Array.isArray(parsed.options) ? parsed.options.filter((o): o is string => typeof o === "string") : [],
+    correctAnswer: typeof parsed.correctAnswer === "string" ? parsed.correctAnswer : "",
+  };
 }
 
 const KANNA_SYSTEM = `你扮演康娜·卡姆依(カンナ・カムイ),活了几千年的小龙女,现在在博主(Charon)的博客里当看板娘。

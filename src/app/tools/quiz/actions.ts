@@ -115,3 +115,45 @@ export async function recordAttemptAction(
   await requireAdmin();
   await recordAttempt({ questionId, chosen, chosenMask, correct });
 }
+
+/**
+ * Add a wrongly-answered quiz question to the mistake notebook. The caller
+ * provides the question data so we don't need an extra DB round-trip.
+ */
+export async function addQuestionToMistakesAction(input: {
+  stem: string;
+  options: string[];
+  answer: number;
+  answerMask: number | null;
+  explanation: string | null;
+  chosen: number;
+  subject: Subject;
+}): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  await requireAdmin();
+
+  const correctLetter = input.answerMask != null
+    ? input.options
+        .map((_, i) => ((input.answerMask as number) >> i) & 1 ? String.fromCharCode(65 + i) : "")
+        .filter(Boolean)
+        .join("")
+    : String.fromCharCode(65 + input.answer);
+
+  const chosenLetter = input.chosen >= 0 ? String.fromCharCode(65 + input.chosen) : "未选";
+
+  try {
+    const { createMistake } = await import("@/db/study-mistakes");
+    const result = await createMistake({
+      subject: input.subject,
+      topic: null,
+      tags: [],
+      questionImage: null,
+      questionText: input.stem + "\n\n" + input.options.map((o, i) => `${String.fromCharCode(65 + i)}. ${o}`).join("\n"),
+      myAnswer: chosenLetter,
+      correctAnswer: correctLetter,
+      analysis: input.explanation,
+    });
+    return { ok: true, id: result.id };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}

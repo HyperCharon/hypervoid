@@ -3,6 +3,7 @@ import GitHub from "next-auth/providers/github";
 import Resend from "next-auth/providers/resend";
 import { HypervoidAuthAdapter } from "@/auth-adapter";
 import { getSiteSetting } from "@/db/site-settings";
+import { rateLimit } from "@/lib/rate-limit";
 
 const ADMIN_GITHUB_LOGIN =
   process.env.ADMIN_GITHUB_LOGIN?.trim() || "";
@@ -246,5 +247,28 @@ export async function requireAdmin(): Promise<void> {
     | undefined;
   if (!user?.isAdmin && !isAdminIdentity(user)) {
     throw new Error("Not authorized");
+  }
+}
+
+/**
+ * Gate for admin-only AI server actions. Verifies admin identity AND enforces
+ * a per-user hourly rate limit (60 calls/hour) so a compromised session can't
+ * drain AI credits unbounded. DB failures degrade gracefully (limit skipped).
+ */
+export async function requireAdminAiQuota(): Promise<void> {
+  const session = await auth();
+  const user = session?.user as
+    | { isAdmin?: boolean; login?: string; email?: string }
+    | undefined;
+  if (!user?.isAdmin && !isAdminIdentity(user)) {
+    throw new Error("Not authorized");
+  }
+  const rl = await rateLimit(user?.login || "admin", {
+    key: "admin:ai",
+    limit: 60,
+    windowSec: 3600,
+  });
+  if (!rl.ok) {
+    throw new Error("AI 调用过于频繁，请稍后再试");
   }
 }

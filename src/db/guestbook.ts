@@ -5,12 +5,13 @@ import { getDb, schema } from "@/db/client";
 
 export type GuestbookMessage = typeof schema.guestbookMessages.$inferSelect;
 
-export async function listVisibleMessages(): Promise<GuestbookMessage[]> {
+export async function listVisibleMessages(limit = 200): Promise<GuestbookMessage[]> {
   return getDb()
     .select()
     .from(schema.guestbookMessages)
     .where(eq(schema.guestbookMessages.hidden, false))
-    .orderBy(desc(schema.guestbookMessages.createdAt));
+    .orderBy(desc(schema.guestbookMessages.createdAt))
+    .limit(limit);
 }
 
 export async function listAllMessages(): Promise<GuestbookMessage[]> {

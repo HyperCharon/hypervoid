@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/auth";
 import { updateStudySettings } from "@/db/study-settings";
+import { SUBJECTS, type Subject } from "@/lib/study/subjects";
 
 export async function updateStudySettingsAction(formData: FormData) {
   await requireAdmin();
@@ -10,10 +11,20 @@ export async function updateStudySettingsAction(formData: FormData) {
   const dailyNewCards = Number(formData.get("dailyNewCards") ?? 20);
   const dailyReviewCap = Number(formData.get("dailyReviewCap") ?? 200);
 
+  // Parse per-subject minute goals: goal_<subject> fields
+  const dailyMinuteGoals: Partial<Record<Subject, number>> = {};
+  for (const s of SUBJECTS) {
+    const raw = Number(formData.get(`goal_${s}`) ?? 0);
+    if (Number.isFinite(raw) && raw > 0) {
+      dailyMinuteGoals[s] = raw;
+    }
+  }
+
   await updateStudySettings({
     examDate: examDateStr ? new Date(examDateStr) : null,
     dailyNewCards: Number.isFinite(dailyNewCards) ? dailyNewCards : 20,
     dailyReviewCap: Number.isFinite(dailyReviewCap) ? dailyReviewCap : 200,
+    dailyMinuteGoals,
   });
 
   revalidatePath("/tools");

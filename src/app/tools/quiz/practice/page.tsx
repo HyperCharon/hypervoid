@@ -36,7 +36,7 @@ export default async function PracticePage({
         ← 刷题
       </Link>
       {view.length > 0 ? (
-        <QuizRunner questions={view} base={base} />
+        <QuizRunner questions={view} base={base} subject={subject ?? "politics"} />
       ) : (
         <p className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted">
           该范围还没有题目，先去添加或批量导入。

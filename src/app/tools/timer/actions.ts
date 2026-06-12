@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/auth";
-import { createSession } from "@/db/study-sessions";
+import { createSession, deleteSession } from "@/db/study-sessions";
 import { SUBJECTS, type Subject } from "@/lib/study/subjects";
 
 function parseSubject(v: string): Subject {
@@ -23,6 +23,15 @@ export async function logSessionAction(
     durationSec: sec,
     note: note?.trim() || null,
   });
+  revalidatePath("/tools/timer");
+  revalidatePath("/tools");
+}
+
+/** Delete a session record (e.g. wrongly logged). */
+export async function deleteSessionAction(id: string) {
+  await requireAdmin();
+  if (!id) return;
+  await deleteSession(id);
   revalidatePath("/tools/timer");
   revalidatePath("/tools");
 }

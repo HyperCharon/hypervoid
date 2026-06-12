@@ -7,9 +7,11 @@ import {
   createMistake,
   deleteMistake,
   recordMistakeReview,
+  updateMistake,
 } from "@/db/study-mistakes";
 import { getToolsBase } from "@/lib/study/server";
 import { SUBJECTS, type Subject } from "@/lib/study/subjects";
+import { ocrQuestionFromImage } from "@/lib/ai";
 
 function parseSubject(v: string): Subject {
   return (SUBJECTS as readonly string[]).includes(v) ? (v as Subject) : "politics";
@@ -75,9 +77,65 @@ export async function deleteMistakeAction(id: string) {
   revalidatePath("/tools");
 }
 
+export async function updateMistakeAction(id: string, formData: FormData) {
+  await requireAdmin();
+  if (!id) throw new Error("缺少错题 ID");
+  const subject = parseSubject(String(formData.get("subject") ?? ""));
+  const topic = String(formData.get("topic") ?? "").trim() || null;
+  const tags = parseTags(String(formData.get("tags") ?? ""));
+  const questionImage = sanitizeImageUrl(String(formData.get("questionImage") ?? ""));
+  const questionText = String(formData.get("questionText") ?? "").trim() || null;
+  const myAnswer = String(formData.get("myAnswer") ?? "").trim() || null;
+  const correctAnswer = String(formData.get("correctAnswer") ?? "").trim() || null;
+  const analysis = String(formData.get("analysis") ?? "").trim() || null;
+
+  if (!questionImage && !questionText) {
+    throw new Error("至少填写题目文字或上传题目图片");
+  }
+
+  await updateMistake(id, {
+    subject,
+    topic,
+    tags,
+    questionImage,
+    questionText,
+    myAnswer,
+    correctAnswer,
+    analysis,
+  });
+  revalidatePath("/tools/mistakes");
+  revalidatePath("/tools");
+}
+
 export async function reviewMistakeAction(id: string, gotIt: boolean) {
   await requireAdmin();
   await recordMistakeReview(id, gotIt);
   revalidatePath("/tools/mistakes");
   revalidatePath("/tools");
+}
+
+export type OcrResult = {
+  questionText: string;
+  options: string[];
+  correctAnswer: string;
+};
+
+/**
+ * Send an uploaded image to the active AI provider's vision model and extract
+ * the question text, options, and correct answer. Returns null on failure.
+ */
+export async function ocrMistakeAction(
+  imageUrl: string,
+): Promise<{ ok: true; data: OcrResult } | { ok: false; error: string }> {
+  await requireAdmin();
+
+  const sanitized = sanitizeImageUrl(imageUrl);
+  if (!sanitized) return { ok: false, error: "图片地址无效" };
+
+  try {
+    const result = await ocrQuestionFromImage(sanitized);
+    return { ok: true, data: result };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message ?? "AI 识别失败" };
+  }
 }

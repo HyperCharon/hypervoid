@@ -60,18 +60,21 @@ export async function getSiteStats(opts: { isAdmin?: boolean } = {}): Promise<Si
     ? sql``
     : sql`AND visibility = 'public'`;
 
-  const [postsRow] = await db
-    .select({ count: sql<number>`COUNT(*)::int` })
-    .from(schema.posts)
-    .where(sql`(status = 'published' OR (status = 'scheduled' AND publish_at <= NOW())) ${visClause}`);
-
-  const [viewsRow] = await db
-    .select({ sum: sql<number>`COALESCE(SUM(count), 0)::int` })
-    .from(schema.postViews);
-
-  const [likesRow] = await db
-    .select({ sum: sql<number>`COALESCE(SUM(count), 0)::int` })
-    .from(schema.postReactions);
+  const [postsRow, viewsRow, likesRow] = await Promise.all([
+    db
+      .select({ count: sql<number>`COUNT(*)::int` })
+      .from(schema.posts)
+      .where(sql`(status = 'published' OR (status = 'scheduled' AND publish_at <= NOW())) ${visClause}`)
+      .then((r) => r[0]),
+    db
+      .select({ sum: sql<number>`COALESCE(SUM(count), 0)::int` })
+      .from(schema.postViews)
+      .then((r) => r[0]),
+    db
+      .select({ sum: sql<number>`COALESCE(SUM(count), 0)::int` })
+      .from(schema.postReactions)
+      .then((r) => r[0]),
+  ]);
 
   const daysOnline = Math.max(
     1,
@@ -237,7 +240,7 @@ export async function getYearInReview(year: number): Promise<YearInReview> {
     .select({
       slug: schema.posts.slug,
       title: schema.posts.title,
-      content: schema.posts.content,
+      wordCount: schema.posts.wordCount,
       tags: schema.posts.tags,
       publishAt: schema.posts.publishAt,
       createdAt: schema.posts.createdAt,
@@ -256,37 +259,20 @@ export async function getYearInReview(year: number): Promise<YearInReview> {
   const viewMap = new Map<string, number>();
   const reactionMap = new Map<string, number>();
   if (slugs.length > 0) {
-    const viewRows = await db
-      .select({
+    const [viewRows, reactionRows] = await Promise.all([
+      db.select({
         slug: schema.postViews.slug,
         count: schema.postViews.count,
-      })
-      .from(schema.postViews)
-      .where(sql`${schema.postViews.slug} = ANY(${slugs})`);
-    for (const v of viewRows) viewMap.set(v.slug, v.count);
-
-    const reactionRows = await db
-      .select({
+      }).from(schema.postViews).where(sql`${schema.postViews.slug} = ANY(${slugs})`),
+      db.select({
         slug: schema.postReactions.slug,
         total: sql<number>`SUM(${schema.postReactions.count})::int`,
-      })
-      .from(schema.postReactions)
-      .where(sql`${schema.postReactions.slug} = ANY(${slugs})`)
-      .groupBy(schema.postReactions.slug);
+      }).from(schema.postReactions)
+        .where(sql`${schema.postReactions.slug} = ANY(${slugs})`)
+        .groupBy(schema.postReactions.slug),
+    ]);
+    for (const v of viewRows) viewMap.set(v.slug, v.count);
     for (const r of reactionRows) reactionMap.set(r.slug, r.total);
-  }
-
-  // Word count by stripping markdown to a rough text count.
-  function wordCount(content: string): number {
-    const text = content
-      .replace(/```[\s\S]*?```/g, " ") // fenced code
-      .replace(/`[^`]*`/g, " ") // inline code
-      .replace(/!\[[^\]]*\]\([^)]*\)/g, " ") // images
-      .replace(/\[[^\]]*\]\([^)]*\)/g, " ") // links
-      .replace(/[#>*_`~\-]/g, " ");
-    const cjk = (text.match(/[一-鿿]/g) ?? []).length;
-    const ascii = (text.match(/[A-Za-z]+/g) ?? []).length;
-    return cjk + ascii;
   }
 
   let totalWords = 0;
@@ -297,7 +283,7 @@ export async function getYearInReview(year: number): Promise<YearInReview> {
   );
 
   for (const row of rows) {
-    totalWords += wordCount(row.content ?? "");
+    totalWords += row.wordCount ?? 0;
     for (const tag of row.tags ?? []) {
       tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
     }

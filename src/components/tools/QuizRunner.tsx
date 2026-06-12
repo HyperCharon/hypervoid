@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
-import { recordAttemptAction } from "@/app/tools/quiz/actions";
+import { useCallback, useEffect, useState, useTransition } from "react";
+import { motion } from "motion/react";
+import { Check, NotebookPen, X } from "lucide-react";
+import { recordAttemptAction, addQuestionToMistakesAction } from "@/app/tools/quiz/actions";
+import type { Subject } from "@/lib/study/subjects";
 
 type Question = {
   id: string;
@@ -18,16 +21,49 @@ const LETTERS = "ABCDEFGH";
 export function QuizRunner({
   questions,
   base,
+  subject,
 }: {
   questions: Question[];
   base: string;
+  subject: Subject;
 }) {
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<number[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [correct, setCorrect] = useState(false);
   const [score, setScore] = useState(0);
+  const [addedToMistakes, setAddedToMistakes] = useState<Set<string>>(new Set());
   const [, startTransition] = useTransition();
   const q = questions[idx];
+
+  // Keyboard shortcuts: A-D=select, Space=submit/next
+  const handleKey = useCallback(
+    (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        if (!submitted) submit();
+        else next();
+        return;
+      }
+
+      if (!submitted && q) {
+        const letterIdx = "abcdefgh".indexOf(e.key.toLowerCase());
+        if (letterIdx >= 0 && letterIdx < q.options.length) {
+          toggle(letterIdx);
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [submitted, q, selected],
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [handleKey]);
 
   if (!q) {
     return (
@@ -69,25 +105,48 @@ export function QuizRunner({
     const chosenMask = multi
       ? selected.reduce((m, i) => m | (1 << i), 0)
       : null;
-    const correct = multi
+    const isCorrect = multi
       ? chosenMask === q.answerMask
       : selected[0] === q.answer;
     const chosen = selected[0] ?? -1;
     startTransition(async () => {
       try {
-        await recordAttemptAction(q.id, chosen, chosenMask, correct);
+        await recordAttemptAction(q.id, chosen, chosenMask, isCorrect);
       } catch {
         // best-effort
       }
     });
-    if (correct) setScore((s) => s + 1);
+    if (isCorrect) setScore((s) => s + 1);
+    setCorrect(isCorrect);
     setSubmitted(true);
+  }
+
+  function addToMistakes() {
+    if (!q) return;
+    const chosen = selected[0] ?? -1;
+    startTransition(async () => {
+      try {
+        await addQuestionToMistakesAction({
+          stem: q.stem,
+          options: q.options,
+          answer: q.answer,
+          answerMask: q.answerMask,
+          explanation: q.explanation,
+          chosen,
+          subject,
+        });
+        setAddedToMistakes((prev) => new Set(prev).add(q.id));
+      } catch {
+        // best-effort
+      }
+    });
   }
 
   function next() {
     setIdx((i) => i + 1);
     setSelected([]);
     setSubmitted(false);
+    setCorrect(false);
   }
 
   return (
@@ -98,30 +157,50 @@ export function QuizRunner({
         </span>
         {multi && <span className="text-accent">多选</span>}
       </div>
+      <div className="h-1 w-full overflow-hidden rounded-full bg-background">
+        <div
+          className="h-full bg-accent transition-all duration-300"
+          style={{ width: `${((idx + 1) / questions.length) * 100}%` }}
+        />
+      </div>
 
       <p className="whitespace-pre-wrap text-base font-medium">{q.stem}</p>
 
       <div className="flex flex-col gap-2">
         {q.options.map((opt, i) => {
           const sel = selected.includes(i);
-          let cls = "border-border";
+          const correct = submitted && isCorrectOption(i);
+          const wrong = submitted && sel && !isCorrectOption(i);
+
+          let cls = "border-border hover:border-border hover:bg-card-hover";
           if (submitted) {
-            if (isCorrectOption(i)) cls = "border-accent/60 bg-accent-glow";
-            else if (sel) cls = "border-[var(--danger)]/50 bg-[var(--danger)]/10";
+            if (correct) cls = "border-accent/60 bg-accent-glow";
+            else if (wrong) cls = "border-[var(--danger)]/50 bg-[var(--danger)]/10";
+            else cls = "border-border opacity-50";
           } else if (sel) {
-            cls = "border-accent";
+            cls = "border-accent bg-accent-glow/50";
           }
+
           return (
-            <button
+            <motion.button
               key={i}
               type="button"
               onClick={() => toggle(i)}
               disabled={submitted}
-              className={`flex gap-2 rounded-xl border p-3 text-left text-sm ${cls}`}
+              animate={submitted && correct ? { scale: [1, 1.02, 1] } : submitted && wrong ? { x: [0, -4, 4, -4, 0] } : {}}
+              transition={{ duration: 0.3 }}
+              className={`flex items-start gap-3 rounded-xl border p-3 text-left text-sm transition-colors ${cls}`}
             >
-              <span className="font-semibold text-muted">{LETTERS[i]}</span>
+              <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                correct ? "bg-accent text-primary-foreground" :
+                wrong ? "bg-[var(--danger)]/20 text-[var(--danger)]" :
+                sel ? "bg-accent text-primary-foreground" :
+                "bg-background text-muted"
+              }`}>
+                {correct ? <Check className="h-3 w-3" /> : wrong ? <X className="h-3 w-3" /> : LETTERS[i]}
+              </span>
               <span className="whitespace-pre-wrap">{opt}</span>
-            </button>
+            </motion.button>
           );
         })}
       </div>
@@ -131,6 +210,19 @@ export function QuizRunner({
           <span className="text-muted">解析：</span>
           <span className="whitespace-pre-wrap">{q.explanation}</span>
         </div>
+      )}
+
+      {submitted && !correct && !addedToMistakes.has(q.id) && (
+        <button
+          type="button"
+          onClick={addToMistakes}
+          className="flex items-center justify-center gap-2 rounded-xl border border-accent/40 py-2.5 text-sm text-accent"
+        >
+          <NotebookPen className="h-4 w-4" aria-hidden /> 加入错题本
+        </button>
+      )}
+      {submitted && addedToMistakes.has(q.id) && (
+        <p className="text-center text-xs text-accent">已加入错题本</p>
       )}
 
       {!submitted ? (

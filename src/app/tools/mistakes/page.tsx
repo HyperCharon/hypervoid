@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
-import { listMistakes } from "@/db/study-mistakes";
+import { Play, Plus } from "lucide-react";
+import { listMistakes, getDueMistakes } from "@/db/study-mistakes";
 import { getToolsBase } from "@/lib/study/server";
 import { dayKey } from "@/lib/study/dates";
 import { SUBJECTS, SUBJECT_LABELS, type Subject } from "@/lib/study/subjects";
@@ -66,7 +66,17 @@ export default async function MistakesPage({
         </Link>
       </div>
 
-      {dueCount > 0 && <p className="text-sm text-accent">{dueCount} 道待复习</p>}
+      {dueCount > 0 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-accent">{dueCount} 道待复习</p>
+          <Link
+            href={`${base}/mistakes/review`}
+            className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
+          >
+            <Play className="h-3.5 w-3.5" aria-hidden /> 开始复习
+          </Link>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
         {chips.map((c) => (
@@ -89,7 +99,7 @@ export default async function MistakesPage({
       ) : (
         <div className="flex flex-col gap-3">
           {items.map((m) => (
-            <MistakeCard key={m.id} m={m} />
+            <MistakeCard key={m.id} m={m} base={base} />
           ))}
         </div>
       )}

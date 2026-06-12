@@ -333,7 +333,7 @@ export async function getBacklinks(
 export async function getAllTags(
   opts: ViewerOpts = {},
 ): Promise<{ tag: string; count: number }[]> {
-  const posts = await getAllPosts(opts);
+  const posts = await getAllPostMeta(opts);
   const counts = new Map<string, number>();
   for (const post of posts) {
     for (const tag of post.frontmatter.tags) {
@@ -420,8 +420,8 @@ export async function getKnowledgeGraph(
 export async function getPostsByTag(
   tag: string,
   opts: ViewerOpts = {},
-): Promise<Post[]> {
-  const posts = await getAllPosts(opts);
+): Promise<PostMeta[]> {
+  const posts = await getAllPostMeta(opts);
   return posts.filter((p) => p.frontmatter.tags.includes(tag));
 }
 

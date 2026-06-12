@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "motion/react";
 import {
   LayoutDashboard,
   Layers,
@@ -25,7 +26,7 @@ export function ToolsTabBar({ base }: { base: string }) {
       className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      <div className="mx-auto grid w-full max-w-2xl grid-cols-5">
+      <div className="relative mx-auto grid w-full max-w-2xl grid-cols-5">
         {TABS.map(({ path, label, Icon }) => {
           const href = base + path || "/";
           const active =
@@ -36,10 +37,17 @@ export function ToolsTabBar({ base }: { base: string }) {
             <Link
               key={label}
               href={href}
-              className={`flex min-h-[3.25rem] flex-col items-center justify-center gap-1 py-2 text-xs transition-colors ${
+              className={`relative flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors ${
                 active ? "text-accent" : "text-muted hover:text-foreground"
               }`}
             >
+              {active && (
+                <motion.div
+                  layoutId="tab-indicator"
+                  className="absolute -top-px left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-accent"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
               <Icon className="h-5 w-5" aria-hidden />
               <span>{label}</span>
             </Link>

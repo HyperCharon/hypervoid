@@ -11,17 +11,12 @@ export type PublicSeries = {
 
 export async function getPublicSeriesList(): Promise<PublicSeries[]> {
   const db = getDb();
-  const rows = await db
-    .select()
-    .from(schema.series)
-    .orderBy(asc(schema.series.sortOrder), asc(schema.series.name));
+  const [rows, postRows] = await Promise.all([
+    db.select().from(schema.series).orderBy(asc(schema.series.sortOrder), asc(schema.series.name)),
+    db.select({ series: schema.posts.series }).from(schema.posts).where(isNotNull(schema.posts.series)),
+  ]);
 
   if (rows.length === 0) return [];
-
-  const postRows = await db
-    .select({ series: schema.posts.series })
-    .from(schema.posts)
-    .where(isNotNull(schema.posts.series));
 
   const countMap = new Map<string, number>();
   for (const r of postRows) {

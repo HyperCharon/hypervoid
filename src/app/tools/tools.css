@@ -1,0 +1,42 @@
+/* Study tools — refined mobile polish. Loaded only in /tools layout. */
+
+/* Cards: subtle shadow + smooth hover lift */
+[data-tools] .bg-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 200ms ease, border-color 200ms ease, transform 200ms ease;
+}
+
+/* Buttons: tactile press feedback */
+[data-tools] button:active:not(:disabled),
+[data-tools] a:active {
+  transform: scale(0.97);
+}
+
+/* Inputs: focus ring using accent */
+[data-tools] input:focus-visible,
+[data-tools] textarea:focus-visible,
+[data-tools] select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Smooth scroll for the main content area */
+[data-tools] main {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* iOS safe area for bottom bar */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  [data-tools] nav {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* Reduced motion: disable all transitions */
+@media (prefers-reduced-motion: reduce) {
+  [data-tools] * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
