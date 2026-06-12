@@ -68,6 +68,12 @@ export function ScrollReveal({
           setTimeout(() => {
             el.style.transition = `all ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`;
             el.style.cssText = style.to;
+            // Release GPU memory after animation completes
+            const cleanup = () => {
+              el.style.willChange = "auto";
+              el.removeEventListener("transitionend", cleanup);
+            };
+            el.addEventListener("transitionend", cleanup, { once: true });
           }, delay);
           if (once) observer.unobserve(el);
         } else if (!once) {

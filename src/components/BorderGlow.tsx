@@ -241,13 +241,23 @@ export function BorderGlow({
   const fillBg = meshGradients.map((g) => `${g} padding-box`);
   const angleDeg = `${cursorAngle.toFixed(3)}deg`;
 
-  // Light mode: skip glow effects entirely
+  // Light mode: subtle shadow glow instead of rainbow mesh
   if (isLight) {
     return (
       <div
-        className={`relative grid isolate ${className}`}
+        className={`relative grid isolate transition-shadow duration-300 ${className}`}
         style={{
           borderRadius: `${borderRadius}px`,
+          background: lightBackgroundColor || "var(--card)",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 0 0 1px var(--border)",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLElement).style.boxShadow =
+            "0 4px 16px rgba(2,132,199,0.08), 0 0 0 1px rgba(2,132,199,0.15)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLElement).style.boxShadow =
+            "0 1px 3px rgba(0,0,0,0.04), 0 0 0 1px var(--border)";
         }}
       >
         <div className="flex flex-col relative overflow-auto z-[1]">{children}</div>

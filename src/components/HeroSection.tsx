@@ -47,7 +47,7 @@ function Starfield() {
     const dpr = Math.min(devicePixelRatio || 1, 2);
 
     // Stars
-    const STAR_COUNT = 160;
+    const STAR_COUNT = 100;
     const stars = Array.from({ length: STAR_COUNT }, () => ({
       x: Math.random(), y: Math.random(),
       r: Math.random() * 1.2 + 0.3,
@@ -57,7 +57,7 @@ function Starfield() {
     }));
 
     // Cosmic dust (very fine, slow drift)
-    const DUST_COUNT = 80;
+    const DUST_COUNT = 40;
     const dust = Array.from({ length: DUST_COUNT }, () => ({
       x: Math.random(), y: Math.random(),
       r: Math.random() * 0.4 + 0.1,
@@ -134,9 +134,17 @@ function Starfield() {
     const ro = new ResizeObserver(() => resize());
     ro.observe(c!.parentElement!);
 
-    function draw() {
+    let lastFrame = 0;
+    let visible = true;
+    const visObserver = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0 });
+    visObserver.observe(c!.parentElement!);
+
+    function draw(now: number) {
+      if (!visible) { raf = requestAnimationFrame(draw); return; }
+      // Cap at ~30fps to reduce GPU load
+      if (now - lastFrame < 33) { raf = requestAnimationFrame(draw); return; }
+      lastFrame = now;
       ctx!.clearRect(0, 0, w, h);
-      const now = performance.now();
 
       // ── Constellation lines ──
       ctx!.lineWidth = 0.4;
@@ -291,9 +299,9 @@ function Starfield() {
 
       raf = requestAnimationFrame(draw);
     }
-    draw();
+    draw(performance.now());
 
-    return () => { cancelAnimationFrame(raf); removeEventListener("resize", resize); ro.disconnect(); };
+    return () => { cancelAnimationFrame(raf); removeEventListener("resize", resize); ro.disconnect(); visObserver.disconnect(); };
   }, []);
 
   return <canvas ref={ref} className="pointer-events-none absolute z-0" style={{ top: 0, left: 0, width: "100%", height: "100%" }} />;
@@ -697,17 +705,17 @@ function Title() {
         }
         @keyframes ht-void-flicker {
           0%, 100% { opacity: 1; }
-          4% { opacity: 0.15; }
+          4% { opacity: 0.55; }
           6% { opacity: 1; }
-          8% { opacity: 0.4; }
+          8% { opacity: 0.7; }
           10% { opacity: 1; }
           50% { opacity: 1; }
-          52% { opacity: 0.2; }
+          52% { opacity: 0.6; }
           54% { opacity: 1; }
           80% { opacity: 1; }
-          82% { opacity: 0.3; }
-          83% { opacity: 0.9; }
-          84% { opacity: 0.15; }
+          82% { opacity: 0.65; }
+          83% { opacity: 0.95; }
+          84% { opacity: 0.55; }
           86% { opacity: 1; }
         }
         @keyframes ht-cp-glitch {

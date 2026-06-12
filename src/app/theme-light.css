@@ -45,6 +45,13 @@
 .light[data-bg="cream"] { --bg-color: #fefcf7; }
 .light[data-bg="warm-gray"] { --bg-color: #ede6d8; }
 
+/* ── Missing variable definitions ─────────────────────────── */
+.light {
+  --text-muted: #6b5b48;
+  --text-body: #3d3229;
+  --grad-input: linear-gradient(160deg, #fdf9ee, #f5edcf);
+}
+
 /* ── Body ────────────────────────────────────────────────── */
 .light body {
   background-color: var(--bg-color);
@@ -64,11 +71,11 @@
   z-index: -20;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 55% 45% at 12% 18%, rgba(2,132,199,0.04), transparent 50%),
-    radial-gradient(ellipse 45% 40% at 82% 25%, rgba(14,165,233,0.03), transparent 45%),
-    radial-gradient(ellipse 50% 45% at 35% 75%, rgba(56,189,248,0.025), transparent 50%),
-    radial-gradient(ellipse 60% 40% at 70% 80%, rgba(2,132,199,0.02), transparent 45%);
-  opacity: var(--fx-ambient, 0.3);
+    radial-gradient(ellipse 55% 45% at 12% 18%, rgba(2,132,199,0.10), transparent 50%),
+    radial-gradient(ellipse 45% 40% at 82% 25%, rgba(14,165,233,0.07), transparent 45%),
+    radial-gradient(ellipse 50% 45% at 35% 75%, rgba(56,189,248,0.06), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 70% 80%, rgba(2,132,199,0.05), transparent 45%);
+  opacity: var(--fx-ambient, 0.5);
 }
 
 /* ── Images — restore full vibrancy in light ──────────────── */
@@ -476,8 +483,8 @@
 
 /* ── Glow Underline ──────────────────────────────────────── */
 .light .glow-underline::after {
-  background: transparent !important;
-  box-shadow: none !important;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent) !important;
+  box-shadow: 0 0 8px rgba(2, 132, 199, 0.25) !important;
 }
 
 /* ── Kicker ──────────────────────────────────────────────── */
