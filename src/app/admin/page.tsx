@@ -204,8 +204,8 @@ export default async function AdminHome() {
                         className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-card-hover hover:text-foreground transition-colors"
                       >
                         <ItemIcon className="h-3.5 w-3.5 shrink-0 text-muted-soft" />
-                        <span>{item.title}</span>
-                        <span className="ml-auto text-xs text-muted-soft">{item.desc}</span>
+                        <span className="flex-1 truncate">{item.title}</span>
+                        <span className="hidden sm:inline ml-auto text-xs text-muted-soft truncate">{item.desc}</span>
                       </Link>
                     );
                   })}

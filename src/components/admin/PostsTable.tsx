@@ -100,7 +100,7 @@ export function PostsTable({
       )}
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
-        <table className="w-full min-w-[640px] text-sm">
+        <table className="w-full min-w-[520px] text-sm">
           <thead className="border-b border-border text-left text-xs text-muted">
             <tr>
               <th className="w-10 px-2 py-3">
@@ -113,9 +113,9 @@ export function PostsTable({
                 />
               </th>
               <th className="px-4 py-3 font-medium">标题</th>
-              <th className="px-4 py-3 font-medium">Slug</th>
+              <th className="hidden md:table-cell px-4 py-3 font-medium">Slug</th>
               <th className="px-4 py-3 font-medium">状态</th>
-              <th className="px-4 py-3 font-medium">发布</th>
+              <th className="hidden sm:table-cell px-4 py-3 font-medium">发布</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
@@ -156,14 +156,14 @@ export function PostsTable({
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-muted">{post.slug}</td>
+                    <td className="hidden md:table-cell px-4 py-3 font-mono text-xs text-muted">{post.slug}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex rounded border px-2 py-0.5 text-xs ${STATUS_CLASS[eff.key]}`}>
                         {STATUS_LABEL[eff.key]}
                         {eff.suffix && <span className="text-muted">{eff.suffix}</span>}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted">
+                    <td className="hidden sm:table-cell px-4 py-3 text-xs text-muted">
                       {post.publishAt ? new Date(post.publishAt).toLocaleString("zh-CN") : "—"}
                     </td>
                     <td className="px-4 py-3 text-right">

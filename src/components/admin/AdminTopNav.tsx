@@ -55,7 +55,7 @@ export function AdminTopNav() {
             <Link href="/admin" className="text-sm font-semibold hover:text-accent transition-colors">
               后台
             </Link>
-            <Link href="/" className="text-xs text-muted hover:text-foreground transition-colors">
+            <Link href="/" className="hidden sm:inline text-xs text-muted hover:text-foreground transition-colors">
               ← 回到站点
             </Link>
           </div>
@@ -105,7 +105,7 @@ export function AdminTopNav() {
             <X className="h-4 w-4" />
           </button>
         </div>
-        <nav className="overflow-y-auto p-3" style={{ height: "calc(100dvh - 3rem)" }}>
+        <nav className="overflow-y-auto p-3" style={{ height: "calc(100dvh - 3rem)", paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}>
           <Link
             href="/admin"
             onClick={close}
