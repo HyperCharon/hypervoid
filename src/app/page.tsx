@@ -277,7 +277,9 @@ export default async function Home() {
         {/* ═══ SIDEBAR — staggered, varied spacing ═══ */}
         <aside className="lg:order-2">
           <div className="flex flex-col gap-5 lg:sticky lg:top-20">
-            <PrivateSpace />
+            <div className="hidden lg:block">
+              <PrivateSpace />
+            </div>
 
             <Suspense fallback={<Skeleton className="h-48 w-full" />}>
               <ProfileCard />
@@ -287,9 +289,11 @@ export default async function Home() {
               <SiteStats />
             </Suspense>
 
-            <Suspense fallback={null}>
-              <AnnouncementWidget />
-            </Suspense>
+            <div className="hidden sm:block">
+              <Suspense fallback={null}>
+                <AnnouncementWidget />
+              </Suspense>
+            </div>
 
             <div className="hidden lg:block">
               <MiniTerminal posts={terminalPosts} tags={terminalTags} me={null} />
@@ -301,7 +305,9 @@ export default async function Home() {
               </Suspense>
             </div>
 
-            <HomePlayerWidget />
+            <div className="hidden sm:block">
+              <HomePlayerWidget />
+            </div>
 
             <div className="hidden md:contents">
               <Suspense fallback={<Skeleton className="h-32 w-full" />}>
@@ -309,9 +315,11 @@ export default async function Home() {
               </Suspense>
             </div>
 
-            <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-              <RecentGuestbook />
-            </Suspense>
+            <div className="hidden md:block">
+              <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                <RecentGuestbook />
+              </Suspense>
+            </div>
           </div>
         </aside>
       </div>
