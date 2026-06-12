@@ -52,10 +52,10 @@ export function MobileDock() {
     return <div className="flex h-11 w-[220px] xl:hidden" />;
   }
 
-  const btnClass = "grid h-11 w-11 place-items-center rounded-xl text-muted-soft transition-colors hover:bg-card-hover hover:text-foreground active:bg-card-hover";
+  const btnClass = "grid h-10 w-10 place-items-center rounded-lg text-muted-soft transition-colors hover:bg-card-hover hover:text-foreground active:bg-card-hover";
 
   return (
-    <div className="flex items-center gap-0.5 xl:hidden">
+    <div className="flex items-center gap-1 xl:hidden">
       {/* Search */}
       <Link
         href="/search"
