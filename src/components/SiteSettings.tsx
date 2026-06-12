@@ -88,9 +88,11 @@ function SettingSection({
 export function SiteSettings({
   triggerClassName,
   triggerChildren,
+  triggerStyle,
 }: {
   triggerClassName?: string;
   triggerChildren?: ReactNode;
+  triggerStyle?: React.CSSProperties;
 } = {}) {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -307,6 +309,7 @@ export function SiteSettings({
         aria-expanded={open}
         title="界面控制 (Cmd/Ctrl+,)"
         className={triggerClassName ?? "hv-settings-btn grid h-10 w-10 place-items-center backdrop-blur-xl transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"}
+        style={triggerStyle}
       >
         {triggerChildren ?? <Settings2 className="h-4 w-4" aria-hidden />}
       </button>

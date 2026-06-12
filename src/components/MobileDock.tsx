@@ -49,20 +49,22 @@ export function MobileDock() {
 
   // Prevent hydration mismatch — render placeholder until mounted
   if (!mounted) {
-    return <div className="flex h-11 w-[220px] xl:hidden" />;
+    return <div className="flex xl:hidden" style={{ height: "36px", width: "184px" }} />;
   }
 
-  const btnClass = "grid h-10 w-10 place-items-center rounded-lg text-muted-soft transition-colors hover:bg-card-hover hover:text-foreground active:bg-card-hover";
+  const btnClass = "flex items-center justify-center rounded-lg text-muted-soft transition-colors hover:bg-card-hover hover:text-foreground active:bg-card-hover";
+  const btnStyle = { width: "36px", height: "36px" };
 
   return (
-    <div className="flex items-center gap-1 xl:hidden">
+    <div className="flex items-center gap-0.5 xl:hidden">
       {/* Search */}
       <Link
         href="/search"
         className={btnClass}
+        style={btnStyle}
         aria-label={t.common.search}
       >
-        <Search className="h-5 w-5" />
+        <Search className="h-[18px] w-[18px]" />
       </Link>
 
       {/* Locale */}
@@ -70,6 +72,7 @@ export function MobileDock() {
         type="button"
         onClick={() => setLocale(nextLocale)}
         className={btnClass}
+        style={btnStyle}
         aria-label={t.common.toggleLocale}
       >
         <span className="text-xs font-bold uppercase">{nextLocale}</span>
@@ -80,15 +83,17 @@ export function MobileDock() {
         type="button"
         onClick={() => setTheme(isDark ? "light" : "dark")}
         className={btnClass}
+        style={btnStyle}
         aria-label={isDark ? "浅色" : "深色"}
       >
-        {isDark ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+        {isDark ? <Moon className="h-[18px] w-[18px]" /> : <Sun className="h-[18px] w-[18px]" />}
       </button>
 
       {/* Settings */}
       <SiteSettings
         triggerClassName={btnClass}
-        triggerChildren={<Settings2 className="h-5 w-5" />}
+        triggerStyle={btnStyle}
+        triggerChildren={<Settings2 className="h-[18px] w-[18px]" />}
       />
 
       {/* Nav */}
@@ -96,10 +101,11 @@ export function MobileDock() {
         type="button"
         onClick={() => setNavOpen((v) => !v)}
         className={btnClass}
+        style={btnStyle}
         aria-label={navOpen ? "关闭导航" : "打开导航"}
         aria-expanded={navOpen}
       >
-        {navOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        {navOpen ? <X className="h-[18px] w-[18px]" /> : <Menu className="h-[18px] w-[18px]" />}
       </button>
 
       {/* Nav drawer */}

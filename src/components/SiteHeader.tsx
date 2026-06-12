@@ -17,7 +17,7 @@ export function SiteHeader({ cvVisible = false }: { cvVisible?: boolean }) {
       className="hv-site-header hv-grad-header sticky top-0 z-40 w-full text-foreground backdrop-blur-[24px] saturate-[1.4]"
       style={{ viewTransitionName: "site-header" }}
     >
-      <div className="mx-auto flex h-12 max-w-[100rem] items-center px-3 sm:h-14 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-[100rem] items-center px-3 sm:px-6 lg:px-8" style={{ height: "48px" }}>
         {/* Left: Logo + Home */}
         <div className="flex min-h-9 shrink-0 items-center gap-1 font-bold tracking-tight sm:gap-2.5 sm:min-h-11">
           <Link
