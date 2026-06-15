@@ -694,6 +694,21 @@
   background: rgba(140,122,106,0.35);
 }
 
+/* ── 404 Void Icon ──────────────────────────────────────── */
+.light .hv-void-icon rect {
+  fill: #1e293b;
+}
+.light .hv-void-icon circle {
+  fill: #e2e8f0;
+}
+
+/* ── Primary Button Links ───────────────────────────────── */
+/* .light a (class+element) outranks Tailwind's text-primary-foreground (class only).
+   Explicitly restore the foreground color on primary-bg links. */
+.light a.bg-primary {
+  color: var(--primary-foreground) !important;
+}
+
 /* ── Print Override ──────────────────────────────────────── */
 @media print {
   .light body {

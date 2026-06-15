@@ -39,7 +39,7 @@ export default async function NotFound() {
         <svg
           aria-hidden
           viewBox="0 0 120 120"
-          className="h-32 w-32 text-primary"
+          className="h-32 w-32 text-primary hv-void-icon"
         >
           <rect width="120" height="120" rx="22" fill="#0b0f1a" />
           <ellipse

@@ -886,6 +886,36 @@ html[data-reading="large"] article .prose {
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+/* ── Novel Reader ─────────────────────────────────────────── */
+.hv-search-hl {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  color: var(--foreground);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+.reader-content .hv-prose h1,
+.reader-content .hv-prose h2,
+.reader-content .hv-prose h3,
+.reader-content .hv-prose h4 {
+  scroll-margin-top: 1rem;
+}
+/* Smooth image rendering in reader */
+.reader-content .hv-prose img {
+  margin: 1.5em auto;
+  display: block;
+}
+/* Reader code blocks */
+.reader-content .hv-prose pre {
+  border-radius: 0.5rem;
+  padding: 1em;
+  overflow-x: auto;
+  font-size: 0.88em;
+}
+/* Reader blockquote */
+.reader-content .hv-prose blockquote {
+  margin: 1.2em 0;
+}
+
 /* ── Site Header ───────────────────────────────────────────── */
 .hv-site-header {
   position: sticky;
@@ -1714,7 +1744,7 @@ html[data-fullscreen-route="true"] body { overflow-x: hidden; }
 
 /* ── Legacy Compat Layer ───────────────────────────────────── */
 /* Map old Tailwind color classes to gradient fills (dark mode) */
-.dark [class*="bg-card"]:not(input):not(textarea):not(select):not(.hv-card):not(.hv-panel):not(.hv-panel-sci):not(.hv-pill-nav-track):not(.hv-dock-panel):not(.hv-pill-menu-panel):not(.hv-brand-orbit):not(.hv-chip):not(.hv-chip-sci):not(.hv-chip-sci-dim):not(.hv-chip-strong):not(.hv-action):not(.hv-input):not(.stats-carousel-shell):not(.stats-carousel-item):not(.hv-magic-bento-card):not(.hv-magic-bento-label):not(.hv-magic-bento-count) {
+.dark [class*="bg-card"]:not(input):not(textarea):not(select):not(.hv-card):not(.hv-panel):not(.hv-panel-sci):not(.hv-pill-nav-track):not(.hv-dock-panel):not(.hv-pill-menu-panel):not(.hv-brand-orbit):not(.hv-chip):not(.hv-chip-sci):not(.hv-chip-sci-dim):not(.hv-chip-strong):not(.hv-action):not(.hv-input):not(.stats-carousel-shell):not(.stats-carousel-item):not(.hv-magic-bento-card):not(.hv-magic-bento-label):not(.hv-magic-bento-count):not(.hv-mascot-dialog) {
   background: linear-gradient(145deg, rgba(239,68,68,0.06), rgba(234,179,8,0.04), rgba(34,197,94,0.05), rgba(59,130,246,0.08), rgba(99,102,241,0.06), rgba(139,92,246,0.05), rgba(12,18,36,0.88));
   border-color: rgba(255,255,255,0.06);
 }
