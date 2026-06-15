@@ -998,6 +998,13 @@ html[data-reading="large"] article .prose {
 .dark .rdr-btn { color: rgba(255,255,255,0.6); }
 .dark .rdr-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
 .dark .rdr-btn.active { color: var(--accent-soft); }
+/* Mobile: larger touch targets */
+@media (max-width: 639px) {
+  .rdr-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}
 /* Reader text button */
 .rdr-btn-text {
   display: inline-flex;
@@ -1014,6 +1021,13 @@ html[data-reading="large"] article .prose {
   transition: color 150ms, background 150ms;
 }
 .rdr-btn-text:hover { color: var(--foreground); background: color-mix(in srgb, var(--foreground) 5%, transparent); }
+@media (max-width: 639px) {
+  .rdr-btn-text {
+    height: 2.75rem;
+    padding: 0 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
 /* Reader progress bar */
 .rdr-progress {
   position: absolute;

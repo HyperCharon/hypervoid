@@ -544,7 +544,7 @@ export function NovelReader() {
   // ── Empty state: import ──
   if (!activeBookId) {
     return (
-      <div className="mx-auto flex min-h-[80vh] max-w-4xl flex-col items-center justify-center gap-6 p-6">
+      <div className="mx-auto flex min-h-[80vh] max-w-4xl flex-col items-center justify-center gap-6 px-4 py-8 sm:p-6">
         <header className="text-center">
           <p className="hv-kicker">Novel Reader / lightweight viewer</p>
           <h1 className="hv-title mt-2 flex items-center justify-center gap-3 text-3xl font-black sm:text-4xl">
@@ -578,7 +578,7 @@ export function NovelReader() {
           onDrop={onDrop}
           onClick={() => fileInputRef.current?.click()}
           className={
-            "flex w-full max-w-lg cursor-pointer flex-col items-center gap-4 rounded-2xl border-2 border-dashed p-10 text-center transition " +
+            "flex w-full max-w-lg cursor-pointer flex-col items-center gap-3 rounded-2xl border-2 border-dashed p-6 text-center transition sm:gap-4 sm:p-10 " +
             (dragOver
               ? "border-accent/55 bg-accent/10"
               : "border-border hover:border-accent/40 hover:bg-card/50")
@@ -661,7 +661,7 @@ export function NovelReader() {
   // ── Reading state ──
   return (
     <div
-      className={`relative flex h-[calc(100vh-4rem)] flex-col transition-colors ${fullscreen ? "fixed inset-0 z-50 h-screen" : ""} ${themeClass}`}
+      className={`relative flex h-[calc(100svh-4rem)] flex-col transition-colors ${fullscreen ? "fixed inset-0 z-50 h-svh" : ""} ${themeClass}`}
       onDragOver={(e) => {
         if (e.dataTransfer.types.includes("Files")) {
           e.preventDefault();
@@ -682,7 +682,7 @@ export function NovelReader() {
       }}
     >
       {/* Toolbar */}
-      <div className="flex shrink-0 items-center gap-0.5 border-b border-border px-2 py-1 sm:px-3 sm:py-1.5">
+      <div className="flex shrink-0 items-center gap-0.5 border-b border-border px-1.5 py-1 sm:px-3 sm:py-1.5">
         {/* Left: back + book name + chapter */}
         <button
           type="button"
@@ -694,10 +694,10 @@ export function NovelReader() {
           <span className="hidden sm:inline">书库</span>
         </button>
 
-        <div className="mx-1 min-w-0 flex-1 truncate">
-          <span className="text-sm font-medium">{library.find((b) => b.id === activeBookId)?.name || "阅读中"}</span>
+        <div className="mx-0.5 min-w-0 flex-1 truncate sm:mx-1">
+          <span className="text-xs font-medium sm:text-sm">{library.find((b) => b.id === activeBookId)?.name || "阅读中"}</span>
           {currentChapterTitle && chapters.length > 1 && (
-            <span className="ml-2 hidden max-w-[200px] truncate text-xs text-muted lg:inline">
+            <span className="ml-1.5 hidden max-w-[200px] truncate text-xs text-muted lg:inline">
               {currentChapterTitle}
             </span>
           )}
@@ -710,6 +710,7 @@ export function NovelReader() {
           </span>
         )}
 
+        {/* Font size — desktop inline, mobile via settings */}
         <div className="hidden items-center gap-0.5 sm:flex">
           <button type="button" onClick={() => setSettings((s) => ({ ...s, fontSize: Math.max(12, s.fontSize - 1) }))} className="rdr-btn text-xs font-bold" title="缩小字号">A</button>
           <span className="w-5 text-center font-mono text-[10px] text-muted">{settings.fontSize}</span>
@@ -720,7 +721,7 @@ export function NovelReader() {
           type="button"
           onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(""); }}
           className={`rdr-btn ${searchOpen ? "active" : ""}`}
-          title="搜索 Ctrl+F"
+          title="搜索"
         >
           <Search className="h-4 w-4" aria-hidden />
         </button>
@@ -729,7 +730,7 @@ export function NovelReader() {
           type="button"
           onClick={addBookmark}
           className="rdr-btn"
-          title="添加书签 (B)"
+          title="书签"
         >
           <Bookmark className="h-4 w-4" aria-hidden />
         </button>
@@ -738,8 +739,8 @@ export function NovelReader() {
           <button
             type="button"
             onClick={() => setBookmarksOpen(!bookmarksOpen)}
-            className={`rdr-btn ${bookmarksOpen ? "active" : ""}`}
-            title={`书签列表 (${bookmarks.length})`}
+            className={`rdr-btn hidden sm:inline-flex ${bookmarksOpen ? "active" : ""}`}
+            title={`书签 (${bookmarks.length})`}
           >
             <span className="text-[10px] font-bold">{bookmarks.length}</span>
           </button>
@@ -775,7 +776,7 @@ export function NovelReader() {
           <Settings className="h-4 w-4" aria-hidden />
         </button>
 
-        <button type="button" onClick={() => setFullscreen(!fullscreen)} className="rdr-btn" title="全屏">
+        <button type="button" onClick={() => setFullscreen(!fullscreen)} className="rdr-btn hidden sm:inline-flex" title="全屏">
           {fullscreen ? <Minimize2 className="h-4 w-4" aria-hidden /> : <Maximize2 className="h-4 w-4" aria-hidden />}
         </button>
       </div>
@@ -807,21 +808,26 @@ export function NovelReader() {
       {/* Settings panel */}
       {settingsOpen && (
         <div className="shrink-0 border-b border-border bg-card/80 p-3 backdrop-blur">
-          <div className="mx-auto flex max-w-4xl flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-            <label className="flex items-center gap-2">
+          <div className="mx-auto flex max-w-4xl flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-2">
+            {/* Font size — with +/- buttons for mobile */}
+            <div className="flex items-center gap-2">
               <span className="text-xs text-muted">字号</span>
+              <button type="button" onClick={() => setSettings((s) => ({ ...s, fontSize: Math.max(12, s.fontSize - 1) }))} className="rdr-btn text-xs font-bold sm:hidden">A-</button>
               <input type="range" min={12} max={28} value={settings.fontSize}
                 onChange={(e) => setSettings((s) => ({ ...s, fontSize: +e.target.value }))}
-                className="accent-accent w-20 sm:w-28" />
+                className="accent-accent flex-1 sm:w-28 sm:flex-none" />
+              <button type="button" onClick={() => setSettings((s) => ({ ...s, fontSize: Math.min(28, s.fontSize + 1) }))} className="rdr-btn text-sm font-bold sm:hidden">A+</button>
               <span className="w-6 font-mono text-xs">{settings.fontSize}</span>
-            </label>
-            <label className="flex items-center gap-2">
+            </div>
+            {/* Line height */}
+            <div className="flex items-center gap-2">
               <span className="text-xs text-muted">行高</span>
               <input type="range" min={14} max={24} value={settings.lineHeight * 10}
                 onChange={(e) => setSettings((s) => ({ ...s, lineHeight: +e.target.value / 10 }))}
-                className="accent-accent w-20 sm:w-28" />
+                className="accent-accent flex-1 sm:w-28 sm:flex-none" />
               <span className="w-6 font-mono text-xs">{settings.lineHeight.toFixed(1)}</span>
-            </label>
+            </div>
+            {/* Width — desktop only */}
             <label className="hidden items-center gap-2 sm:flex">
               <span className="text-xs text-muted">宽度</span>
               <input type="range" min={520} max={1100} step={40} value={settings.maxWidth}
@@ -829,11 +835,12 @@ export function NovelReader() {
                 className="accent-accent w-28" />
               <span className="w-10 font-mono text-xs">{settings.maxWidth}px</span>
             </label>
+            {/* Theme */}
             <div className="flex items-center gap-1">
               {(["normal", "sepia", "eye-care"] as const).map((t) => (
                 <button key={t} type="button"
                   onClick={() => setSettings((s) => ({ ...s, theme: t }))}
-                  className={`rounded-md px-2 py-1 text-xs transition ${
+                  className={`rounded-md px-2.5 py-1.5 text-xs transition ${
                     settings.theme === t ? "bg-accent/15 text-accent" : "text-muted hover:text-foreground"
                   }`}
                 >
@@ -962,7 +969,7 @@ export function NovelReader() {
           className="flex-1 overflow-y-auto"
         >
           <div
-            className="reader-content mx-auto px-4 py-8 sm:px-8"
+            className="reader-content mx-auto px-3 py-5 sm:px-8 sm:py-8"
             style={{
               maxWidth: settings.maxWidth,
               fontSize: settings.fontSize,
