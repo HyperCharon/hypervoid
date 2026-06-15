@@ -105,9 +105,9 @@ export function AdminSidebar() {
         </button>
       </div>
 
-      {/* Mobile drawer overlay */}
+      {/* Mobile drawer overlay — starts below top bar */}
       {open && (
-        <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden" onClick={close} aria-hidden />
+        <div className="fixed inset-0 top-12 z-35 bg-black/50 lg:hidden" onClick={close} aria-hidden />
       )}
 
       {/* Mobile drawer */}
