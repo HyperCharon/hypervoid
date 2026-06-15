@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpen,
+  Bookmark,
   ChevronLeft,
   ChevronRight,
   FileText,
@@ -35,6 +36,13 @@ interface BookMeta {
   addedAt: number;
   lastReadAt?: number;
   scrollPercent?: number;
+}
+
+interface Bookmark {
+  id: string;
+  label: string;
+  scrollTop: number;
+  createdAt: number;
 }
 
 interface ReaderSettings {
@@ -140,6 +148,10 @@ export function NovelReader() {
   const [fullscreen, setFullscreen] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [loadingMd, setLoadingMd] = useState(false);
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const [bookmarksOpen, setBookmarksOpen] = useState(false);
+  const [scrollPercent, setScrollPercent] = useState(0);
+  const [tocDrawerOpen, setTocDrawerOpen] = useState(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -204,6 +216,7 @@ export function NovelReader() {
     const percent = el.scrollHeight > el.clientHeight
       ? el.scrollTop / (el.scrollHeight - el.clientHeight)
       : 0;
+    setScrollPercent(Math.round(percent * 100));
     try {
       localStorage.setItem(STORAGE_KEY_POSITION_PREFIX + activeBookId, String(el.scrollTop));
       setLibrary((prev) =>
@@ -215,6 +228,43 @@ export function NovelReader() {
       );
     } catch {}
   }, [activeBookId]);
+
+  // ── Bookmarks ──
+  const BM_KEY = "hv-reader-bm-";
+  useEffect(() => {
+    if (!activeBookId) { setBookmarks([]); return; }
+    try {
+      const saved = localStorage.getItem(BM_KEY + activeBookId);
+      if (saved) setBookmarks(JSON.parse(saved));
+      else setBookmarks([]);
+    } catch { setBookmarks([]); }
+  }, [activeBookId]);
+
+  const saveBookmarks = useCallback((bms: Bookmark[]) => {
+    if (!activeBookId) return;
+    setBookmarks(bms);
+    try { localStorage.setItem(BM_KEY + activeBookId, JSON.stringify(bms)); } catch {}
+  }, [activeBookId]);
+
+  const addBookmark = useCallback(() => {
+    if (!activeBookId || !contentRef.current) return;
+    const scrollTop = contentRef.current.scrollTop;
+    // Find nearest chapter
+    let label = "书签 " + (bookmarks.length + 1);
+    for (let i = chapters.length - 1; i >= 0; i--) {
+      const headingEl = contentRef.current.querySelector(`[data-line="${chapters[i].startLine}"]`);
+      if (headingEl instanceof HTMLElement && headingEl.offsetTop <= scrollTop + 100) {
+        label = chapters[i].title;
+        break;
+      }
+    }
+    const bm: Bookmark = { id: generateId(), label, scrollTop, createdAt: Date.now() };
+    saveBookmarks([...bookmarks, bm]);
+  }, [activeBookId, bookmarks, chapters, saveBookmarks]);
+
+  const removeBookmark = useCallback((id: string) => {
+    saveBookmarks(bookmarks.filter((b) => b.id !== id));
+  }, [bookmarks, saveBookmarks]);
 
   // ── Keyboard shortcuts ──
   useEffect(() => {
@@ -228,13 +278,23 @@ export function NovelReader() {
       if (e.key === "Escape") {
         setSearchOpen(false);
         setSettingsOpen(false);
+        setBookmarksOpen(false);
+        setTocDrawerOpen(false);
       }
       if (e.key === "[" && !e.ctrlKey && !e.metaKey) navigateChapter(-1);
       if (e.key === "]" && !e.ctrlKey && !e.metaKey) navigateChapter(1);
+      if (e.key === "b" && !e.ctrlKey && !e.metaKey) addBookmark();
+      // Page scroll
+      if (contentRef.current) {
+        const pageH = contentRef.current.clientHeight * 0.85;
+        if (e.key === "PageDown") { e.preventDefault(); contentRef.current.scrollBy({ top: pageH, behavior: "smooth" }); }
+        if (e.key === "PageUp") { e.preventDefault(); contentRef.current.scrollBy({ top: -pageH, behavior: "smooth" }); }
+        if (e.key === " ") { e.preventDefault(); contentRef.current.scrollBy({ top: pageH, behavior: "smooth" }); }
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [chapters, activeBookId]);
+  }, [chapters, activeBookId, addBookmark]);
 
   // ── File import ──
   const importFiles = useCallback(async (files: FileList | File[]) => {
@@ -395,6 +455,21 @@ export function NovelReader() {
           </p>
         </header>
 
+        {/* Features */}
+        <div className="grid w-full max-w-lg grid-cols-2 gap-2 sm:grid-cols-4">
+          {[
+            { label: "目录导航", desc: "标题自动提取" },
+            { label: "书签标记", desc: "按 B 添加书签" },
+            { label: "进度记忆", desc: "自动保存位置" },
+            { label: "阅读主题", desc: "默认/护眼/绿底" },
+          ].map((f) => (
+            <div key={f.label} className="rounded-lg border border-border bg-card/50 p-3 text-center">
+              <p className="text-xs font-medium text-foreground">{f.label}</p>
+              <p className="mt-0.5 text-[10px] text-muted-soft">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+
         {/* Drop zone */}
         <div
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -506,23 +581,23 @@ export function NovelReader() {
       }}
     >
       {/* Toolbar */}
-      <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2">
+      <div className="flex shrink-0 items-center gap-1 border-b border-border px-2 py-1.5">
         <button
           type="button"
           onClick={() => setActiveBookId(null)}
-          className="hv-action h-8 px-2 text-xs"
+          className="rdr-btn-text"
           title="返回书库"
         >
           <ChevronLeft className="h-4 w-4" aria-hidden />
           <span className="hidden sm:inline">书库</span>
         </button>
 
-        <div className="mx-2 min-w-0 flex-1 truncate text-sm font-medium">
+        <div className="mx-1.5 min-w-0 flex-1 truncate text-sm font-medium">
           {library.find((b) => b.id === activeBookId)?.name || "阅读中"}
         </div>
 
         {currentChapterTitle && chapters.length > 1 && (
-          <span className="hidden max-w-[200px] truncate text-xs text-muted md:inline">
+          <span className="hidden max-w-[180px] truncate text-xs text-muted md:inline">
             {currentChapterTitle}
           </span>
         )}
@@ -533,95 +608,84 @@ export function NovelReader() {
           </span>
         )}
 
-        {/* Chapter nav */}
         {chapters.length > 1 && (
           <div className="flex items-center">
-            <button
-              type="button"
-              onClick={() => navigateChapter(-1)}
-              className="hv-action h-8 w-8 p-0"
-              title="上一章 ["
-            >
+            <button type="button" onClick={() => navigateChapter(-1)} className="rdr-btn" title="上一章 [">
               <ChevronLeft className="h-4 w-4" aria-hidden />
             </button>
-            <button
-              type="button"
-              onClick={() => navigateChapter(1)}
-              className="hv-action h-8 w-8 p-0"
-              title="下一章 ]"
-            >
+            <button type="button" onClick={() => navigateChapter(1)} className="rdr-btn" title="下一章 ]">
               <ChevronRight className="h-4 w-4" aria-hidden />
             </button>
           </div>
         )}
 
-        {/* Search */}
         <button
           type="button"
           onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(""); }}
-          className={`hv-action h-8 w-8 p-0 ${searchOpen ? "text-accent" : ""}`}
+          className={`rdr-btn ${searchOpen ? "active" : ""}`}
           title="搜索 Ctrl+F"
         >
           <Search className="h-4 w-4" aria-hidden />
         </button>
 
-        {/* TOC toggle */}
-        {chapters.length > 0 && (
+        <button
+          type="button"
+          onClick={addBookmark}
+          className="rdr-btn"
+          title="添加书签"
+        >
+          <Bookmark className="h-4 w-4" aria-hidden />
+        </button>
+
+        {bookmarks.length > 0 && (
           <button
             type="button"
-            onClick={() => setSettings((s) => ({ ...s, tocOpen: !s.tocOpen }))}
-            className={`hv-action h-8 w-8 p-0 ${settings.tocOpen ? "text-accent" : ""}`}
-            title="目录"
+            onClick={() => setBookmarksOpen(!bookmarksOpen)}
+            className={`rdr-btn ${bookmarksOpen ? "active" : ""}`}
+            title={`书签列表 (${bookmarks.length})`}
           >
-            <List className="h-4 w-4" aria-hidden />
+            <span className="text-[10px] font-bold">{bookmarks.length}</span>
           </button>
         )}
 
-        {/* Settings */}
+        {chapters.length > 0 && (
+          <>
+            <button
+              type="button"
+              onClick={() => setTocDrawerOpen(!tocDrawerOpen)}
+              className={`rdr-btn lg:hidden ${tocDrawerOpen ? "active" : ""}`}
+              title="目录"
+            >
+              <List className="h-4 w-4" aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={() => setSettings((s) => ({ ...s, tocOpen: !s.tocOpen }))}
+              className={`rdr-btn hidden lg:inline-flex ${settings.tocOpen ? "active" : ""}`}
+              title="目录侧栏"
+            >
+              <List className="h-4 w-4" aria-hidden />
+            </button>
+          </>
+        )}
+
         <button
           type="button"
           onClick={() => setSettingsOpen(!settingsOpen)}
-          className={`hv-action h-8 w-8 p-0 ${settingsOpen ? "text-accent" : ""}`}
+          className={`rdr-btn ${settingsOpen ? "active" : ""}`}
           title="设置"
         >
           <Settings className="h-4 w-4" aria-hidden />
         </button>
 
-        {/* Fullscreen */}
-        <button
-          type="button"
-          onClick={() => setFullscreen(!fullscreen)}
-          className="hv-action h-8 w-8 p-0"
-          title="全屏"
-        >
-          {fullscreen ? (
-            <Minimize2 className="h-4 w-4" aria-hidden />
-          ) : (
-            <Maximize2 className="h-4 w-4" aria-hidden />
-          )}
+        <button type="button" onClick={() => setFullscreen(!fullscreen)} className="rdr-btn" title="全屏">
+          {fullscreen ? <Minimize2 className="h-4 w-4" aria-hidden /> : <Maximize2 className="h-4 w-4" aria-hidden />}
         </button>
 
-        {/* Font size quick adjust */}
-        <div className="hidden items-center gap-1 sm:flex">
-          <button
-            type="button"
-            onClick={() => setSettings((s) => ({ ...s, fontSize: Math.max(12, s.fontSize - 1) }))}
-            className="hv-action h-8 w-8 p-0 text-xs font-bold"
-            title="缩小字号"
-          >
-            A
-          </button>
-          <span className="w-8 text-center font-mono text-[11px] text-muted">
-            {settings.fontSize}
-          </span>
-          <button
-            type="button"
-            onClick={() => setSettings((s) => ({ ...s, fontSize: Math.min(28, s.fontSize + 1) }))}
-            className="hv-action h-8 w-8 p-0 text-base font-bold"
-            title="放大字号"
-          >
-            A
-          </button>
+        <div className="hidden items-center gap-0.5 sm:flex">
+          <button type="button" onClick={() => setSettings((s) => ({ ...s, fontSize: Math.max(12, s.fontSize - 1) }))} className="rdr-btn text-xs font-bold" title="缩小字号">A</button>
+          <span className="w-6 text-center font-mono text-[11px] text-muted">{settings.fontSize}</span>
+          <button type="button" onClick={() => setSettings((s) => ({ ...s, fontSize: Math.min(28, s.fontSize + 1) }))} className="rdr-btn text-base font-bold" title="放大字号">A</button>
         </div>
       </div>
 
@@ -651,61 +715,106 @@ export function NovelReader() {
 
       {/* Settings panel */}
       {settingsOpen && (
-        <div className="shrink-0 border-b border-border bg-card/80 p-4 backdrop-blur">
-          <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+        <div className="shrink-0 border-b border-border bg-card/80 p-3 backdrop-blur">
+          <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-5 gap-y-2 text-sm">
             <label className="flex items-center gap-2">
               <span className="text-xs text-muted">字号</span>
-              <input
-                type="range"
-                min={12}
-                max={28}
-                value={settings.fontSize}
+              <input type="range" min={12} max={28} value={settings.fontSize}
                 onChange={(e) => setSettings((s) => ({ ...s, fontSize: +e.target.value }))}
-                className="accent-accent"
-              />
+                className="accent-accent w-20 sm:w-28" />
               <span className="w-6 font-mono text-xs">{settings.fontSize}</span>
             </label>
             <label className="flex items-center gap-2">
               <span className="text-xs text-muted">行高</span>
-              <input
-                type="range"
-                min={14}
-                max={24}
-                value={settings.lineHeight * 10}
+              <input type="range" min={14} max={24} value={settings.lineHeight * 10}
                 onChange={(e) => setSettings((s) => ({ ...s, lineHeight: +e.target.value / 10 }))}
-                className="accent-accent"
-              />
+                className="accent-accent w-20 sm:w-28" />
               <span className="w-6 font-mono text-xs">{settings.lineHeight.toFixed(1)}</span>
             </label>
-            <label className="flex items-center gap-2">
+            <label className="hidden items-center gap-2 sm:flex">
               <span className="text-xs text-muted">宽度</span>
-              <input
-                type="range"
-                min={480}
-                max={960}
-                step={40}
-                value={settings.maxWidth}
+              <input type="range" min={480} max={960} step={40} value={settings.maxWidth}
                 onChange={(e) => setSettings((s) => ({ ...s, maxWidth: +e.target.value }))}
-                className="accent-accent"
-              />
+                className="accent-accent w-28" />
               <span className="w-10 font-mono text-xs">{settings.maxWidth}px</span>
             </label>
             <div className="flex items-center gap-1">
               {(["normal", "sepia", "eye-care"] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
+                <button key={t} type="button"
                   onClick={() => setSettings((s) => ({ ...s, theme: t }))}
-                  className={`rounded-md px-2.5 py-1 text-xs transition ${
-                    settings.theme === t
-                      ? "bg-accent/15 text-accent"
-                      : "text-muted hover:text-foreground"
+                  className={`rounded-md px-2 py-1 text-xs transition ${
+                    settings.theme === t ? "bg-accent/15 text-accent" : "text-muted hover:text-foreground"
                   }`}
                 >
                   {t === "normal" ? "默认" : t === "sepia" ? "护眼" : "绿底"}
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Progress bar */}
+      <div className="relative h-0.5 shrink-0 bg-border">
+        <div
+          className="h-full bg-accent transition-[width] duration-200"
+          style={{ width: `${scrollPercent}%` }}
+        />
+        <span className="absolute right-2 top-1 font-mono text-[10px] text-muted-soft">
+          {scrollPercent}%
+        </span>
+      </div>
+
+      {/* Bookmarks panel */}
+      {bookmarksOpen && bookmarks.length > 0 && (
+        <div className="shrink-0 border-b border-border bg-card/80 p-3 backdrop-blur">
+          <div className="mx-auto max-w-3xl">
+            <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-muted-soft">书签</p>
+            <div className="flex flex-wrap gap-2">
+              {bookmarks.map((bm) => (
+                <button
+                  key={bm.id}
+                  type="button"
+                  onClick={() => contentRef.current?.scrollTo({ top: bm.scrollTop, behavior: "smooth" })}
+                  className="group flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1 text-xs text-muted transition hover:border-accent/40 hover:text-foreground"
+                >
+                  <Bookmark className="h-3 w-3" aria-hidden />
+                  {bm.label}
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => { e.stopPropagation(); removeBookmark(bm.id); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") removeBookmark(bm.id); }}
+                    className="ml-0.5 hidden text-muted-soft hover:text-red-400 group-hover:inline"
+                  >
+                    <X className="h-3 w-3" aria-hidden />
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile TOC drawer */}
+      {tocDrawerOpen && chapters.length > 0 && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setTocDrawerOpen(false)} />
+          <div className="absolute bottom-0 left-0 right-0 max-h-[60vh] overflow-y-auto rounded-t-2xl border-t border-border bg-background p-4">
+            <p className="mb-3 font-mono text-[11px] uppercase tracking-wider text-muted-soft">目录</p>
+            <nav className="flex flex-col gap-0.5">
+              {chapters.map((ch) => (
+                <button
+                  key={ch.id}
+                  type="button"
+                  onClick={() => { scrollToChapter(ch); setTocDrawerOpen(false); }}
+                  className="truncate rounded px-3 py-2 text-left text-sm text-muted transition hover:bg-card hover:text-foreground"
+                  style={{ paddingLeft: (ch.level - 1) * 16 + 12 }}
+                >
+                  {ch.title}
+                </button>
+              ))}
+            </nav>
           </div>
         </div>
       )}
@@ -762,29 +871,15 @@ export function NovelReader() {
 
           {/* Bottom nav */}
           {chapters.length > 1 && (
-            <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 border-t border-border px-4 py-6 sm:px-8">
-              <button
-                type="button"
-                onClick={() => navigateChapter(-1)}
-                className="hv-action gap-1 px-3 py-2 text-xs"
-              >
-                <ChevronLeft className="h-3.5 w-3.5" aria-hidden />
-                上一章
+            <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 border-t border-border px-4 py-6 sm:px-8">
+              <button type="button" onClick={() => navigateChapter(-1)} className="rdr-btn-text gap-1">
+                <ChevronLeft className="h-3.5 w-3.5" aria-hidden /> 上一章
               </button>
-              <button
-                type="button"
-                onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
-                className="hv-action px-3 py-2 text-xs"
-              >
+              <button type="button" onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: "smooth" })} className="rdr-btn-text">
                 回到顶部
               </button>
-              <button
-                type="button"
-                onClick={() => navigateChapter(1)}
-                className="hv-action gap-1 px-3 py-2 text-xs"
-              >
-                下一章
-                <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+              <button type="button" onClick={() => navigateChapter(1)} className="rdr-btn-text gap-1">
+                下一章 <ChevronRight className="h-3.5 w-3.5" aria-hidden />
               </button>
             </div>
           )}
