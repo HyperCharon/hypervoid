@@ -53,7 +53,7 @@ function Starfield() {
       r: Math.random() * 1.2 + 0.3,
       twinkleSpeed: Math.random() * 0.02 + 0.005,
       twinkleOffset: Math.random() * Math.PI * 2,
-      brightness: Math.random() * 0.5 + 0.3,
+      brightness: Math.random() * 0.6 + 0.4,
     }));
 
     // Cosmic dust (very fine, slow drift)
@@ -63,7 +63,7 @@ function Starfield() {
       r: Math.random() * 0.4 + 0.1,
       vx: (Math.random() - 0.5) * 0.02,
       vy: (Math.random() - 0.5) * 0.015,
-      alpha: Math.random() * 0.15 + 0.05,
+      alpha: Math.random() * 0.2 + 0.08,
     }));
 
     // Constellation connections (pairs of star indices, pre-computed)
@@ -311,9 +311,9 @@ function Starfield() {
 function Planet() {
   return (
     <motion.div
-      className="pointer-events-none absolute right-[-5%] top-[5%] z-0 opacity-[0.10] sm:right-[10%] sm:top-[12%] sm:opacity-[0.14]"
+      className="pointer-events-none absolute right-[-5%] top-[5%] z-0 opacity-[0.22] sm:right-[10%] sm:top-[12%] sm:opacity-[0.28]"
       initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 0.12, scale: 1 }}
+      animate={{ opacity: 0.28, scale: 1 }}
       transition={{ duration: 1.5, delay: 0.3 }}
     >
       <div className="hv-planet">
@@ -362,31 +362,31 @@ function NebulaGlow() {
   return (
     <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
       <motion.div
-        className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-[0.09]"
+        className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-[0.18]"
         style={{ background: "radial-gradient(circle, #6366f1, transparent 65%)", filter: "blur(80px)" }}
         animate={{ x: [0, 25, 0], y: [0, 20, 0] }}
         transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute -bottom-48 -right-48 h-[650px] w-[650px] rounded-full opacity-[0.07]"
+        className="absolute -bottom-48 -right-48 h-[650px] w-[650px] rounded-full opacity-[0.14]"
         style={{ background: "radial-gradient(circle, #ec4899, transparent 65%)", filter: "blur(90px)" }}
         animate={{ x: [0, -20, 0], y: [0, -25, 0] }}
         transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute left-[25%] top-[35%] h-[500px] w-[500px] rounded-full opacity-[0.05]"
+        className="absolute left-[25%] top-[35%] h-[500px] w-[500px] rounded-full opacity-[0.12]"
         style={{ background: "radial-gradient(circle, #06b6d4, transparent 65%)", filter: "blur(80px)" }}
         animate={{ x: [0, -15, 0], y: [0, 18, 0] }}
         transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute right-[15%] top-[5%] h-[450px] w-[450px] rounded-full opacity-[0.045]"
+        className="absolute right-[15%] top-[5%] h-[450px] w-[450px] rounded-full opacity-[0.10]"
         style={{ background: "radial-gradient(circle, #f97316, transparent 65%)", filter: "blur(75px)" }}
         animate={{ x: [0, 12, 0], y: [0, -14, 0] }}
         transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute bottom-[15%] left-[10%] h-[400px] w-[400px] rounded-full opacity-[0.04]"
+        className="absolute bottom-[15%] left-[10%] h-[400px] w-[400px] rounded-full opacity-[0.09]"
         style={{ background: "radial-gradient(circle, #22c55e, transparent 65%)", filter: "blur(70px)" }}
         animate={{ x: [0, 10, 0], y: [0, -8, 0] }}
         transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
@@ -399,9 +399,9 @@ function NebulaGlow() {
 function Moon() {
   return (
     <motion.div
-      className="pointer-events-none absolute left-[-3%] top-[10%] z-0 opacity-[0.06] sm:left-[10%] sm:top-[20%] sm:opacity-[0.08]"
+      className="pointer-events-none absolute left-[-3%] top-[10%] z-0 opacity-[0.14] sm:left-[10%] sm:top-[20%] sm:opacity-[0.18]"
       initial={{ opacity: 0 }}
-      animate={{ opacity: 0.08 }}
+      animate={{ opacity: 0.18 }}
       transition={{ duration: 2, delay: 0.5 }}
     >
       <div className="hv-moon">
@@ -452,7 +452,7 @@ function AuroraWaves() {
           background: "linear-gradient(180deg, rgba(6,182,212,0.25), rgba(99,102,241,0.18) 30%, rgba(139,92,246,0.12) 55%, transparent)",
           filter: "blur(45px)",
         }}
-        animate={{ y: [0, -12, 0], opacity: [0.07, 0.11, 0.07] }}
+        animate={{ y: [0, -12, 0], opacity: [0.15, 0.22, 0.15] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
@@ -461,7 +461,7 @@ function AuroraWaves() {
           background: "linear-gradient(180deg, rgba(236,72,153,0.18), rgba(59,130,246,0.12) 35%, rgba(34,197,94,0.06) 65%, transparent)",
           filter: "blur(55px)",
         }}
-        animate={{ y: [0, -10, 0], opacity: [0.05, 0.08, 0.05] }}
+        animate={{ y: [0, -10, 0], opacity: [0.12, 0.16, 0.12] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
       />
       <motion.div
@@ -470,7 +470,7 @@ function AuroraWaves() {
           background: "linear-gradient(180deg, rgba(249,115,22,0.1), rgba(234,179,8,0.08) 30%, transparent)",
           filter: "blur(60px)",
         }}
-        animate={{ y: [0, -8, 0], opacity: [0.04, 0.06, 0.04] }}
+        animate={{ y: [0, -8, 0], opacity: [0.08, 0.12, 0.08] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 4 }}
       />
     </div>
@@ -482,23 +482,23 @@ function HudBrackets() {
   return (
     <div className="pointer-events-none absolute inset-0 z-0">
       {/* Top-left */}
-      <div className="absolute left-4 top-4 h-5 w-5 border-l border-t border-accent/10 sm:left-8 sm:top-8 sm:h-6 sm:w-6" />
+      <div className="absolute left-4 top-4 h-5 w-5 border-l border-t border-accent/20 sm:left-8 sm:top-8 sm:h-6 sm:w-6" />
       {/* Top-right */}
-      <div className="absolute right-4 top-4 h-5 w-5 border-r border-t border-accent/10 sm:right-8 sm:top-8 sm:h-6 sm:w-6" />
+      <div className="absolute right-4 top-4 h-5 w-5 border-r border-t border-accent/20 sm:right-8 sm:top-8 sm:h-6 sm:w-6" />
       {/* Bottom-left */}
-      <div className="absolute bottom-4 left-4 h-5 w-5 border-b border-l border-accent/10 sm:bottom-8 sm:left-8 sm:h-6 sm:w-6" />
+      <div className="absolute bottom-4 left-4 h-5 w-5 border-b border-l border-accent/20 sm:bottom-8 sm:left-8 sm:h-6 sm:w-6" />
       {/* Bottom-right */}
-      <div className="absolute bottom-4 right-4 h-5 w-5 border-b border-r border-accent/10 sm:bottom-8 sm:right-8 sm:h-6 sm:w-6" />
+      <div className="absolute bottom-4 right-4 h-5 w-5 border-b border-r border-accent/20 sm:bottom-8 sm:right-8 sm:h-6 sm:w-6" />
       {/* Side tick marks */}
       <div className="absolute left-4 top-1/2 -translate-y-1/2 sm:left-8">
-        <div className="mb-1 h-px w-3 bg-accent/8" />
-        <div className="mb-1 h-px w-2 bg-accent/5" />
-        <div className="h-px w-3 bg-accent/8" />
+        <div className="mb-1 h-px w-3 bg-accent/15" />
+        <div className="mb-1 h-px w-2 bg-accent/10" />
+        <div className="h-px w-3 bg-accent/15" />
       </div>
       <div className="absolute right-4 top-1/2 -translate-y-1/2 sm:right-8">
-        <div className="mb-1 h-px w-3 bg-accent/8" />
-        <div className="mb-1 h-px w-2 bg-accent/5" />
-        <div className="h-px w-3 bg-accent/8" />
+        <div className="mb-1 h-px w-3 bg-accent/15" />
+        <div className="mb-1 h-px w-2 bg-accent/10" />
+        <div className="h-px w-3 bg-accent/15" />
       </div>
     </div>
   );
@@ -507,7 +507,7 @@ function HudBrackets() {
 /* ── Grid Warp (perspective depth) ─────────────────────────── */
 function GridWarp() {
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-52 overflow-hidden opacity-[0.04] sm:h-64">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-52 overflow-hidden opacity-[0.08] sm:h-64">
       <div
         className="absolute inset-0"
         style={{
@@ -527,7 +527,7 @@ function GridWarp() {
 function Scanlines() {
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-0 opacity-[0.015]"
+      className="pointer-events-none absolute inset-0 z-0 opacity-[0.03]"
       style={{
         backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)",
       }}
@@ -538,7 +538,7 @@ function Scanlines() {
 /* ── Full Grid ─────────────────────────────────────────────── */
 function FullGrid() {
   return (
-    <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.015]">
+    <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.03]">
       <div
         className="absolute inset-0"
         style={{
@@ -638,7 +638,7 @@ function Title() {
         /* ── VOID — dark mode: white with flicker ── */
         .hv-t-void {
           color: #ffffff;
-          text-shadow: 0 0 12px rgba(255,255,255,0.25), 0 0 35px rgba(255,255,255,0.08);
+          text-shadow: 0 0 12px rgba(255,255,255,0.35), 0 0 35px rgba(255,255,255,0.12);
           animation: ht-void-flicker 4s steps(1) infinite;
         }
         /* ── VOID — light mode: dark, no glow ── */
@@ -653,7 +653,7 @@ function Title() {
           position: absolute;
           inset: 0;
           color: #22d3ee;
-          text-shadow: 3px 0 rgba(250,204,21,0.4), -3px 0 rgba(244,114,182,0.4);
+          text-shadow: 3px 0 rgba(250,204,21,0.5), -3px 0 rgba(244,114,182,0.5);
           animation: ht-cp-glitch 4s steps(2, end) infinite;
           opacity: 0;
         }
@@ -666,7 +666,7 @@ function Title() {
           animation: ht-corner-pulse 2.5s ease-in-out infinite;
         }
         .dark .hv-hero-title-wrap::before, .dark .hv-hero-title-wrap::after {
-          border-color: rgba(250,204,21,0.25);
+          border-color: rgba(250,204,21,0.4);
         }
         .hv-hero-title-wrap::before { top: -6px; left: -6px; border-width: 2px 0 0 2px; }
         .hv-hero-title-wrap::after { bottom: -6px; right: -6px; border-width: 0 2px 2px 0; }
@@ -678,7 +678,7 @@ function Title() {
           animation: ht-corner-pulse 2.5s ease-in-out infinite 1.2s;
         }
         .dark .hv-title-hud-tr, .dark .hv-title-hud-bl {
-          border-color: rgba(56,189,248,0.2);
+          border-color: rgba(56,189,248,0.35);
         }
         .hv-title-hud-tr { top: -6px; right: -6px; border-width: 2px 2px 0 0; }
         .hv-title-hud-bl { bottom: -6px; left: -6px; border-width: 0 0 2px 2px; }
@@ -691,12 +691,12 @@ function Title() {
           pointer-events: none;
           z-index: 3;
         }
-        .hv-title-data { color: rgba(250,204,21,0.28); }
-        .hv-title-data-dim { opacity: 0.45; }
+        .hv-title-data { color: rgba(250,204,21,0.45); }
+        .hv-title-data-dim { opacity: 0.55; }
         .hv-title-data-blink {
           animation: ht-blink 1s step-end infinite;
         }
-        .hv-title-data-blink { color: rgba(56,189,248,0.5); }
+        .hv-title-data-blink { color: rgba(56,189,248,0.7); }
         /* ── Keyframes ── */
         @keyframes ht-grad {
           0% { background-position: 0% 50%; }
@@ -790,7 +790,7 @@ function Ticker() {
           font-size: 0.65rem;
           letter-spacing: 0.1em;
           color: var(--muted);
-          opacity: 0.7;
+          opacity: 0.85;
           white-space: nowrap;
         }
         @keyframes ticker-scroll {
@@ -845,9 +845,9 @@ function FeaturedClock() {
           <span className="hv-clock-s">{time.s}</span>
           <span className="hv-clock-ms">.{time.ms}</span>
         </div>
-        <div className="flex items-center gap-2 font-mono text-[11px] tracking-wider text-white/20 sm:text-[12px]">
+        <div className="flex items-center gap-2 font-mono text-[11px] tracking-wider text-white/40 sm:text-[12px]">
           <span>{time.date}</span>
-          <span className="text-white/10">//</span>
+          <span className="text-white/25">//</span>
           <span>{time.day}</span>
         </div>
       </div>
@@ -862,7 +862,7 @@ function FeaturedClock() {
         .hv-clock-corner {
           position: absolute;
           width: 10px; height: 10px;
-          border-color: rgba(59,130,246,0.3);
+          border-color: rgba(59,130,246,0.45);
           border-style: solid;
         }
         .hv-clock-tl { top: 0; left: 0; border-width: 1px 0 0 1px; }
@@ -877,7 +877,7 @@ function FeaturedClock() {
           font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
           font-size: 0.5rem;
           letter-spacing: 0.15em;
-          color: rgba(59,130,246,0.2);
+          color: rgba(59,130,246,0.35);
           writing-mode: vertical-rl;
           text-orientation: mixed;
         }
@@ -888,26 +888,26 @@ function FeaturedClock() {
           font-size: 2.2rem;
           font-weight: 700;
           letter-spacing: -0.02em;
-          color: rgba(255,255,255,0.5);
-          text-shadow: 0 0 20px rgba(59,130,246,0.15);
+          color: rgba(255,255,255,0.7);
+          text-shadow: 0 0 20px rgba(59,130,246,0.2);
           transition: color 0.1s;
         }
         .hv-clock-sep {
           font-size: 2.2rem;
           font-weight: 200;
-          color: rgba(59,130,246,0.35);
+          color: rgba(59,130,246,0.5);
           animation: clock-sep-pulse 1s ease-in-out infinite;
           margin: 0 0.05em;
         }
         .hv-clock-s {
           font-size: 1.5rem;
           font-weight: 500;
-          color: rgba(255,255,255,0.3);
+          color: rgba(255,255,255,0.5);
         }
         .hv-clock-ms {
           font-size: 0.8rem;
           font-weight: 400;
-          color: rgba(59,130,246,0.25);
+          color: rgba(59,130,246,0.4);
           margin-left: 0.1em;
         }
         @media (min-width: 640px) {
@@ -947,10 +947,10 @@ function TypewriterQuote({ text, author }: { text: string; author: string }) {
   if (!text) return null;
   return (
     <blockquote className="text-center">
-      <p className="text-[14px] leading-relaxed text-muted-soft/55 sm:text-[15px]">
+      <p className="text-[14px] leading-relaxed text-muted-soft/75 sm:text-[15px]">
         「{displayed}{!done && <span className="inline-block h-3.5 w-px animate-pulse bg-accent/50 align-middle" />}」
       </p>
-      {author ? <cite className="mt-1 block font-mono text-[11px] text-muted-soft/40 not-italic transition-opacity duration-500" style={{ opacity: done ? 1 : 0 }}>—— {author}</cite> : null}
+      {author ? <cite className="mt-1 block font-mono text-[11px] text-muted-soft/60 not-italic transition-opacity duration-500" style={{ opacity: done ? 1 : 0 }}>—— {author}</cite> : null}
     </blockquote>
   );
 }
@@ -974,9 +974,9 @@ function StatusStrip() {
   }, []);
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-soft/45 sm:gap-x-6">
+    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-soft/65 sm:gap-x-6">
       <span>UPTIME {uptimeDays}D</span>
-      <span className="hidden sm:inline text-muted-soft/25">·</span>
+      <span className="hidden sm:inline text-muted-soft/40">·</span>
       <motion.span key={statusIdx} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         ▸ {statuses[statusIdx]}
       </motion.span>
@@ -1030,7 +1030,7 @@ export function HeroSection({
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
-              <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-muted-soft/60">{t.hero.systemOnline}</span>
+              <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-muted-soft/80">{t.hero.systemOnline}</span>
             </div>
           </R>
 
@@ -1041,7 +1041,7 @@ export function HeroSection({
 
           {/* Subtitle */}
           <R d={0.15}>
-            <p className="mt-1.5 font-mono text-[13px] uppercase tracking-[0.3em] text-muted-soft/50 sm:mt-2">
+            <p className="mt-1.5 font-mono text-[13px] uppercase tracking-[0.3em] text-muted-soft/70 sm:mt-2">
               {t.hero.subtitle}
             </p>
           </R>
@@ -1056,9 +1056,9 @@ export function HeroSection({
           {/* Divider */}
           <R d={0.25} className="mt-3 sm:mt-4">
             <div className="flex items-center gap-3">
-              <div className="h-px w-10 bg-gradient-to-r from-transparent to-accent/15" />
-              <div className="h-1 w-1 rotate-45 bg-accent/25" />
-              <div className="h-px w-10 bg-gradient-to-l from-transparent to-accent/15" />
+              <div className="h-px w-10 bg-gradient-to-r from-transparent to-accent/25" />
+              <div className="h-1 w-1 rotate-45 bg-accent/40" />
+              <div className="h-px w-10 bg-gradient-to-l from-transparent to-accent/25" />
             </div>
           </R>
 
@@ -1078,12 +1078,12 @@ export function HeroSection({
 
           {/* Stats */}
           <R d={0.4} className="mt-3 sm:mt-4">
-            <div className="flex items-center gap-4 font-mono text-[13px] text-muted-soft/55 sm:gap-5">
-              <span><span className="font-bold text-foreground/65">{fmt(stats.articles)}</span> {t.hero.stats.articles}</span>
-              <span className="h-3 w-px bg-border/20" />
-              <span><span className="font-bold text-foreground/65">{fmt(stats.words)}</span> {t.hero.stats.words}</span>
-              <span className="h-3 w-px bg-border/20" />
-              <span><span className="font-bold text-foreground/65">{fmt(stats.tags)}</span> {t.hero.stats.tags}</span>
+            <div className="flex items-center gap-4 font-mono text-[13px] text-muted-soft/75 sm:gap-5">
+              <span><span className="font-bold text-foreground/85">{fmt(stats.articles)}</span> {t.hero.stats.articles}</span>
+              <span className="h-3 w-px bg-border/30" />
+              <span><span className="font-bold text-foreground/85">{fmt(stats.words)}</span> {t.hero.stats.words}</span>
+              <span className="h-3 w-px bg-border/30" />
+              <span><span className="font-bold text-foreground/85">{fmt(stats.tags)}</span> {t.hero.stats.tags}</span>
             </div>
           </R>
 
@@ -1100,7 +1100,7 @@ export function HeroSection({
               </Mag>
               <Mag>
                 <Link href="/about"
-                  className="inline-flex items-center rounded-full border border-border/20 bg-card/10 px-4 py-2 font-mono text-[12px] font-medium uppercase tracking-[0.12em] text-muted/70 transition hover:border-accent/20 hover:text-foreground"
+                  className="inline-flex items-center rounded-full border border-border/20 bg-card/10 px-4 py-2 font-mono text-[12px] font-medium uppercase tracking-[0.12em] text-muted/90 transition hover:border-accent/20 hover:text-foreground"
                 >
                   {t.hero.aboutMe}
                 </Link>
