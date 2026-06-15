@@ -15,8 +15,8 @@ export default async function ResourcesPage() {
   const grouped = groupByCategory(items);
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-8">
-      <header className="hv-panel relative overflow-hidden p-5 text-center sm:p-7">
+    <div className="mx-auto flex max-w-4xl flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-0 sm:py-10">
+      <header className="relative overflow-hidden rounded-xl border border-border bg-card p-4 text-center sm:p-7">
         <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         <p className="hv-kicker justify-center">Resource vault / external tools</p>
         <h1 className="hv-title mt-2 flex items-center justify-center gap-3 text-3xl font-black leading-tight sm:text-5xl">
@@ -31,7 +31,7 @@ export default async function ResourcesPage() {
       {/* Online Reader */}
       <Link
         href="/resources/reader"
-        className="hv-panel group flex items-center gap-4 p-5 transition hover:border-accent/30"
+        className="group flex items-center gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-accent/30 sm:gap-4 sm:p-5"
       >
         <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border bg-card transition group-hover:border-accent/30">
           <BookOpen className="h-6 w-6 text-muted transition group-hover:text-accent" aria-hidden />
@@ -46,31 +46,31 @@ export default async function ResourcesPage() {
       </Link>
 
       {items.length === 0 ? (
-        <p className="hv-panel border-dashed p-12 text-center text-muted">
+        <p className="rounded-xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted sm:p-12">
           还没有资源 / 站长在 <code>/admin/resources</code> 添加后会出现在这里。
         </p>
       ) : (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-6 sm:gap-8">
           {[...grouped.entries()].map(([category, list]) => (
             <section key={category}>
               <h2 className="hv-title mb-3 flex items-center gap-2 text-lg font-semibold tracking-normal">
                 <span>{category}</span>
                 <span className="hv-chip text-xs font-normal">{list.length}</span>
               </h2>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
                 {list.map((r) => (
                   <a
                     key={r.id}
                     href={r.url}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="hv-panel hv-panel-hover group flex items-start gap-3 p-4"
+                    className="group flex items-start gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-accent/30 sm:p-4"
                   >
-                    <span className="grid h-9 w-9 shrink-0 place-items-center border border-border bg-card text-muted">
-                      <Link2 className="h-4 w-4" aria-hidden />
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-border bg-card text-muted sm:h-9 sm:w-9">
+                      <Link2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-foreground transition group-hover:text-foreground">
+                      <p className="truncate text-sm font-semibold text-foreground transition group-hover:text-accent sm:text-base">
                         {r.title}
                       </p>
                       {r.description ? (
@@ -78,11 +78,11 @@ export default async function ResourcesPage() {
                           {r.description}
                         </p>
                       ) : null}
-                      <p className="mt-1.5 truncate font-mono text-[10px] uppercase text-muted-soft">
+                      <p className="mt-1 truncate font-mono text-[10px] uppercase text-muted-soft sm:mt-1.5">
                         {hostnameOf(r.url)}
                       </p>
                     </div>
-                    <ExternalLink className="h-4 w-4 shrink-0 text-muted-soft transition group-hover:text-foreground" aria-hidden />
+                    <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-soft transition group-hover:text-foreground sm:h-4 sm:w-4" aria-hidden />
                   </a>
                 ))}
               </div>

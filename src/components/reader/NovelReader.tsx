@@ -120,27 +120,27 @@ function extractPlainText(md: string): string {
 let markedInstance: typeof import("marked").marked | null = null;
 let katexModule: { renderToString: (s: string, o: { displayMode: boolean; throwOnError: boolean }) => string } | null = null;
 let shikiHighlighter: { codeToHtml: (code: string, options: { lang: string; theme: string }) => string } | null = null;
+let shikiFailed = false;
+let katexFailed = false;
 
 async function ensureKaTeX() {
-  if (katexModule) return;
+  if (katexModule || katexFailed) return;
   try {
-    const [katex] = await Promise.all([
-      import("katex"),
-      import("katex/dist/katex.min.css"),
-    ]);
+    const katex = await import("katex");
     katexModule = katex.default;
-  } catch {}
+    try { await import("katex/dist/katex.min.css"); } catch {}
+  } catch { katexFailed = true; }
 }
 
 async function ensureShiki() {
-  if (shikiHighlighter) return;
+  if (shikiHighlighter || shikiFailed) return;
   try {
     const shiki = await import("shiki");
     shikiHighlighter = await shiki.createHighlighter({
       themes: ["github-dark"],
-      langs: ["javascript", "typescript", "python", "rust", "go", "java", "c", "cpp", "css", "html", "json", "bash", "sql", "markdown", "yaml", "toml", "xml", "php", "ruby", "swift", "kotlin"],
+      langs: ["javascript", "typescript", "python", "html", "css", "json", "bash", "sql", "markdown"],
     });
-  } catch {}
+  } catch { shikiFailed = true; }
 }
 
 function renderKaTeX(tex: string, displayMode: boolean): string {
@@ -149,16 +149,15 @@ function renderKaTeX(tex: string, displayMode: boolean): string {
       return katexModule.renderToString(tex, { displayMode, throwOnError: false });
     } catch {}
   }
-  return displayMode ? `<pre class="katex-fallback">${tex}</pre>` : `<code>${tex}</code>`;
+  const escaped = tex.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return displayMode ? `<pre class="katex-fallback">${escaped}</pre>` : `<code>${escaped}</code>`;
 }
 
 async function renderMarkdown(src: string): Promise<string> {
   if (!markedInstance) {
-    const [_marked] = await Promise.all([
-      import("marked"),
-      ensureShiki(),
-      ensureKaTeX(),
-    ]);
+    // Load marked first (essential), then try optional enhancements in parallel
+    const _marked = await import("marked");
+    await Promise.all([ensureShiki(), ensureKaTeX()]);
 
     const renderer = new _marked.Renderer();
 
@@ -167,8 +166,6 @@ async function renderMarkdown(src: string): Promise<string> {
       if (shikiHighlighter && lang) {
         try {
           const html = shikiHighlighter.codeToHtml(text, { lang, theme: "github-dark" });
-          // shiki returns <pre class="shiki ..."><code>...</code></pre>
-          // Wrap in code-panel for consistent styling
           return `<div class="code-panel">${html}</div>`;
         } catch {}
       }
@@ -178,7 +175,6 @@ async function renderMarkdown(src: string): Promise<string> {
       return `<div class="code-panel"><div class="code-header"${langLabel}><span>${lang || "code"}</span></div><pre><code>${escaped}</code></pre></div>`;
     };
 
-    // Inline code
     renderer.codespan = function ({ text }: { text: string }) {
       return `<code>${text}</code>`;
     };
@@ -190,11 +186,9 @@ async function renderMarkdown(src: string): Promise<string> {
 
   // Pre-process LaTeX: protect $...$ and $$...$$ from marked
   let processed = src;
-  // Display math: $$...$$
   processed = processed.replace(/\$\$([\s\S]+?)\$\$/g, (_m, tex) => {
     return `<div class="katex-display-placeholder" data-tex="${encodeURIComponent(tex.trim())}"></div>`;
   });
-  // Inline math: $...$  (not preceded/followed by $)
   processed = processed.replace(/(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)/g, (_m, tex) => {
     return `<span class="katex-inline-placeholder" data-tex="${encodeURIComponent(tex.trim())}"></span>`;
   });
@@ -213,10 +207,8 @@ async function renderMarkdown(src: string): Promise<string> {
   );
 
   // Add data-line attributes to headings for chapter navigation
-  const lines = src.split("\n");
   let lineOffset = 0;
   html = html.replace(/<h([1-4])([^>]*)>/g, (match, level, attrs) => {
-    // Find the next heading in the source to get its line number
     const headingRegex = new RegExp(`^#{${level}}\\s+`, "gm");
     headingRegex.lastIndex = lineOffset;
     const headingMatch = headingRegex.exec(src);
@@ -294,7 +286,10 @@ export function NovelReader() {
         setRawContent(content);
         const ch = extractChapters(content);
         setChapters(ch);
-        renderMarkdown(content).then(setHtmlContent);
+        renderMarkdown(content).then(setHtmlContent).catch(() => {
+          // Fallback: show raw text if markdown rendering fails
+          setHtmlContent(`<pre style="white-space:pre-wrap;word-break:break-word">${content.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>`);
+        });
         // Restore scroll position
         const pos = localStorage.getItem(STORAGE_KEY_POSITION_PREFIX + activeBookId);
         if (pos && contentRef.current) {
@@ -661,7 +656,8 @@ export function NovelReader() {
   // ── Reading state ──
   return (
     <div
-      className={`relative flex h-[calc(100svh-4rem)] flex-col transition-colors ${fullscreen ? "fixed inset-0 z-50 h-svh" : ""} ${themeClass}`}
+      className={`relative flex flex-col transition-colors ${fullscreen ? "fixed inset-0 z-50" : ""} ${themeClass}`}
+      style={fullscreen ? undefined : { height: "calc(100svh - 4rem)", minHeight: "calc(100vh - 4rem)" }}
       onDragOver={(e) => {
         if (e.dataTransfer.types.includes("Files")) {
           e.preventDefault();

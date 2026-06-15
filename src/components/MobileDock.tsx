@@ -207,8 +207,8 @@ function NavDrawer({ open, onClose, toggleRef }: { open: boolean; onClose: () =>
 
   return (
     <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-[45] bg-black/50 backdrop-blur-sm xl:hidden" onClick={onClose} />
+      {/* Backdrop — sits behind header (z-40) so the toggle button remains clickable */}
+      <div className="fixed inset-0 top-[48px] z-[35] bg-black/50 xl:hidden" onClick={onClose} />
 
       {/* Drawer */}
       <div
