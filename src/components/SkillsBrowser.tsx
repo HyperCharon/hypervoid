@@ -139,19 +139,30 @@ function SkillCard({ skill }: { skill: Skill }) {
       style={{ borderLeft: `4px solid ${accent}` }}
     >
       <div className="flex items-start gap-3">
-        <Image
-          src={iconUrl(skill.icon)}
-          alt=""
-          width={32}
-          height={32}
-          sizes="32px"
-          loading="lazy"
-          unoptimized
-          className="h-8 w-8 shrink-0"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).style.opacity = "0.25";
-          }}
-        />
+        <div className="relative h-8 w-8 shrink-0">
+          <Image
+            src={iconUrl(skill.icon)}
+            alt=""
+            width={32}
+            height={32}
+            sizes="32px"
+            loading="lazy"
+            unoptimized
+            className="h-8 w-8 shrink-0"
+            onError={(e) => {
+              // Hide broken image, show fallback letter
+              (e.currentTarget as HTMLImageElement).style.display = "none";
+              const fallback = (e.currentTarget as HTMLImageElement).nextElementSibling as HTMLElement;
+              if (fallback) fallback.style.display = "flex";
+            }}
+          />
+          <div
+            className="absolute inset-0 hidden items-center justify-center rounded-lg text-sm font-bold text-white"
+            style={{ background: accent }}
+          >
+            {skill.name.charAt(0)}
+          </div>
+        </div>
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <h3 className="text-base font-semibold leading-snug tracking-tight">
             {skill.name}

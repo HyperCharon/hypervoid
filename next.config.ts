@@ -33,6 +33,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
       { protocol: "https", hostname: "lain.bgm.tv" },
       { protocol: "https", hostname: "cdn.cloudflare.steamstatic.com" },
+      { protocol: "https", hostname: "api.iconify.design" },
     ],
   },
   headers: async () => [
