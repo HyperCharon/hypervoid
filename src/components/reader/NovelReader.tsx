@@ -57,7 +57,7 @@ const DEFAULT_SETTINGS: ReaderSettings = {
   fontSize: 17,
   lineHeight: 1.8,
   theme: "normal",
-  maxWidth: 720,
+  maxWidth: 860,
   tocOpen: true,
 };
 
@@ -115,21 +115,120 @@ function extractPlainText(md: string): string {
     .trim();
 }
 
-/* ── Markdown renderer (lazy-loaded) ─────────────────────── */
+/* ── Markdown renderer (lazy-loaded, with KaTeX + code highlight) ── */
 
 let markedInstance: typeof import("marked").marked | null = null;
+let katexModule: { renderToString: (s: string, o: { displayMode: boolean; throwOnError: boolean }) => string } | null = null;
+let shikiHighlighter: { codeToHtml: (code: string, options: { lang: string; theme: string }) => string } | null = null;
+
+async function ensureKaTeX() {
+  if (katexModule) return;
+  try {
+    const [katex] = await Promise.all([
+      import("katex"),
+      import("katex/dist/katex.min.css"),
+    ]);
+    katexModule = katex.default;
+  } catch {}
+}
+
+async function ensureShiki() {
+  if (shikiHighlighter) return;
+  try {
+    const shiki = await import("shiki");
+    shikiHighlighter = await shiki.createHighlighter({
+      themes: ["github-dark"],
+      langs: ["javascript", "typescript", "python", "rust", "go", "java", "c", "cpp", "css", "html", "json", "bash", "sql", "markdown", "yaml", "toml", "xml", "php", "ruby", "swift", "kotlin"],
+    });
+  } catch {}
+}
+
+function renderKaTeX(tex: string, displayMode: boolean): string {
+  if (katexModule) {
+    try {
+      return katexModule.renderToString(tex, { displayMode, throwOnError: false });
+    } catch {}
+  }
+  return displayMode ? `<pre class="katex-fallback">${tex}</pre>` : `<code>${tex}</code>`;
+}
 
 async function renderMarkdown(src: string): Promise<string> {
   if (!markedInstance) {
-    const { marked } = await import("marked");
-    marked.setOptions({
-      gfm: true,
-      breaks: false,
-    });
-    markedInstance = marked;
+    const [_marked] = await Promise.all([
+      import("marked"),
+      ensureShiki(),
+      ensureKaTeX(),
+    ]);
+
+    const renderer = new _marked.Renderer();
+
+    // Code blocks with syntax highlighting (shiki)
+    renderer.code = function ({ text, lang }: { text: string; lang?: string }) {
+      if (shikiHighlighter && lang) {
+        try {
+          const html = shikiHighlighter.codeToHtml(text, { lang, theme: "github-dark" });
+          // shiki returns <pre class="shiki ..."><code>...</code></pre>
+          // Wrap in code-panel for consistent styling
+          return `<div class="code-panel">${html}</div>`;
+        } catch {}
+      }
+      // Fallback: plain code block
+      const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const langLabel = lang ? ` data-lang="${lang}"` : "";
+      return `<div class="code-panel"><div class="code-header"${langLabel}><span>${lang || "code"}</span></div><pre><code>${escaped}</code></pre></div>`;
+    };
+
+    // Inline code
+    renderer.codespan = function ({ text }: { text: string }) {
+      return `<code>${text}</code>`;
+    };
+
+    _marked.setOptions({ gfm: true, breaks: false });
+    _marked.use({ renderer });
+    markedInstance = _marked.marked;
   }
-  const result = markedInstance(src);
-  return typeof result === "string" ? result : await result;
+
+  // Pre-process LaTeX: protect $...$ and $$...$$ from marked
+  let processed = src;
+  // Display math: $$...$$
+  processed = processed.replace(/\$\$([\s\S]+?)\$\$/g, (_m, tex) => {
+    return `<div class="katex-display-placeholder" data-tex="${encodeURIComponent(tex.trim())}"></div>`;
+  });
+  // Inline math: $...$  (not preceded/followed by $)
+  processed = processed.replace(/(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)/g, (_m, tex) => {
+    return `<span class="katex-inline-placeholder" data-tex="${encodeURIComponent(tex.trim())}"></span>`;
+  });
+
+  const result = markedInstance(processed);
+  let html = typeof result === "string" ? result : await result;
+
+  // Post-process: replace KaTeX placeholders with rendered output
+  html = html.replace(
+    /<div class="katex-display-placeholder" data-tex="([^"]+)"><\/div>/g,
+    (_m, encoded) => renderKaTeX(decodeURIComponent(encoded), true),
+  );
+  html = html.replace(
+    /<span class="katex-inline-placeholder" data-tex="([^"]+)"><\/span>/g,
+    (_m, encoded) => renderKaTeX(decodeURIComponent(encoded), false),
+  );
+
+  // Add data-line attributes to headings for chapter navigation
+  const lines = src.split("\n");
+  let lineOffset = 0;
+  html = html.replace(/<h([1-4])([^>]*)>/g, (match, level, attrs) => {
+    // Find the next heading in the source to get its line number
+    const headingRegex = new RegExp(`^#{${level}}\\s+`, "gm");
+    headingRegex.lastIndex = lineOffset;
+    const headingMatch = headingRegex.exec(src);
+    if (headingMatch) {
+      const lineNum = src.substring(0, headingMatch.index).split("\n").length - 1;
+      lineOffset = headingMatch.index + 1;
+      return `<h${level}${attrs} data-line="${lineNum}">`;
+    }
+    return match;
+  });
+
+  return html;
 }
 
 /* ── Main Component ──────────────────────────────────────── */
@@ -417,20 +516,22 @@ export function NovelReader() {
   }, [rawContent]);
 
   // ── Current chapter index for nav ──
-  const currentChapterTitle = useMemo(() => {
-    if (chapters.length === 0 || !contentRef.current) return null;
+  const { currentChapterTitle, currentChapterIndex } = useMemo(() => {
+    if (chapters.length === 0 || !contentRef.current) return { currentChapterTitle: null, currentChapterIndex: -1 };
     const scrollTop = contentRef.current.scrollTop;
     let title = chapters[0].title;
+    let idx = 0;
     for (let i = chapters.length - 1; i >= 0; i--) {
       const headingEl = contentRef.current.querySelector(`[data-line="${chapters[i].startLine}"]`);
       if (headingEl && headingEl instanceof HTMLElement) {
         if (headingEl.offsetTop <= scrollTop + 100) {
           title = chapters[i].title;
+          idx = i;
           break;
         }
       }
     }
-    return title;
+    return { currentChapterTitle: title, currentChapterIndex: idx };
   }, [chapters, rawContent]);
 
   // ── Theme classes ──
@@ -581,43 +682,39 @@ export function NovelReader() {
       }}
     >
       {/* Toolbar */}
-      <div className="flex shrink-0 items-center gap-1 border-b border-border px-2 py-1.5">
+      <div className="flex shrink-0 items-center gap-0.5 border-b border-border px-2 py-1 sm:px-3 sm:py-1.5">
+        {/* Left: back + book name + chapter */}
         <button
           type="button"
           onClick={() => setActiveBookId(null)}
-          className="rdr-btn-text"
+          className="rdr-btn-text shrink-0"
           title="返回书库"
         >
           <ChevronLeft className="h-4 w-4" aria-hidden />
           <span className="hidden sm:inline">书库</span>
         </button>
 
-        <div className="mx-1.5 min-w-0 flex-1 truncate text-sm font-medium">
-          {library.find((b) => b.id === activeBookId)?.name || "阅读中"}
+        <div className="mx-1 min-w-0 flex-1 truncate">
+          <span className="text-sm font-medium">{library.find((b) => b.id === activeBookId)?.name || "阅读中"}</span>
+          {currentChapterTitle && chapters.length > 1 && (
+            <span className="ml-2 hidden max-w-[200px] truncate text-xs text-muted lg:inline">
+              {currentChapterTitle}
+            </span>
+          )}
         </div>
 
-        {currentChapterTitle && chapters.length > 1 && (
-          <span className="hidden max-w-[180px] truncate text-xs text-muted md:inline">
-            {currentChapterTitle}
-          </span>
-        )}
-
+        {/* Right: controls */}
         {stats && (
-          <span className="hidden text-[11px] text-muted-soft lg:inline">
+          <span className="hidden shrink-0 text-[11px] text-muted-soft xl:inline">
             {stats.chars.toLocaleString()} 字 · ~{stats.minutes} 分钟
           </span>
         )}
 
-        {chapters.length > 1 && (
-          <div className="flex items-center">
-            <button type="button" onClick={() => navigateChapter(-1)} className="rdr-btn" title="上一章 [">
-              <ChevronLeft className="h-4 w-4" aria-hidden />
-            </button>
-            <button type="button" onClick={() => navigateChapter(1)} className="rdr-btn" title="下一章 ]">
-              <ChevronRight className="h-4 w-4" aria-hidden />
-            </button>
-          </div>
-        )}
+        <div className="hidden items-center gap-0.5 sm:flex">
+          <button type="button" onClick={() => setSettings((s) => ({ ...s, fontSize: Math.max(12, s.fontSize - 1) }))} className="rdr-btn text-xs font-bold" title="缩小字号">A</button>
+          <span className="w-5 text-center font-mono text-[10px] text-muted">{settings.fontSize}</span>
+          <button type="button" onClick={() => setSettings((s) => ({ ...s, fontSize: Math.min(28, s.fontSize + 1) }))} className="rdr-btn text-sm font-bold" title="放大字号">A</button>
+        </div>
 
         <button
           type="button"
@@ -632,7 +729,7 @@ export function NovelReader() {
           type="button"
           onClick={addBookmark}
           className="rdr-btn"
-          title="添加书签"
+          title="添加书签 (B)"
         >
           <Bookmark className="h-4 w-4" aria-hidden />
         </button>
@@ -681,12 +778,6 @@ export function NovelReader() {
         <button type="button" onClick={() => setFullscreen(!fullscreen)} className="rdr-btn" title="全屏">
           {fullscreen ? <Minimize2 className="h-4 w-4" aria-hidden /> : <Maximize2 className="h-4 w-4" aria-hidden />}
         </button>
-
-        <div className="hidden items-center gap-0.5 sm:flex">
-          <button type="button" onClick={() => setSettings((s) => ({ ...s, fontSize: Math.max(12, s.fontSize - 1) }))} className="rdr-btn text-xs font-bold" title="缩小字号">A</button>
-          <span className="w-6 text-center font-mono text-[11px] text-muted">{settings.fontSize}</span>
-          <button type="button" onClick={() => setSettings((s) => ({ ...s, fontSize: Math.min(28, s.fontSize + 1) }))} className="rdr-btn text-base font-bold" title="放大字号">A</button>
-        </div>
       </div>
 
       {/* Search bar */}
@@ -716,7 +807,7 @@ export function NovelReader() {
       {/* Settings panel */}
       {settingsOpen && (
         <div className="shrink-0 border-b border-border bg-card/80 p-3 backdrop-blur">
-          <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+          <div className="mx-auto flex max-w-4xl flex-wrap items-center gap-x-5 gap-y-2 text-sm">
             <label className="flex items-center gap-2">
               <span className="text-xs text-muted">字号</span>
               <input type="range" min={12} max={28} value={settings.fontSize}
@@ -733,7 +824,7 @@ export function NovelReader() {
             </label>
             <label className="hidden items-center gap-2 sm:flex">
               <span className="text-xs text-muted">宽度</span>
-              <input type="range" min={480} max={960} step={40} value={settings.maxWidth}
+              <input type="range" min={520} max={1100} step={40} value={settings.maxWidth}
                 onChange={(e) => setSettings((s) => ({ ...s, maxWidth: +e.target.value }))}
                 className="accent-accent w-28" />
               <span className="w-10 font-mono text-xs">{settings.maxWidth}px</span>
@@ -803,17 +894,24 @@ export function NovelReader() {
           <div className="absolute bottom-0 left-0 right-0 max-h-[60vh] overflow-y-auto rounded-t-2xl border-t border-border bg-background p-4">
             <p className="mb-3 font-mono text-[11px] uppercase tracking-wider text-muted-soft">目录</p>
             <nav className="flex flex-col gap-0.5">
-              {chapters.map((ch) => (
-                <button
-                  key={ch.id}
-                  type="button"
-                  onClick={() => { scrollToChapter(ch); setTocDrawerOpen(false); }}
-                  className="truncate rounded px-3 py-2 text-left text-sm text-muted transition hover:bg-card hover:text-foreground"
-                  style={{ paddingLeft: (ch.level - 1) * 16 + 12 }}
-                >
-                  {ch.title}
-                </button>
-              ))}
+              {chapters.map((ch, i) => {
+                const active = i === currentChapterIndex;
+                return (
+                  <button
+                    key={ch.id}
+                    type="button"
+                    onClick={() => { scrollToChapter(ch); setTocDrawerOpen(false); }}
+                    className={`truncate rounded px-3 py-2 text-left text-sm transition ${
+                      active
+                        ? "rdr-toc-active font-semibold"
+                        : "text-muted hover:bg-card hover:text-foreground"
+                    }`}
+                    style={{ paddingLeft: (ch.level - 1) * 16 + 12 }}
+                  >
+                    {ch.title}
+                  </button>
+                );
+              })}
             </nav>
           </div>
         </div>
@@ -823,22 +921,36 @@ export function NovelReader() {
       <div className="flex min-h-0 flex-1">
         {/* TOC sidebar */}
         {settings.tocOpen && chapters.length > 0 && (
-          <aside className="hidden w-56 shrink-0 overflow-y-auto border-r border-border p-3 lg:block">
+          <aside className="hidden w-64 shrink-0 overflow-y-auto border-r border-border p-3 lg:block scrollbar-thin">
             <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-muted-soft">
               目录
             </p>
-            <nav className="flex flex-col gap-0.5">
-              {chapters.map((ch) => (
-                <button
-                  key={ch.id}
-                  type="button"
-                  onClick={() => scrollToChapter(ch)}
-                  className="truncate rounded px-2 py-1 text-left text-xs text-muted transition hover:bg-card hover:text-foreground"
-                  style={{ paddingLeft: (ch.level - 1) * 12 + 8 }}
-                >
-                  {ch.title}
-                </button>
-              ))}
+            <nav className="flex flex-col gap-0.5" id="rdr-toc-nav">
+              {chapters.map((ch, i) => {
+                const active = i === currentChapterIndex;
+                return (
+                  <button
+                    key={ch.id}
+                    type="button"
+                    data-toc-active={active ? "true" : undefined}
+                    onClick={() => scrollToChapter(ch)}
+                    className={`truncate rounded px-2 py-1.5 text-left text-xs transition ${
+                      active
+                        ? "rdr-toc-active"
+                        : "text-muted hover:bg-card hover:text-foreground"
+                    }`}
+                    style={{ paddingLeft: (ch.level - 1) * 14 + 8 }}
+                    ref={(el) => {
+                      // Auto-scroll the active TOC item into view
+                      if (active && el) {
+                        el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                      }
+                    }}
+                  >
+                    {ch.title}
+                  </button>
+                );
+              })}
             </nav>
           </aside>
         )}
@@ -870,19 +982,25 @@ export function NovelReader() {
           </div>
 
           {/* Bottom nav */}
-          {chapters.length > 1 && (
-            <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 border-t border-border px-4 py-6 sm:px-8">
-              <button type="button" onClick={() => navigateChapter(-1)} className="rdr-btn-text gap-1">
-                <ChevronLeft className="h-3.5 w-3.5" aria-hidden /> 上一章
-              </button>
-              <button type="button" onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: "smooth" })} className="rdr-btn-text">
+          <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 border-t border-border px-4 py-6 sm:px-8">
+            {chapters.length > 1 ? (
+              <>
+                <button type="button" onClick={() => navigateChapter(-1)} className="rdr-btn-text gap-1">
+                  <ChevronLeft className="h-3.5 w-3.5" aria-hidden /> 上一章
+                </button>
+                <button type="button" onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: "smooth" })} className="rdr-btn-text">
+                  回到顶部
+                </button>
+                <button type="button" onClick={() => navigateChapter(1)} className="rdr-btn-text gap-1">
+                  下一章 <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+                </button>
+              </>
+            ) : (
+              <button type="button" onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: "smooth" })} className="rdr-btn-text mx-auto">
                 回到顶部
               </button>
-              <button type="button" onClick={() => navigateChapter(1)} className="rdr-btn-text gap-1">
-                下一章 <ChevronRight className="h-3.5 w-3.5" aria-hidden />
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

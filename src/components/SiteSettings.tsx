@@ -96,6 +96,7 @@ export function SiteSettings({
 } = {}) {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mascot, setMascot] = useState(false);
@@ -152,7 +153,11 @@ export function SiteSettings({
   useEffect(() => {
     if (!open) return;
     function onClick(e: MouseEvent) {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      // Don't close if click landed on the trigger button — let its onClick
+      // toggle handler manage the state to avoid double-toggle race condition
+      if (triggerRef.current?.contains(target)) return;
+      if (panelRef.current && !panelRef.current.contains(target)) {
         setOpen(false);
       }
     }
@@ -301,7 +306,7 @@ export function SiteSettings({
   ) : null;
 
   return (
-    <div className="relative">
+    <div ref={triggerRef} className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

@@ -27,6 +27,9 @@ import {
   ImageIcon,
   NotebookPen,
   Wrench,
+  Pin,
+  BookOpenText,
+  Shuffle,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useLocale } from "@/components/LocaleProvider";
@@ -41,6 +44,7 @@ export function MobileDock() {
   const t = useT();
   const [mounted, setMounted] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const navToggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -98,6 +102,7 @@ export function MobileDock() {
 
       {/* Nav */}
       <button
+        ref={navToggleRef}
         type="button"
         onClick={() => setNavOpen((v) => !v)}
         className={btnClass}
@@ -109,7 +114,7 @@ export function MobileDock() {
       </button>
 
       {/* Nav drawer */}
-      <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} />
+      <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} toggleRef={navToggleRef} />
     </div>
   );
 }
@@ -144,6 +149,15 @@ const NAV_GROUPS = [
     ],
   },
   {
+    title: "精选",
+    items: [
+      { href: "/pinned", icon: Pin, label: "置顶文章" },
+      { href: "/series", icon: BookOpenText, label: "系列" },
+      { href: "/resources", icon: Wrench, label: "资源库" },
+      { href: "/posts/random", icon: Shuffle, label: "随机一篇" },
+    ],
+  },
+  {
     title: "其他",
     items: [
       { href: "/tags", icon: Tags, label: "标签" },
@@ -151,11 +165,12 @@ const NAV_GROUPS = [
       { href: "/projects", icon: FolderOpen, label: "项目" },
       { href: "/timeline", icon: CalendarDays, label: "时间线" },
       { href: "/archive", icon: Archive, label: "归档" },
+      { href: "/year-in-review", icon: Sparkles, label: "年度回顾" },
     ],
   },
 ];
 
-function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+function NavDrawer({ open, onClose, toggleRef }: { open: boolean; onClose: () => void; toggleRef?: React.RefObject<HTMLButtonElement | null> }) {
   const pathname = usePathname();
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -171,17 +186,22 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   // Close on route change
   useEffect(() => { onClose(); }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Close on outside click (pointerdown works on both mouse and touch)
+  // Close on outside click (pointerdown works on both mouse and touch).
+  // Exclude the toggle button to prevent double-toggle race condition:
+  // pointerdown closes the drawer, then the button's onClick reopens it.
   useEffect(() => {
     if (!open) return;
     function onPointer(e: PointerEvent) {
-      if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      // Don't close if the click landed on the toggle button
+      if (toggleRef?.current?.contains(target)) return;
+      if (drawerRef.current && !drawerRef.current.contains(target)) {
         onClose();
       }
     }
     const timer = setTimeout(() => document.addEventListener("pointerdown", onPointer), 50);
     return () => { clearTimeout(timer); document.removeEventListener("pointerdown", onPointer); };
-  }, [open, onClose]);
+  }, [open, onClose, toggleRef]);
 
   if (!open) return null;
 
@@ -193,7 +213,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className="fixed inset-x-0 top-11 z-[50] max-h-[calc(100dvh-2.75rem)] overflow-y-auto border-b border-border shadow-lg sm:top-14 sm:max-h-[calc(100dvh-3.5rem)] overscroll-contain xl:hidden"
+        className="fixed inset-x-0 top-[48px] z-[50] max-h-[calc(100dvh-48px)] overflow-y-auto border-b border-border shadow-lg overscroll-contain xl:hidden"
         style={{ background: "var(--card)", paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}
       >
         <div className="px-3 py-3">
