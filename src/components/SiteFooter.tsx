@@ -5,10 +5,10 @@ import { siteConfig } from "@/lib/site-config";
 export function SiteFooter() {
   const year = new Date().getFullYear();
   return (
-    <footer className="hv-grad-header relative mt-10 backdrop-blur-sm sm:mt-16">
+    <footer className="hv-grad-header relative mt-10 sm:mt-16">
       {/* Full spectrum top border */}
       <div aria-hidden className="hv-spectrum-line pointer-events-none absolute inset-x-0 top-0 h-[2px] opacity-50" />
-      <div className="mx-auto flex max-w-[100rem] flex-col gap-4 px-4 py-5 text-sm sm:gap-5 sm:px-6 sm:py-8 lg:px-8">
+      <div className="mx-auto flex max-w-[120rem] flex-col gap-4 px-4 py-5 text-sm sm:gap-5 sm:px-6 sm:py-8 lg:px-10 xl:px-12">
         {/* Brand row */}
         <div className="relative flex flex-wrap items-center justify-between gap-2 pb-3 sm:gap-3 sm:pb-4">
           <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-border" />
