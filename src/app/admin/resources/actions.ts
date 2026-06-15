@@ -1,19 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/auth";
 import {
   createResource,
   deleteResource,
   updateResource,
 } from "@/db/resources";
 import { recordAudit } from "@/lib/audit";
-
-async function requireAdmin() {
-  const session = await auth();
-  const user = session?.user as { isAdmin?: boolean } | undefined;
-  if (!user?.isAdmin) throw new Error("Not authorized");
-}
 
 export async function createAction(form: FormData): Promise<void> {
   await requireAdmin();

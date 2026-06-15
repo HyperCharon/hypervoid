@@ -49,7 +49,7 @@ export default async function SeriesIndexPage() {
                     sizes="(max-width: 640px) 100vw, 50vw"
                     className="object-cover opacity-60 transition duration-300 group-hover:scale-105 group-hover:opacity-75"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  <div className="hv-series-overlay absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
                   <div className="relative z-10 p-5">
                     <div className="flex items-baseline justify-between gap-3">
                       <h2 className="text-lg font-bold tracking-tight text-white drop-shadow-sm">{s.name}</h2>

@@ -75,13 +75,13 @@ Articles live in **Postgres**, images in **Vercel Blob**, comments in **GitHub D
 - **`<Image>` everywhere it matters** — covers, avatars, search thumbnails proxied through Vercel Image Optimization (AVIF/WebP at the display width)
 - **Postgres-backed rate limit** — atomic UPSERT against a shared table; survives Vercel's per-Lambda cold starts. Gates `/api/subscribe`, `/api/posts/[slug]/ask`, `/api/mascot/chat`, `/api/friends/apply`, `/api/webmention`, guestbook posts, and post reactions
 - **Defense-in-depth admin auth** — `/admin/*` and `/api/admin/*` both gated by the middleware authorized callback, every server action calls `requireAdmin()`
-- **Strict-ish CSP** — HSTS preload-grade, no `unsafe-eval`, frame ancestors locked down
+- **Strict CSP** — HSTS preload-grade, no `unsafe-eval`, nonce-based on admin/search routes, frame ancestors locked down
 
 ### Author-facing
 
 - **Admin dashboard** at `/admin` — grouped by content, interaction, appearance, tools, and other modules; stats + recent published + pending counters stay visible up top
 - **GitHub-OAuth-gated** — only `ADMIN_GITHUB_LOGIN` may enter; `/admin/*` and `/api/admin/*` both enforced at the middleware
-- **In-browser MDX editor** — title-driven slug · tags · category · cover · status · **public/private visibility** · **article series + order**
+- **In-browser MDX editor** — title-driven slug · tags · category · cover · status · **public/private visibility** · **article series + order** · **direct .md file import** with YAML frontmatter auto-parse
 - **AI provider switching at `/admin/ai`** — pick DeepSeek V4 Flash/Pro, Claude Haiku/Sonnet/Opus, or add your own custom endpoint (OpenAI-compatible / Anthropic-compatible — OpenRouter, SiliconFlow, Groq, Ollama, etc.)
 - **Daily token quota per provider** — admin sets a cap, today's running total is shown with a progress bar, AI calls auto-reject when over (prevents balance drain)
 - **AI tag suggestions / outline / polish / TL;DR / title brainstorm** — built into the editor toolbar

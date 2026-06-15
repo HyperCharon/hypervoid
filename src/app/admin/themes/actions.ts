@@ -1,15 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/auth";
 import { saveCustomTheme, type ThemeColors } from "@/lib/custom-theme";
 import { recordAudit } from "@/lib/audit";
-
-async function requireAdmin() {
-  const session = await auth();
-  const user = session?.user as { isAdmin?: boolean } | undefined;
-  if (!user?.isAdmin) throw new Error("Not authorized");
-}
 
 export async function saveThemeAction(input: {
   enabled: boolean;

@@ -595,6 +595,63 @@
   border-color: var(--accent) !important;
 }
 
+/* ── Black Opacity Utilities Override ─────────────────────── */
+/* bg-black/N → light card backgrounds (admin inputs, panels) */
+.light [class*="bg-black/20"]:not(.dark-locked *):not(.dark-locked) {
+  background-color: var(--card) !important;
+}
+.light [class*="bg-black/25"]:not(.dark-locked *):not(.dark-locked) {
+  background-color: var(--card) !important;
+}
+.light [class*="bg-black/30"]:not(.dark-locked *):not(.dark-locked) {
+  background-color: var(--card) !important;
+}
+.light [class*="bg-black/40"]:not(.dark-locked *):not(.dark-locked) {
+  background-color: var(--card) !important;
+}
+
+/* ── Emerald/Red near-white text override ────────────────── */
+/* text-emerald-50/N, text-emerald-100 → readable in light */
+.light [class*="text-emerald-50"]:not(.dark-locked *):not(.dark-locked) {
+  color: var(--foreground) !important;
+}
+.light [class*="text-emerald-100"]:not(.dark-locked *):not(.dark-locked) {
+  color: var(--accent) !important;
+}
+.light [class*="text-emerald-200"]:not(.dark-locked *):not(.dark-locked) {
+  color: var(--accent-soft) !important;
+}
+/* border-emerald-100/N → themed border */
+.light [class*="border-emerald-100"]:not(.dark-locked *):not(.dark-locked) {
+  border-color: var(--border) !important;
+}
+/* bg-emerald-100/N → themed accent bg */
+.light [class*="bg-emerald-100"]:not(.dark-locked *):not(.dark-locked) {
+  background-color: var(--accent) !important;
+}
+
+/* text-red-100, text-red-200 → visible red in light */
+.light .text-red-100:not(.dark-locked *):not(.dark-locked),
+.light .text-red-200:not(.dark-locked *):not(.dark-locked) {
+  color: #dc2626 !important;
+}
+/* text-emerald-300 in status badges stays green */
+.light .text-emerald-300:not(.dark-locked *):not(.dark-locked) {
+  color: #16a34a !important;
+}
+
+/* [color-scheme:dark] on inputs → follow theme */
+.light [style*="color-scheme: dark"],
+.light select[style*="color-scheme: dark"],
+.light input[style*="color-scheme: dark"] {
+  color-scheme: light !important;
+}
+
+/* ── Series Cards: stronger overlay in light ──────────────── */
+.light .hv-series-overlay {
+  background: linear-gradient(to top, rgba(30, 20, 10, 0.88), rgba(30, 20, 10, 0.55), transparent) !important;
+}
+
 /* ── Series Banner ───────────────────────────────────────── */
 .light .hv-series-banner-link:hover {
   background-color: var(--card-hover) !important;

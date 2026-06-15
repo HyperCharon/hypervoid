@@ -53,7 +53,7 @@ const nextConfig: NextConfig = {
             "object-src 'none'",
             "base-uri 'self'",
             "form-action 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://giscus.app https://cloud.umami.is https://umami.hypervoid.top",
+            "script-src 'self' 'unsafe-inline' https://giscus.app https://cloud.umami.is https://umami.hypervoid.top",
           ].join("; "),
         },
       ],
