@@ -23,7 +23,7 @@ export default async function QuizPage() {
     <div className="flex flex-col gap-4">
       <h1 className="text-lg font-semibold">刷题</h1>
 
-      <section className="grid grid-cols-3 gap-3">
+      <section className="grid grid-cols-3 gap-1.5 sm:gap-3">
         <div className="rounded-2xl border border-border bg-card p-4 text-center">
           <p className="text-2xl font-semibold tabular-nums">{stats.totalQuestions}</p>
           <p className="text-xs text-muted">题库</p>

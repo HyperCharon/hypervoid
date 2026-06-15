@@ -482,6 +482,7 @@ html[data-reading="large"] article .prose {
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   transition: box-shadow 200ms ease;
+  overflow: hidden;
 }
 /* Panel — dark mode gradient fill */
 .dark .hv-panel {
@@ -1038,6 +1039,39 @@ html[data-reading="large"] article .prose {
   transition: width 200ms ease;
   z-index: 5;
 }
+/* Mobile reader code blocks */
+.mcode {
+  margin: 1em 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--code-border);
+}
+.mcode .mcode-hd {
+  padding: 0.35rem 0.7rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--code-header);
+  color: var(--muted);
+  border-bottom: 1px solid var(--code-border);
+}
+.mcode pre {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: var(--code-header) !important;
+  padding: 0.8em;
+  font-size: 0.85em;
+  line-height: 1.55;
+  overflow-x: auto;
+}
+.mcode code {
+  background: transparent !important;
+  color: var(--code-text) !important;
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
 /* Reader bookmark dot */
 .rdr-bookmark-dot {
   position: absolute;

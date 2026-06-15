@@ -27,7 +27,7 @@ export default async function ToolsLayout({
   const daysLeft = settings.examDate ? daysUntil(new Date(settings.examDate)) : null;
 
   return (
-    <div data-tools className="relative min-h-[100dvh] bg-background text-foreground">
+    <div data-tools className="relative min-h-[100dvh] overflow-x-hidden bg-background text-foreground">
       <ToolsTopBar base={base} daysLeft={daysLeft} />
       <main className="mx-auto w-full max-w-2xl px-4 py-5 pb-28">{children}</main>
       <ToolsTabBar base={base} />

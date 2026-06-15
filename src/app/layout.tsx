@@ -151,7 +151,7 @@ export default async function RootLayout({
         >{`!function(){if(!("serviceWorker"in navigator))return;var h=location.hostname,l=h==="localhost"||h==="127.0.0.1"||h==="0.0.0.0",v=null;try{v=localStorage.getItem("sw_v")}catch(e){}if(!l&&"8"===v)return;navigator.serviceWorker.getRegistrations().then(function(r){if(!r.length)return;return Promise.all(r.map(function(s){return s.unregister()})).then(function(){try{localStorage.removeItem("sw_v")}catch(e){}if("caches"in window)caches.keys().then(function(k){return Promise.all(k.filter(function(x){return x.indexOf("hypervoid-")===0}).map(function(x){return caches.delete(x)}))});if(!sessionStorage.getItem("sw_cleanup_reloaded")){sessionStorage.setItem("sw_cleanup_reloaded","1");location.reload()}})})}()`}</Script>
         <CustomThemeStyles />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body className="min-h-full flex flex-col bg-background text-foreground overflow-x-hidden">
         <ScrollProgress />
         <RouteChromeState />
         <a

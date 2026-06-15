@@ -59,7 +59,8 @@ export async function PostActivityHeatmap() {
       </div>
 
       {/* Month labels */}
-      <div className="flex gap-[2px] pl-6">
+      <div className="overflow-x-auto">
+      <div className="flex gap-[2px] pl-6" style={{ minWidth: "280px" }}>
         {monthLabels.map((m, i) => (
           <div key={i} className="relative h-3 flex-1">
             {m !== null ? (
@@ -91,6 +92,7 @@ export async function PostActivityHeatmap() {
             })}
           </div>
         ))}
+      </div>
       </div>
 
       {/* Legend */}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { NovelReader } from "@/components/reader/NovelReader";
+import { MobileReader } from "@/components/reader/MobileReader";
 
 export const metadata: Metadata = {
   title: "阅读器",
@@ -7,5 +8,16 @@ export const metadata: Metadata = {
 };
 
 export default function ReaderPage() {
-  return <NovelReader />;
+  return (
+    <>
+      {/* Desktop reader — hidden on mobile */}
+      <div className="hidden sm:block">
+        <NovelReader />
+      </div>
+      {/* Mobile reader — hidden on desktop */}
+      <div className="sm:hidden">
+        <MobileReader />
+      </div>
+    </>
+  );
 }

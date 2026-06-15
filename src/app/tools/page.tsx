@@ -138,7 +138,7 @@ export default async function ToolsDashboard() {
       )}
 
       {/* Today stats */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
         {[
           { icon: Flame, value: stats.streak, label: "连续天数", color: "text-orange-400", bg: "bg-orange-400/10" },
           { icon: Layers, value: stats.reviewsToday, label: "今日复习", color: "text-accent-soft", bg: "bg-accent/10" },

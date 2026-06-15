@@ -250,7 +250,7 @@ export function MascotChat({
   return (
     <div
       className={`flex flex-col rounded-2xl border border-border bg-card text-foreground shadow-2xl transition-[width,height] duration-150 ${
-        expanded ? "h-[520px] w-[420px]" : "h-[320px] w-[260px]"
+        expanded ? "h-[520px] w-[min(420px,calc(100vw-2rem))]" : "h-[320px] w-[min(260px,calc(100vw-2rem))]"
       }`}
     >
       <header className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 text-xs">
