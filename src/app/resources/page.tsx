@@ -1,5 +1,6 @@
+import Link from "next/link";
 import type { Metadata } from "next";
-import { ExternalLink, LibraryBig, Link2 } from "lucide-react";
+import { BookOpen, ExternalLink, LibraryBig, Link2 } from "lucide-react";
 import { groupByCategory, listResources } from "@/db/resources";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +27,23 @@ export default async function ResourcesPage() {
           一些好用的链接、软件、工具 / 共 {items.length} 条
         </p>
       </header>
+
+      {/* Online Reader */}
+      <Link
+        href="/resources/reader"
+        className="hv-panel group flex items-center gap-4 p-5 transition hover:border-accent/30"
+      >
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border bg-card transition group-hover:border-accent/30">
+          <BookOpen className="h-6 w-6 text-muted transition group-hover:text-accent" aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-base font-semibold text-foreground">在线阅读器</p>
+          <p className="mt-0.5 text-xs text-muted-soft">
+            轻量级小说 / 文档阅读器 — 拖入 .md / .txt 文件即可开始阅读，支持目录、搜索、进度记忆
+          </p>
+        </div>
+        <ExternalLink className="h-4 w-4 shrink-0 text-muted-soft transition group-hover:text-foreground" aria-hidden />
+      </Link>
 
       {items.length === 0 ? (
         <p className="hv-panel border-dashed p-12 text-center text-muted">

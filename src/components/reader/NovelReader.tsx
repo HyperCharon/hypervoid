@@ -1,0 +1,815 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  FolderOpen,
+  List,
+  Maximize2,
+  Minimize2,
+  Moon,
+  Plus,
+  Search,
+  Settings,
+  Sun,
+  Upload,
+  X,
+} from "lucide-react";
+
+/* ── Types ───────────────────────────────────────────────── */
+
+interface Chapter {
+  id: string;
+  title: string;
+  level: number;
+  startLine: number;
+}
+
+interface BookMeta {
+  id: string;
+  name: string;
+  size: number;
+  addedAt: number;
+  lastReadAt?: number;
+  scrollPercent?: number;
+}
+
+interface ReaderSettings {
+  fontSize: number;
+  lineHeight: number;
+  theme: "normal" | "sepia" | "eye-care";
+  maxWidth: number;
+  tocOpen: boolean;
+}
+
+const DEFAULT_SETTINGS: ReaderSettings = {
+  fontSize: 17,
+  lineHeight: 1.8,
+  theme: "normal",
+  maxWidth: 720,
+  tocOpen: true,
+};
+
+const STORAGE_KEY_SETTINGS = "hv-reader-settings";
+const STORAGE_KEY_LIBRARY = "hv-reader-library";
+const STORAGE_KEY_CONTENT_PREFIX = "hv-reader-book-";
+const STORAGE_KEY_POSITION_PREFIX = "hv-reader-pos-";
+const MAX_CONTENT_SIZE = 2 * 1024 * 1024; // 2MB per book
+
+/* ── Helpers ─────────────────────────────────────────────── */
+
+function generateId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+function estimateReadingTime(text: string): number {
+  // Chinese: ~400 chars/min, English: ~200 words/min
+  const cjk = (text.match(/[一-鿿㐀-䶿]/g) || []).length;
+  const nonCjk = text.replace(/[一-鿿㐀-䶿]/g, "").trim();
+  const words = nonCjk.split(/\s+/).filter(Boolean).length;
+  return Math.ceil(cjk / 400 + words / 200);
+}
+
+function extractChapters(text: string): Chapter[] {
+  const chapters: Chapter[] = [];
+  const lines = text.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const match = lines[i].match(/^(#{1,4})\s+(.+)/);
+    if (match) {
+      chapters.push({
+        id: "ch-" + i,
+        title: match[2].replace(/[*_`~\[\]]/g, "").trim(),
+        level: match[1].length,
+        startLine: i,
+      });
+    }
+  }
+  return chapters;
+}
+
+function extractPlainText(md: string): string {
+  return md
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/[*_`~]/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/---/g, "")
+    .trim();
+}
+
+/* ── Markdown renderer (lazy-loaded) ─────────────────────── */
+
+let markedInstance: typeof import("marked").marked | null = null;
+
+async function renderMarkdown(src: string): Promise<string> {
+  if (!markedInstance) {
+    const { marked } = await import("marked");
+    marked.setOptions({
+      gfm: true,
+      breaks: false,
+    });
+    markedInstance = marked;
+  }
+  const result = markedInstance(src);
+  return typeof result === "string" ? result : await result;
+}
+
+/* ── Main Component ──────────────────────────────────────── */
+
+export function NovelReader() {
+  // ── State ──
+  const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
+  const [library, setLibrary] = useState<BookMeta[]>([]);
+  const [activeBookId, setActiveBookId] = useState<string | null>(null);
+  const [rawContent, setRawContent] = useState<string>("");
+  const [htmlContent, setHtmlContent] = useState<string>("");
+  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const [loadingMd, setLoadingMd] = useState(false);
+
+  const contentRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ── Load settings from localStorage ──
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_SETTINGS);
+      if (saved) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(saved) });
+      const lib = localStorage.getItem(STORAGE_KEY_LIBRARY);
+      if (lib) setLibrary(JSON.parse(lib));
+    } catch {}
+  }, []);
+
+  // ── Save settings ──
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+    } catch {}
+  }, [settings]);
+
+  // ── Save library ──
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_LIBRARY, JSON.stringify(library));
+    } catch {}
+  }, [library]);
+
+  // ── Load book content when activeBookId changes ──
+  useEffect(() => {
+    if (!activeBookId) {
+      setRawContent("");
+      setHtmlContent("");
+      setChapters([]);
+      return;
+    }
+    try {
+      const content = localStorage.getItem(STORAGE_KEY_CONTENT_PREFIX + activeBookId);
+      if (content) {
+        setRawContent(content);
+        const ch = extractChapters(content);
+        setChapters(ch);
+        renderMarkdown(content).then(setHtmlContent);
+        // Restore scroll position
+        const pos = localStorage.getItem(STORAGE_KEY_POSITION_PREFIX + activeBookId);
+        if (pos && contentRef.current) {
+          requestAnimationFrame(() => {
+            if (contentRef.current) {
+              contentRef.current.scrollTop = parseFloat(pos);
+            }
+          });
+        }
+      }
+    } catch {}
+  }, [activeBookId]);
+
+  // ── Save scroll position ──
+  const saveScrollPosition = useCallback(() => {
+    if (!activeBookId || !contentRef.current) return;
+    const el = contentRef.current;
+    const percent = el.scrollHeight > el.clientHeight
+      ? el.scrollTop / (el.scrollHeight - el.clientHeight)
+      : 0;
+    try {
+      localStorage.setItem(STORAGE_KEY_POSITION_PREFIX + activeBookId, String(el.scrollTop));
+      setLibrary((prev) =>
+        prev.map((b) =>
+          b.id === activeBookId
+            ? { ...b, lastReadAt: Date.now(), scrollPercent: Math.round(percent * 100) }
+            : b
+        ),
+      );
+    } catch {}
+  }, [activeBookId]);
+
+  // ── Keyboard shortcuts ──
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === "f" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        setSearchOpen(true);
+        setTimeout(() => searchInputRef.current?.focus(), 50);
+      }
+      if (e.key === "Escape") {
+        setSearchOpen(false);
+        setSettingsOpen(false);
+      }
+      if (e.key === "[" && !e.ctrlKey && !e.metaKey) navigateChapter(-1);
+      if (e.key === "]" && !e.ctrlKey && !e.metaKey) navigateChapter(1);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [chapters, activeBookId]);
+
+  // ── File import ──
+  const importFiles = useCallback(async (files: FileList | File[]) => {
+    const arr = Array.from(files);
+    const newBooks: BookMeta[] = [];
+
+    for (const file of arr) {
+      if (!/\.(md|markdown|txt|text|html|htm)$/i.test(file.name)) continue;
+
+      const text = await file.text();
+      const id = generateId();
+      const meta: BookMeta = {
+        id,
+        name: file.name.replace(/\.[^.]+$/, ""),
+        size: file.size,
+        addedAt: Date.now(),
+      };
+
+      try {
+        if (text.length <= MAX_CONTENT_SIZE) {
+          localStorage.setItem(STORAGE_KEY_CONTENT_PREFIX + id, text);
+        } else {
+          // Store truncated content
+          localStorage.setItem(STORAGE_KEY_CONTENT_PREFIX + id, text.slice(0, MAX_CONTENT_SIZE));
+        }
+        newBooks.push(meta);
+      } catch {
+        // localStorage full — skip
+      }
+    }
+
+    if (newBooks.length > 0) {
+      setLibrary((prev) => [...prev, ...newBooks]);
+      setActiveBookId(newBooks[newBooks.length - 1].id);
+    }
+  }, []);
+
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      importFiles(e.dataTransfer.files);
+    },
+    [importFiles],
+  );
+
+  // ── Chapter navigation ──
+  const navigateChapter = useCallback(
+    (direction: number) => {
+      if (chapters.length === 0 || !contentRef.current) return;
+      const el = contentRef.current;
+      const scrollTop = el.scrollTop;
+      // Find current chapter
+      let currentIdx = 0;
+      for (let i = chapters.length - 1; i >= 0; i--) {
+        const headingEl = el.querySelector(`[data-line="${chapters[i].startLine}"]`);
+        if (headingEl && headingEl instanceof HTMLElement) {
+          if (headingEl.offsetTop <= scrollTop + 100) {
+            currentIdx = i;
+            break;
+          }
+        }
+      }
+      const targetIdx = Math.max(0, Math.min(chapters.length - 1, currentIdx + direction));
+      const targetChapter = chapters[targetIdx];
+      const targetEl = el.querySelector(`[data-line="${targetChapter.startLine}"]`);
+      if (targetEl && targetEl instanceof HTMLElement) {
+        el.scrollTo({ top: targetEl.offsetTop - 20, behavior: "smooth" });
+      }
+    },
+    [chapters],
+  );
+
+  // ── Scroll to chapter ──
+  const scrollToChapter = useCallback((ch: Chapter) => {
+    if (!contentRef.current) return;
+    const el = contentRef.current.querySelector(`[data-line="${ch.startLine}"]`);
+    if (el && el instanceof HTMLElement) {
+      contentRef.current.scrollTo({ top: el.offsetTop - 20, behavior: "smooth" });
+    }
+  }, []);
+
+  // ── Delete book ──
+  const deleteBook = useCallback(
+    (id: string) => {
+      try {
+        localStorage.removeItem(STORAGE_KEY_CONTENT_PREFIX + id);
+        localStorage.removeItem(STORAGE_KEY_POSITION_PREFIX + id);
+      } catch {}
+      setLibrary((prev) => prev.filter((b) => b.id !== id));
+      if (activeBookId === id) {
+        setActiveBookId(null);
+        setRawContent("");
+        setHtmlContent("");
+        setChapters([]);
+      }
+    },
+    [activeBookId],
+  );
+
+  // ── Search highlight ──
+  const highlightedHtml = useMemo(() => {
+    if (!searchQuery.trim() || !htmlContent) return htmlContent;
+    try {
+      const escaped = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(`(${escaped})`, "gi");
+      return htmlContent.replace(regex, '<mark class="hv-search-hl">$1</mark>');
+    } catch {
+      return htmlContent;
+    }
+  }, [htmlContent, searchQuery]);
+
+  // ── Plain text stats ──
+  const stats = useMemo(() => {
+    if (!rawContent) return null;
+    const plain = extractPlainText(rawContent);
+    const chars = plain.length;
+    const minutes = estimateReadingTime(plain);
+    return { chars, minutes };
+  }, [rawContent]);
+
+  // ── Current chapter index for nav ──
+  const currentChapterTitle = useMemo(() => {
+    if (chapters.length === 0 || !contentRef.current) return null;
+    const scrollTop = contentRef.current.scrollTop;
+    let title = chapters[0].title;
+    for (let i = chapters.length - 1; i >= 0; i--) {
+      const headingEl = contentRef.current.querySelector(`[data-line="${chapters[i].startLine}"]`);
+      if (headingEl && headingEl instanceof HTMLElement) {
+        if (headingEl.offsetTop <= scrollTop + 100) {
+          title = chapters[i].title;
+          break;
+        }
+      }
+    }
+    return title;
+  }, [chapters, rawContent]);
+
+  // ── Theme classes ──
+  const themeClass = settings.theme === "sepia"
+    ? "bg-[#f8f0e3] text-[#5b4636] dark:bg-[#2b2520] dark:text-[#e3d3b8]"
+    : settings.theme === "eye-care"
+      ? "bg-[#cce8cf] text-[#1a3a1a] dark:bg-[#1a2e1a] dark:text-[#c8e0c8]"
+      : "bg-background text-foreground";
+
+  // ── Empty state: import ──
+  if (!activeBookId) {
+    return (
+      <div className="mx-auto flex min-h-[80vh] max-w-4xl flex-col items-center justify-center gap-6 p-6">
+        <header className="text-center">
+          <p className="hv-kicker">Novel Reader / lightweight viewer</p>
+          <h1 className="hv-title mt-2 flex items-center justify-center gap-3 text-3xl font-black sm:text-4xl">
+            <BookOpen className="h-8 w-8 text-muted" aria-hidden />
+            在线阅读器
+          </h1>
+          <p className="mt-3 text-sm text-muted">
+            拖入 .md / .txt 文件开始阅读，或从已保存的书库中选择
+          </p>
+        </header>
+
+        {/* Drop zone */}
+        <div
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={onDrop}
+          onClick={() => fileInputRef.current?.click()}
+          className={
+            "flex w-full max-w-lg cursor-pointer flex-col items-center gap-4 rounded-2xl border-2 border-dashed p-10 text-center transition " +
+            (dragOver
+              ? "border-accent/55 bg-accent/10"
+              : "border-border hover:border-accent/40 hover:bg-card/50")
+          }
+        >
+          <Upload className="h-10 w-10 text-muted" aria-hidden />
+          <div>
+            <p className="font-medium text-foreground">拖拽文件到此处</p>
+            <p className="mt-1 text-xs text-muted">
+              支持 .md / .markdown / .txt / .html 格式
+            </p>
+          </div>
+          <button type="button" className="hv-action px-4 py-2 text-sm font-medium">
+            <FileText className="h-4 w-4" aria-hidden />
+            选择文件
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".md,.markdown,.txt,.text,.html,.htm"
+            multiple
+            hidden
+            onChange={(e) => importFiles(e.target.files || [])}
+          />
+        </div>
+
+        {/* Library */}
+        {library.length > 0 && (
+          <div className="w-full max-w-lg">
+            <div className="mb-3 flex items-center gap-2">
+              <FolderOpen className="h-4 w-4 text-muted" aria-hidden />
+              <h2 className="text-sm font-semibold text-foreground">
+                已保存的书库
+                <span className="ml-2 font-mono text-xs text-muted">{library.length}</span>
+              </h2>
+            </div>
+            <div className="flex flex-col gap-2">
+              {library
+                .sort((a, b) => (b.lastReadAt || b.addedAt) - (a.lastReadAt || a.addedAt))
+                .map((book) => (
+                  <div
+                    key={book.id}
+                    className="hv-panel group flex items-center gap-3 p-3"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setActiveBookId(book.id)}
+                      className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                    >
+                      <FileText className="h-5 w-5 shrink-0 text-muted" aria-hidden />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-foreground">
+                          {book.name}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-muted-soft">
+                          {formatSize(book.size)}
+                          {book.scrollPercent != null && book.scrollPercent > 0
+                            ? ` · 已读 ${book.scrollPercent}%`
+                            : ""}
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteBook(book.id)}
+                      className="hidden shrink-0 p-1 text-muted-soft hover:text-red-400 group-hover:block"
+                      title="移除"
+                    >
+                      <X className="h-4 w-4" aria-hidden />
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Reading state ──
+  return (
+    <div
+      className={`relative flex h-[calc(100vh-4rem)] flex-col transition-colors ${fullscreen ? "fixed inset-0 z-50 h-screen" : ""} ${themeClass}`}
+      onDragOver={(e) => {
+        if (e.dataTransfer.types.includes("Files")) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "copy";
+          setDragOver(true);
+        }
+      }}
+      onDragLeave={(e) => {
+        // Only set false if leaving the container entirely
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setDragOver(false);
+        }
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragOver(false);
+        importFiles(e.dataTransfer.files);
+      }}
+    >
+      {/* Toolbar */}
+      <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2">
+        <button
+          type="button"
+          onClick={() => setActiveBookId(null)}
+          className="hv-action h-8 px-2 text-xs"
+          title="返回书库"
+        >
+          <ChevronLeft className="h-4 w-4" aria-hidden />
+          <span className="hidden sm:inline">书库</span>
+        </button>
+
+        <div className="mx-2 min-w-0 flex-1 truncate text-sm font-medium">
+          {library.find((b) => b.id === activeBookId)?.name || "阅读中"}
+        </div>
+
+        {currentChapterTitle && chapters.length > 1 && (
+          <span className="hidden max-w-[200px] truncate text-xs text-muted md:inline">
+            {currentChapterTitle}
+          </span>
+        )}
+
+        {stats && (
+          <span className="hidden text-[11px] text-muted-soft lg:inline">
+            {stats.chars.toLocaleString()} 字 · ~{stats.minutes} 分钟
+          </span>
+        )}
+
+        {/* Chapter nav */}
+        {chapters.length > 1 && (
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() => navigateChapter(-1)}
+              className="hv-action h-8 w-8 p-0"
+              title="上一章 ["
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateChapter(1)}
+              className="hv-action h-8 w-8 p-0"
+              title="下一章 ]"
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </button>
+          </div>
+        )}
+
+        {/* Search */}
+        <button
+          type="button"
+          onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(""); }}
+          className={`hv-action h-8 w-8 p-0 ${searchOpen ? "text-accent" : ""}`}
+          title="搜索 Ctrl+F"
+        >
+          <Search className="h-4 w-4" aria-hidden />
+        </button>
+
+        {/* TOC toggle */}
+        {chapters.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setSettings((s) => ({ ...s, tocOpen: !s.tocOpen }))}
+            className={`hv-action h-8 w-8 p-0 ${settings.tocOpen ? "text-accent" : ""}`}
+            title="目录"
+          >
+            <List className="h-4 w-4" aria-hidden />
+          </button>
+        )}
+
+        {/* Settings */}
+        <button
+          type="button"
+          onClick={() => setSettingsOpen(!settingsOpen)}
+          className={`hv-action h-8 w-8 p-0 ${settingsOpen ? "text-accent" : ""}`}
+          title="设置"
+        >
+          <Settings className="h-4 w-4" aria-hidden />
+        </button>
+
+        {/* Fullscreen */}
+        <button
+          type="button"
+          onClick={() => setFullscreen(!fullscreen)}
+          className="hv-action h-8 w-8 p-0"
+          title="全屏"
+        >
+          {fullscreen ? (
+            <Minimize2 className="h-4 w-4" aria-hidden />
+          ) : (
+            <Maximize2 className="h-4 w-4" aria-hidden />
+          )}
+        </button>
+
+        {/* Font size quick adjust */}
+        <div className="hidden items-center gap-1 sm:flex">
+          <button
+            type="button"
+            onClick={() => setSettings((s) => ({ ...s, fontSize: Math.max(12, s.fontSize - 1) }))}
+            className="hv-action h-8 w-8 p-0 text-xs font-bold"
+            title="缩小字号"
+          >
+            A
+          </button>
+          <span className="w-8 text-center font-mono text-[11px] text-muted">
+            {settings.fontSize}
+          </span>
+          <button
+            type="button"
+            onClick={() => setSettings((s) => ({ ...s, fontSize: Math.min(28, s.fontSize + 1) }))}
+            className="hv-action h-8 w-8 p-0 text-base font-bold"
+            title="放大字号"
+          >
+            A
+          </button>
+        </div>
+      </div>
+
+      {/* Search bar */}
+      {searchOpen && (
+        <div className="flex shrink-0 items-center gap-2 border-b border-border bg-card/50 px-3 py-2">
+          <Search className="h-4 w-4 text-muted" aria-hidden />
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="搜索当前文档…"
+            className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-soft"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="text-muted hover:text-foreground"
+            >
+              <X className="h-4 w-4" aria-hidden />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Settings panel */}
+      {settingsOpen && (
+        <div className="shrink-0 border-b border-border bg-card/80 p-4 backdrop-blur">
+          <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+            <label className="flex items-center gap-2">
+              <span className="text-xs text-muted">字号</span>
+              <input
+                type="range"
+                min={12}
+                max={28}
+                value={settings.fontSize}
+                onChange={(e) => setSettings((s) => ({ ...s, fontSize: +e.target.value }))}
+                className="accent-accent"
+              />
+              <span className="w-6 font-mono text-xs">{settings.fontSize}</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <span className="text-xs text-muted">行高</span>
+              <input
+                type="range"
+                min={14}
+                max={24}
+                value={settings.lineHeight * 10}
+                onChange={(e) => setSettings((s) => ({ ...s, lineHeight: +e.target.value / 10 }))}
+                className="accent-accent"
+              />
+              <span className="w-6 font-mono text-xs">{settings.lineHeight.toFixed(1)}</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <span className="text-xs text-muted">宽度</span>
+              <input
+                type="range"
+                min={480}
+                max={960}
+                step={40}
+                value={settings.maxWidth}
+                onChange={(e) => setSettings((s) => ({ ...s, maxWidth: +e.target.value }))}
+                className="accent-accent"
+              />
+              <span className="w-10 font-mono text-xs">{settings.maxWidth}px</span>
+            </label>
+            <div className="flex items-center gap-1">
+              {(["normal", "sepia", "eye-care"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setSettings((s) => ({ ...s, theme: t }))}
+                  className={`rounded-md px-2.5 py-1 text-xs transition ${
+                    settings.theme === t
+                      ? "bg-accent/15 text-accent"
+                      : "text-muted hover:text-foreground"
+                  }`}
+                >
+                  {t === "normal" ? "默认" : t === "sepia" ? "护眼" : "绿底"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main content area */}
+      <div className="flex min-h-0 flex-1">
+        {/* TOC sidebar */}
+        {settings.tocOpen && chapters.length > 0 && (
+          <aside className="hidden w-56 shrink-0 overflow-y-auto border-r border-border p-3 lg:block">
+            <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-muted-soft">
+              目录
+            </p>
+            <nav className="flex flex-col gap-0.5">
+              {chapters.map((ch) => (
+                <button
+                  key={ch.id}
+                  type="button"
+                  onClick={() => scrollToChapter(ch)}
+                  className="truncate rounded px-2 py-1 text-left text-xs text-muted transition hover:bg-card hover:text-foreground"
+                  style={{ paddingLeft: (ch.level - 1) * 12 + 8 }}
+                >
+                  {ch.title}
+                </button>
+              ))}
+            </nav>
+          </aside>
+        )}
+
+        {/* Content */}
+        <div
+          ref={contentRef}
+          onScroll={saveScrollPosition}
+          className="flex-1 overflow-y-auto"
+        >
+          <div
+            className="reader-content mx-auto px-4 py-8 sm:px-8"
+            style={{
+              maxWidth: settings.maxWidth,
+              fontSize: settings.fontSize,
+              lineHeight: settings.lineHeight,
+            }}
+          >
+            {loadingMd ? (
+              <p className="py-20 text-center text-muted">渲染中…</p>
+            ) : htmlContent ? (
+              <div
+                className="hv-prose max-w-none"
+                dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+              />
+            ) : (
+              <p className="py-20 text-center text-muted">无法加载内容</p>
+            )}
+          </div>
+
+          {/* Bottom nav */}
+          {chapters.length > 1 && (
+            <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 border-t border-border px-4 py-6 sm:px-8">
+              <button
+                type="button"
+                onClick={() => navigateChapter(-1)}
+                className="hv-action gap-1 px-3 py-2 text-xs"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" aria-hidden />
+                上一章
+              </button>
+              <button
+                type="button"
+                onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
+                className="hv-action px-3 py-2 text-xs"
+              >
+                回到顶部
+              </button>
+              <button
+                type="button"
+                onClick={() => navigateChapter(1)}
+                className="hv-action gap-1 px-3 py-2 text-xs"
+              >
+                下一章
+                <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Drag overlay */}
+      {dragOver && (
+        <div className="pointer-events-none absolute inset-4 z-30 flex items-center justify-center rounded-2xl border-2 border-dashed border-accent/55 bg-accent/10 backdrop-blur-sm">
+          <div className="text-center">
+            <Plus className="mx-auto h-10 w-10 text-accent" aria-hidden />
+            <p className="mt-2 text-sm font-medium text-accent">松开以导入</p>
+          </div>
+        </div>
+      )}
+
+      {/* Hidden file input for adding more */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".md,.markdown,.txt,.text,.html,.htm"
+        multiple
+        hidden
+        onChange={(e) => importFiles(e.target.files || [])}
+      />
+    </div>
+  );
+}
