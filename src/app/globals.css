@@ -818,24 +818,73 @@ html[data-reading="large"] article .prose {
 /* Now handled by <GradualBlur /> component (reactbits-inspired) */
 
 /* Prose overrides */
-.hv-prose { color: color-mix(in srgb, var(--foreground) 88%, transparent); }
+.hv-prose { color: color-mix(in srgb, var(--foreground) 88%, transparent); overflow-wrap: break-word; }
 .hv-prose :where(h1, h2, h3, h4) { color: var(--foreground); letter-spacing: -0.01em; }
 .hv-prose :where(h2, h3) a { text-decoration: none; }
 .hv-prose :where(p, li) { line-height: 1.82; }
-/* Break long URLs / identifiers so they never overflow narrow screens. */
-.hv-prose { overflow-wrap: break-word; }
+/* Heading spacing — generous top margin creates visual "section breaks" */
+.hv-prose :where(h2) { margin-top: 2.8em; margin-bottom: 0.8em; padding-bottom: 0.4em; border-bottom: 1px solid var(--border); }
+.hv-prose :where(h3) { margin-top: 2.2em; margin-bottom: 0.6em; }
+.hv-prose :where(h4) { margin-top: 1.8em; margin-bottom: 0.5em; }
+.hv-prose :where(h2):first-child,
+.hv-prose :where(h3):first-child { margin-top: 0; }
+/* Links — subtle accent underline on hover */
+.hv-prose :where(a):not(.heading-anchor):not(h2 a):not(h3 a) {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 150ms ease;
+}
+.hv-prose :where(a):not(.heading-anchor):not(h2 a):not(h3 a):hover {
+  text-decoration-color: var(--accent);
+}
+/* Blockquotes — accent-tinted left border */
 .hv-prose :where(blockquote) {
   border-left-color: color-mix(in srgb, var(--accent) 50%, transparent);
   background: color-mix(in srgb, var(--accent) 5%, transparent);
   padding: 0.85rem 1rem;
   color: var(--muted);
 }
+/* Images */
 .hv-prose :where(img) {
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   max-width: 100%;
   height: auto;
 }
+/* Horizontal rules — subtle gradient fade */
+.hv-prose :where(hr) {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 2.5em 0;
+}
+/* Tables — better readability */
+.hv-prose :where(table) { font-size: 0.9em; }
+.hv-prose :where(th) {
+  background: color-mix(in srgb, var(--card) 60%, transparent);
+  font-weight: 600;
+  color: var(--foreground);
+}
+.hv-prose :where(td, th) { padding: 0.6em 0.9em; }
+/* Code — inline code more distinct */
+.hv-prose :where(:not(pre) > code) {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 15%, transparent);
+  border-radius: 0.25rem;
+  padding: 0.15em 0.35em;
+  font-size: 0.88em;
+  color: var(--foreground);
+}
+/* Lists — tighter spacing for nested lists */
+.hv-prose :where(ul ul, ol ol, ul ol, ol ul) { margin-top: 0.35em; margin-bottom: 0.35em; }
+
+/* Thin scrollbar utility */
+.scrollbar-thin { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 /* ── Site Header ───────────────────────────────────────────── */
 .hv-site-header {

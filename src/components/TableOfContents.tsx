@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TOCItem } from "@/lib/toc";
 import { useT } from "@/components/LocaleProvider";
 
 export function TableOfContents({ items }: { items: TOCItem[] }) {
   const t = useT();
   const [activeId, setActiveId] = useState<string>("");
+  const activeRef = useRef<HTMLAnchorElement | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (items.length === 0) return;
@@ -31,12 +33,25 @@ export function TableOfContents({ items }: { items: TOCItem[] }) {
     return () => observer.disconnect();
   }, [items]);
 
+  // Auto-scroll the active TOC item into view within the sidebar
+  useEffect(() => {
+    if (!activeId || !activeRef.current || !navRef.current) return;
+    const nav = navRef.current;
+    const el = activeRef.current;
+    const navRect = nav.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    // Only scroll if the active item is outside the visible area of the nav
+    if (elRect.top < navRect.top || elRect.bottom > navRect.bottom) {
+      el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }, [activeId]);
+
   if (items.length === 0) return null;
 
   const minDepth = Math.min(...items.map((i) => i.depth));
 
   return (
-    <nav aria-label={t.common.tableOfContents} className="text-sm">
+    <nav ref={navRef} aria-label={t.common.tableOfContents} className="max-h-[calc(100vh-180px)] overflow-y-auto text-sm scrollbar-thin">
       <div className="mb-3 flex items-center gap-2">
         <span className="h-1 w-1 rounded-full bg-accent-soft" />
         <p className="font-mono text-xs font-semibold uppercase tracking-widest text-accent-soft">
@@ -50,6 +65,7 @@ export function TableOfContents({ items }: { items: TOCItem[] }) {
           return (
             <li key={item.id}>
               <a
+                ref={isActive ? activeRef : undefined}
                 href={"#" + item.id}
                 style={{ paddingLeft: indent + 12 }}
                 className={

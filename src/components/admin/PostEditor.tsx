@@ -71,6 +71,7 @@ export function PostEditor({
   const contentInputRef = useRef<HTMLInputElement | null>(null);
   const mdInputRef = useRef<HTMLInputElement | null>(null);
   const [importing, setImporting] = useState(false);
+  const [mdDragOver, setMdDragOver] = useState(false);
 
   const update = <K extends keyof PostEditorInitial>(
     key: K,
@@ -276,6 +277,15 @@ export function PostEditor({
     }
   };
 
+  const onMdDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setMdDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && /\.(md|markdown|mdx)$/i.test(file.name)) {
+      onMdImport(file);
+    }
+  };
+
   const handleSubmit = (formData: FormData) => {
     setError(null);
     startTransition(async () => {
@@ -309,12 +319,20 @@ export function PostEditor({
 
       {mode === "new" ? (
         <div
-          className="flex items-center gap-3 rounded-lg border-2 border-dashed border-border p-3 transition hover:border-accent/40"
+          onDragOver={(e) => { e.preventDefault(); setMdDragOver(true); }}
+          onDragLeave={() => setMdDragOver(false)}
+          onDrop={onMdDrop}
+          className={
+            "flex items-center gap-3 rounded-lg border-2 border-dashed p-3 transition " +
+            (mdDragOver
+              ? "border-accent/55 bg-accent/10"
+              : "border-border hover:border-accent/40")
+          }
         >
           <FileUp className="h-5 w-5 shrink-0 text-muted" aria-hidden />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-foreground">从 .md 文件导入</p>
-            <p className="text-xs text-muted">自动解析 frontmatter（标题、标签、分类等）和正文</p>
+            <p className="text-xs text-muted">拖拽 .md 文件到此处，或点击选择（自动解析 frontmatter 和正文）</p>
           </div>
           <button
             type="button"
@@ -594,7 +612,23 @@ export function PostEditor({
       </div>
 
       <Field label="正文 (MDX)" required>
-        <div className="flex flex-col gap-2">
+        <div
+          className="flex flex-col gap-2"
+          onDragOver={(e) => {
+            // Only intercept .md file drags, not internal text drags
+            if (e.dataTransfer.types.includes("Files")) {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = "copy";
+            }
+          }}
+          onDrop={(e) => {
+            const file = e.dataTransfer.files?.[0];
+            if (file && /\.(md|markdown|mdx)$/i.test(file.name)) {
+              e.preventDefault();
+              onMdImport(file);
+            }
+          }}
+        >
           <div className="flex justify-end gap-2">
             <button
               type="button"
@@ -622,6 +656,7 @@ export function PostEditor({
             value={state.content}
             onChange={(e) => update("content", e.target.value)}
             className={`${inputClass} font-mono text-sm`}
+            placeholder="在此粘贴 MDX 正文，或拖拽 .md 文件到此处导入"
           />
         </div>
       </Field>
