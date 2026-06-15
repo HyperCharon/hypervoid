@@ -56,7 +56,7 @@ export function AdminTable({
 }) {
   if (rows.length === 0) {
     return (
-      <div className="py-12 text-center text-sm text-zinc-500">
+      <div className="py-12 text-center text-sm text-muted-soft">
         {empty}
       </div>
     );
@@ -71,11 +71,11 @@ export function AdminTable({
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-800">
+            <tr className="border-b border-border">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-3 py-2.5 font-medium text-zinc-400 text-xs uppercase tracking-wider ${alignClass(col.align)}`}
+                  className={`px-3 py-2.5 font-medium text-muted text-xs uppercase tracking-wider ${alignClass(col.align)}`}
                   style={col.width ? { width: col.width } : undefined}
                 >
                   {col.label}
@@ -83,17 +83,17 @@ export function AdminTable({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-800/60">
+          <tbody className="divide-y divide-border/60">
             {rows.map((row) => (
               <tr
                 key={row.key}
-                className={`hover:bg-zinc-800/30 transition-colors ${row.onClick ? "cursor-pointer" : ""}`}
+                className={`hover:bg-card-hover transition-colors ${row.onClick ? "cursor-pointer" : ""}`}
                 onClick={row.onClick}
               >
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className={`px-3 py-3 ${alignClass(col.align)} ${col.primary ? "font-medium text-zinc-100" : "text-zinc-300"}`}
+                    className={`px-3 py-3 ${alignClass(col.align)} ${col.primary ? "font-medium text-foreground" : "text-muted"}`}
                   >
                     {row.cells[col.key]}
                   </td>
@@ -109,7 +109,7 @@ export function AdminTable({
         {rows.map((row) => (
           <div
             key={row.key}
-            className={`rounded-lg border border-zinc-800 bg-zinc-900/40 p-3 space-y-2 ${row.onClick ? "active:bg-zinc-800/50 cursor-pointer" : ""}`}
+            className={`rounded-lg border border-border bg-card p-3 space-y-2 ${row.onClick ? "active:bg-card-hover cursor-pointer" : ""}`}
             onClick={row.onClick}
           >
             {columns
@@ -117,11 +117,11 @@ export function AdminTable({
               .map((col) => (
                 <div key={col.key} className={`flex items-start gap-2 ${alignClass(col.align)}`}>
                   {col.label && (
-                    <span className="shrink-0 text-[11px] uppercase tracking-wider text-zinc-500 min-w-[4rem] pt-px">
+                    <span className="shrink-0 text-[11px] uppercase tracking-wider text-muted-soft min-w-[4rem] pt-px">
                       {col.label}
                     </span>
                   )}
-                  <span className={`flex-1 min-w-0 break-words ${col.primary ? "font-medium text-zinc-100" : "text-zinc-300"}`}>
+                  <span className={`flex-1 min-w-0 break-words ${col.primary ? "font-medium text-foreground" : "text-muted"}`}>
                     {row.cells[col.key]}
                   </span>
                 </div>

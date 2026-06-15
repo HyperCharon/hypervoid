@@ -81,7 +81,7 @@ export function PhotoManager({
         <p className="text-sm text-red-300">{error}</p>
       ) : null}
       {photos.length === 0 ? (
-        <p className="hv-panel border-dashed p-8 text-center text-violet-50/60">
+        <p className="hv-panel border-dashed p-8 text-center text-muted">
           这个相册还没有照片。
         </p>
       ) : (
@@ -89,7 +89,7 @@ export function PhotoManager({
           {photos.map((p) => (
             <div
               key={p.id}
-              className="group relative overflow-hidden border border-violet-100/16 bg-white/[0.035]"
+              className="group relative overflow-hidden border border-border bg-card"
             >
               <Image
                 src={p.url}

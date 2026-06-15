@@ -32,7 +32,7 @@ export default async function AdminCvPage() {
       </header>
 
       <p className="text-sm text-muted">
-        编辑网页简历（<code className="rounded bg-white/[0.045] px-1.5 py-0.5 text-xs">/cv</code>）。
+        编辑网页简历（<code className="rounded bg-foreground/5 px-1.5 py-0.5 text-xs">/cv</code>）。
         改动保存后即时生效，无需 redeploy。简历页强制深色、独立于站点主题。
       </p>
 

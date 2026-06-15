@@ -82,8 +82,8 @@ export function CvEditor({ data, arraysJson }: { data: CvData; arraysJson: strin
         <h2 className="hv-title font-mono text-lg font-semibold uppercase tracking-wider">SECTIONS_JSON</h2>
         <p className="text-xs text-muted">
           技能、经历、项目、教育、联系方式、数据这些重复块用 JSON 编辑。顶层对象需含{" "}
-          <code className="rounded bg-white/[0.045] px-1 py-0.5">stats, skills, experience, projects, education, contacts</code>{" "}
-          六个数组。每个文本字段都是 <code className="rounded bg-white/[0.045] px-1 py-0.5">{`{ "zh": "", "en": "" }`}</code>。
+          <code className="rounded bg-foreground/5 px-1 py-0.5">stats, skills, experience, projects, education, contacts</code>{" "}
+          六个数组。每个文本字段都是 <code className="rounded bg-foreground/5 px-1 py-0.5">{`{ "zh": "", "en": "" }`}</code>。
         </p>
         <textarea
           name="arrays_json"

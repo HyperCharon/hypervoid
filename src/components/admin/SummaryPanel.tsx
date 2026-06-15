@@ -31,10 +31,10 @@ export function SummaryPanel({ slug, initialSummary }: { slug: string; initialSu
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="hv-title inline-flex items-center gap-2 font-medium tracking-normal">
-            <Sparkles className="h-4 w-4 text-violet-100/70" aria-hidden />
+            <Sparkles className="h-4 w-4 text-accent" aria-hidden />
             AI 摘要
           </p>
-          <p className="mt-1 text-xs text-violet-50/50">
+          <p className="mt-1 text-xs text-muted">
             自动生成 2-3 句中文摘要，展示在文章正文上方
           </p>
         </div>
@@ -52,7 +52,7 @@ export function SummaryPanel({ slug, initialSummary }: { slug: string; initialSu
         </div>
       </div>
       {error ? <p className="mt-2 text-xs text-red-300">{error}</p> : null}
-      {summary ? <p className="mt-3 border border-violet-100/14 bg-white/[0.035] p-3 text-sm text-violet-50/72">{summary}</p> : null}
+      {summary ? <p className="mt-3 border border-border bg-card p-3 text-sm text-foreground">{summary}</p> : null}
     </div>
   );
 }

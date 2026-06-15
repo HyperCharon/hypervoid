@@ -73,10 +73,10 @@ export function AiWriterPanel() {
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="hv-title inline-flex items-center gap-2 text-sm font-semibold tracking-normal">
-            <Sparkles className="h-4 w-4 text-violet-100/70" aria-hidden />
+            <Sparkles className="h-4 w-4 text-accent" aria-hidden />
             AI 写作助手
           </p>
-          <p className="mt-1 text-[10px] text-violet-50/48">
+          <p className="mt-1 text-[10px] text-muted">
             从当前编辑器读标题 + 正文。模型在 <code>/admin/ai</code> 里切换。
           </p>
         </div>
@@ -88,8 +88,8 @@ export function AiWriterPanel() {
               onClick={() => { setMode(m); setOutput(null); }}
               className={"border px-2.5 py-1 text-xs transition " + (
                 mode === m
-                  ? "border-violet-100/45 bg-violet-100/12 text-violet-100"
-                  : "border-violet-100/16 text-violet-50/58 hover:border-violet-100/40 hover:text-violet-50"
+                  ? "border-accent/45 bg-accent/12 text-accent"
+                  : "border-border text-muted hover:border-accent/40 hover:text-foreground"
               )}
             >
               {MODE_LABEL[m]}
@@ -98,7 +98,7 @@ export function AiWriterPanel() {
         </div>
       </header>
 
-      <p className="mb-3 text-xs text-violet-50/55">{MODE_HINT[mode]}</p>
+      <p className="mb-3 text-xs text-muted">{MODE_HINT[mode]}</p>
 
       {mode === "polish" ? (
         <textarea
@@ -107,7 +107,7 @@ export function AiWriterPanel() {
           rows={4}
           placeholder="把要润色的段落粘到这里…"
           maxLength={4000}
-          className="mb-3 w-full border border-violet-100/16 bg-white/[0.035] px-3 py-2 text-sm text-violet-50 placeholder:text-violet-50/35 transition focus:border-violet-100/45 focus:outline-none"
+          className="hv-input mb-3 w-full px-3 py-2 text-sm"
         />
       ) : null}
 
@@ -132,17 +132,17 @@ export function AiWriterPanel() {
       </div>
 
       {output ? (
-        <div className="mt-3 border border-violet-100/14 bg-white/[0.035] p-3 text-sm leading-relaxed">
+        <div className="mt-3 border border-border bg-card p-3 text-sm leading-relaxed">
           {output.kind === "error" ? (
             <p className="text-red-300">{output.value}</p>
           ) : output.kind === "text" ? (
-            <pre className="whitespace-pre-wrap font-sans text-violet-50/78">{output.value}</pre>
+            <pre className="whitespace-pre-wrap font-sans text-foreground">{output.value}</pre>
           ) : (
             <ul className="flex flex-col gap-1.5">
               {output.values.map((t, i) => (
-                <li key={i} className="flex items-center justify-between gap-2 border border-violet-100/12 bg-white/[0.035] px-2 py-1.5">
+                <li key={i} className="flex items-center justify-between gap-2 border border-border bg-card px-2 py-1.5">
                   <span>{t}</span>
-                  <button type="button" onClick={() => copy(t)} className="border border-violet-100/16 px-2 py-0.5 text-[10px] text-violet-50/55 hover:border-violet-100/40 hover:text-violet-50">
+                  <button type="button" onClick={() => copy(t)} className="border border-border px-2 py-0.5 text-[10px] text-muted hover:border-accent/40 hover:text-foreground">
                     复制
                   </button>
                 </li>

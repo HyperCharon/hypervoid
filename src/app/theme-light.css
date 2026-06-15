@@ -618,6 +618,10 @@
 }
 
 /* ── Scrollbar ───────────────────────────────────────────── */
+.light {
+  scrollbar-color: rgba(140,122,106,0.2) var(--bg-color);
+  scrollbar-width: thin;
+}
 .light ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

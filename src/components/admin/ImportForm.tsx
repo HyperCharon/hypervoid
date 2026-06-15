@@ -39,10 +39,10 @@ export function ImportForm() {
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
-        className={"border-2 border-dashed p-8 text-center transition " + (dragOver ? "border-violet-100/55 bg-violet-100/10" : "border-violet-100/18 bg-white/[0.025]")}
+        className={"border-2 border-dashed p-8 text-center transition " + (dragOver ? "border-accent/55 bg-accent/10" : "border-border bg-card/50")}
       >
-        <FileUp className="mx-auto h-8 w-8 text-violet-100/60" aria-hidden />
-        <p className="mt-3 text-sm text-violet-50/58">拖拽 .md 文件到此处，或点击选择</p>
+        <FileUp className="mx-auto h-8 w-8 text-muted" aria-hidden />
+        <p className="mt-3 text-sm text-muted">拖拽 .md 文件到此处，或点击选择</p>
         <input ref={inputRef} type="file" accept=".md,.markdown,.txt" multiple className="hidden" onChange={(e) => onFiles(e.target.files)} />
         <button type="button" className="hv-action mt-3 px-4 py-1.5 text-sm font-medium" onClick={() => inputRef.current?.click()}>
           <Upload className="h-4 w-4" aria-hidden />
@@ -53,7 +53,7 @@ export function ImportForm() {
       {files.length > 0 && (
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-violet-50/55">{validFiles.length}/{files.length} 个 .md 文件</p>
+            <p className="text-sm text-muted">{validFiles.length}/{files.length} 个 .md 文件</p>
             <div className="flex gap-2">
               <button type="button" className="hv-action min-h-8 px-3 text-xs" onClick={() => setFiles([])}>
                 <Trash2 className="h-3.5 w-3.5" aria-hidden /> 清空
@@ -63,15 +63,15 @@ export function ImportForm() {
               </button>
             </div>
           </div>
-          <ul className="max-h-48 space-y-1 overflow-auto border border-violet-100/14 bg-white/[0.035] p-3 text-sm">
-            {files.map((f, i) => <li key={i} className="truncate text-violet-50/55">{f.name} <span className="text-xs">({(f.size / 1024).toFixed(0)}KB)</span></li>)}
+          <ul className="max-h-48 space-y-1 overflow-auto border border-border bg-card p-3 text-sm">
+            {files.map((f, i) => <li key={i} className="truncate text-muted">{f.name} <span className="text-xs">({(f.size / 1024).toFixed(0)}KB)</span></li>)}
           </ul>
         </div>
       )}
 
       {result && (
         <div className="hv-panel p-4">
-          <p className="font-semibold text-violet-50">导入完成：{result.imported}/{result.total} 篇成功</p>
+          <p className="font-semibold text-foreground">导入完成：{result.imported}/{result.total} 篇成功</p>
           {result.results.length > 0 && (
             <ul className="mt-2 max-h-64 space-y-1 overflow-auto text-sm">
               {result.results.map((r) => <li key={r.slug} className={r.ok ? "text-emerald-300" : "text-red-300"}>{r.ok ? "✓" : "✗"} {r.title} — {r.ok ? r.slug : r.error}</li>)}

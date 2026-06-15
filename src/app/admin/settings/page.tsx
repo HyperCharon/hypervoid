@@ -54,7 +54,7 @@ export default async function AdminSettingsPage() {
 
       <p className="text-sm text-muted">
         这里改动的值会覆盖{" "}
-        <code className="rounded bg-white/[0.045] px-1.5 py-0.5 text-xs">
+        <code className="rounded bg-foreground/5 px-1.5 py-0.5 text-xs">
           src/lib/site-config.ts
         </code>{" "}
         的对应字段。留空或与默认值一致时恢复默认。

@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { ImagePlus, Pin, Sparkles, Trash2, Upload } from "lucide-react";
+import { FileUp, ImagePlus, Pin, Sparkles, Trash2, Upload } from "lucide-react";
 import { suggestTagsAction } from "@/app/admin/posts/actions";
 
 export type PostEditorInitial = {
@@ -69,6 +69,8 @@ export function PostEditor({
   const contentRef = useRef<HTMLTextAreaElement | null>(null);
   const coverInputRef = useRef<HTMLInputElement | null>(null);
   const contentInputRef = useRef<HTMLInputElement | null>(null);
+  const mdInputRef = useRef<HTMLInputElement | null>(null);
+  const [importing, setImporting] = useState(false);
 
   const update = <K extends keyof PostEditorInitial>(
     key: K,
@@ -137,6 +139,143 @@ export function PostEditor({
     }
   };
 
+  /**
+   * Minimal YAML frontmatter parser — handles the flat key-value pairs
+   * commonly used in blog posts (title, description, date, tags, etc.).
+   * Does NOT handle nested objects or multi-line values beyond arrays.
+   */
+  function parseFrontmatter(raw: string): {
+    meta: Record<string, string>;
+    body: string;
+  } {
+    const trimmed = raw.replace(/^﻿/, ""); // strip BOM
+    const match = trimmed.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+    if (!match) return { meta: {}, body: trimmed };
+
+    const yamlBlock = match[1];
+    const body = match[2];
+    const meta: Record<string, string> = {};
+
+    let currentKey = "";
+    let collectingArray = false;
+    let arrayLines: string[] = [];
+
+    for (const line of yamlBlock.split("\n")) {
+      // Continuation of a multi-line plain scalar
+      if (currentKey && !collectingArray && line.startsWith("  ")) {
+        meta[currentKey] = (meta[currentKey] ? meta[currentKey] + " " : "") + line.trim();
+        continue;
+      }
+      // Array item
+      if (collectingArray && /^\s*-\s+/.test(line)) {
+        arrayLines.push(line.replace(/^\s*-\s+/, "").trim());
+        continue;
+      }
+      // End of array collection
+      if (collectingArray) {
+        meta[currentKey] = arrayLines.join(", ");
+        collectingArray = false;
+        arrayLines = [];
+      }
+
+      const kvMatch = line.match(/^([A-Za-z_][A-Za-z0-9_-]*)\s*:\s*(.*)$/);
+      if (!kvMatch) {
+        currentKey = "";
+        continue;
+      }
+
+      currentKey = kvMatch[1];
+      let value = kvMatch[2].trim();
+
+      // Strip surrounding quotes
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+
+      // Check if this is an inline array: [a, b, c]
+      if (value.startsWith("[") && value.endsWith("]")) {
+        meta[currentKey] = value
+          .slice(1, -1)
+          .split(",")
+          .map((s) => s.trim().replace(/^["']|["']$/g, ""))
+          .filter(Boolean)
+          .join(", ");
+        currentKey = "";
+        continue;
+      }
+
+      // Empty value — might be followed by array items
+      if (value === "" || value === null) {
+        collectingArray = true;
+        arrayLines = [];
+        continue;
+      }
+
+      meta[currentKey] = value;
+    }
+
+    // Flush any trailing array
+    if (collectingArray && arrayLines.length > 0) {
+      meta[currentKey] = arrayLines.join(", ");
+    }
+
+    return { meta, body };
+  }
+
+  const onMdImport = async (file: File | null) => {
+    if (!file) return;
+    setError(null);
+    setImporting(true);
+    try {
+      const text = await file.text();
+      const { meta, body } = parseFrontmatter(text);
+
+      // Derive slug from filename if not in frontmatter
+      const fileSlug = file.name
+        .replace(/\.mdx?$/i, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+
+      const patch: Partial<PostEditorInitial> = {};
+
+      if (meta.title) patch.title = meta.title;
+      if (meta.description || meta.desc) patch.description = meta.description ?? meta.desc ?? "";
+      if (meta.category) patch.category = meta.category;
+      if (meta.tags) patch.tags = meta.tags;
+      if (meta.cover || meta.cover_image || meta.thumbnail) patch.cover = meta.cover ?? meta.cover_image ?? meta.thumbnail ?? "";
+      if (meta.series) patch.series = meta.series;
+      if (meta.series_order || meta.seriesOrder) patch.seriesOrder = String(meta.series_order ?? meta.seriesOrder ?? "");
+      if (meta.pinned) patch.pinned = meta.pinned === "true" || meta.pinned === "1";
+      if (meta.status) patch.status = meta.status as PostEditorInitial["status"];
+      if (meta.visibility) patch.visibility = meta.visibility as PostEditorInitial["visibility"];
+      if (meta.publish_at || meta.publishAt) patch.publishAt = meta.publish_at ?? meta.publishAt ?? "";
+
+      // Slug: prefer frontmatter, fallback to filename
+      const derivedSlug = meta.slug ?? fileSlug;
+      if (derivedSlug && (mode === "new" || !state.slug)) {
+        patch.slug = derivedSlug;
+      }
+
+      // Content
+      if (body.trim()) {
+        patch.content = body;
+      }
+
+      setState((s) => ({ ...s, ...patch }));
+    } catch (e) {
+      setError(`导入 .md 失败：${(e as Error).message}`);
+    } finally {
+      setImporting(false);
+      if (mdInputRef.current) mdInputRef.current.value = "";
+    }
+  };
+
   const handleSubmit = (formData: FormData) => {
     setError(null);
     startTransition(async () => {
@@ -165,6 +304,33 @@ export function PostEditor({
       {error ? (
         <div className="border border-red-400/35 bg-red-500/10 p-3 text-sm text-red-100">
           {error}
+        </div>
+      ) : null}
+
+      {mode === "new" ? (
+        <div
+          className="flex items-center gap-3 rounded-lg border-2 border-dashed border-border p-3 transition hover:border-accent/40"
+        >
+          <FileUp className="h-5 w-5 shrink-0 text-muted" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-foreground">从 .md 文件导入</p>
+            <p className="text-xs text-muted">自动解析 frontmatter（标题、标签、分类等）和正文</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => mdInputRef.current?.click()}
+            disabled={importing}
+            className="hv-action shrink-0 px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+          >
+            {importing ? "解析中…" : "选择文件"}
+          </button>
+          <input
+            ref={mdInputRef}
+            type="file"
+            accept=".md,.markdown,.mdx"
+            hidden
+            onChange={(e) => onMdImport(e.currentTarget.files?.[0] ?? null)}
+          />
         </div>
       ) : null}
 
@@ -197,7 +363,7 @@ export function PostEditor({
             onChange={(e) =>
               update("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
             }
-            className={`${inputClass} ${mode === "edit" ? "cursor-not-allowed bg-violet-50/[0.02] text-violet-50/40" : ""}`}
+            className={`${inputClass} ${mode === "edit" ? "cursor-not-allowed text-muted-soft" : ""}`}
             pattern="[a-z0-9][a-z0-9-]*"
           />
         </Field>
@@ -259,11 +425,11 @@ export function PostEditor({
               </button>
             </div>
             {tagSuggestError ? (
-              <p className="text-xs text-red-300">{tagSuggestError}</p>
+              <p className="text-xs text-red-400">{tagSuggestError}</p>
             ) : null}
             {suggestedTags.length > 0 ? (
               <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                <span className="text-violet-50/50">建议：</span>
+                <span className="text-muted">建议：</span>
                 {suggestedTags.map((t) => {
                   const current = state.tags
                     .split(/[,，]/)
@@ -282,8 +448,8 @@ export function PostEditor({
                       disabled={has}
                       className={`inline-flex items-center gap-1 border px-2 py-0.5 transition ${
                         has
-                          ? "border-violet-100/30 bg-violet-100/10 text-violet-100 opacity-60"
-                          : "border-violet-100/16 bg-white/[0.035] text-violet-50/62 hover:border-violet-100/40 hover:text-violet-50"
+                          ? "border-border bg-card text-muted opacity-60"
+                          : "border-border bg-card text-foreground hover:border-accent/40 hover:text-accent"
                       }`}
                       title={has ? "已加入" : "点击加入"}
                     >
@@ -294,7 +460,7 @@ export function PostEditor({
                 <button
                   type="button"
                   onClick={() => setSuggestedTags([])}
-                  className="text-violet-50/50 hover:text-violet-50"
+                  className="text-muted hover:text-foreground"
                   title="收起"
                 >
                   ×
@@ -386,15 +552,15 @@ export function PostEditor({
           </Field>
         ) : (
           <Field label="置顶" hint="勾选后会出现在列表最上方">
-            <label className="inline-flex h-10 items-center gap-2 border border-violet-100/16 bg-white/[0.035] px-3 text-sm text-violet-50/72">
+            <label className="hv-input inline-flex h-10 items-center gap-2 px-3 text-sm">
               <input
                 type="checkbox"
                 name="pinned"
                 checked={state.pinned}
                 onChange={(e) => update("pinned", e.target.checked)}
-                className="h-4 w-4 accent-violet-300"
+                className="h-4 w-4 accent-accent"
               />
-              <span className="inline-flex items-center gap-1.5"><Pin className="h-3.5 w-3.5 text-violet-100/70" aria-hidden />置顶这篇文章</span>
+              <span className="inline-flex items-center gap-1.5"><Pin className="h-3.5 w-3.5 text-muted" aria-hidden />置顶这篇文章</span>
             </label>
           </Field>
         )}
@@ -492,7 +658,7 @@ export function PostEditor({
 }
 
 const inputClass =
-  "w-full border border-violet-100/16 bg-white/[0.035] px-3 py-2 text-sm text-violet-50 placeholder:text-violet-50/35 transition focus:border-violet-100/45 focus:outline-none";
+  "hv-input w-full px-3 py-2 text-sm";
 
 function Field({
   label,
@@ -507,12 +673,12 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium text-violet-50">
+      <span className="text-sm font-medium text-foreground">
         {label}
         {required ? <span className="text-red-300"> *</span> : null}
       </span>
       {children}
-      {hint ? <span className="text-xs text-violet-50/45">{hint}</span> : null}
+      {hint ? <span className="text-xs text-muted">{hint}</span> : null}
     </label>
   );
 }
