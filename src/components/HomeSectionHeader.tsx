@@ -34,7 +34,7 @@ export function LatestPostsHeader() {
 export function EmptyPosts() {
   const t = useT();
   return (
-    <p className="rounded-2xl border border-dashed border-accent/20 p-10 text-center font-mono text-sm text-muted">
+    <p className="rounded-2xl border border-dashed border-accent/20 p-6 text-center font-mono text-sm text-muted sm:p-8 lg:p-10">
       {t.home.empty}
     </p>
   );

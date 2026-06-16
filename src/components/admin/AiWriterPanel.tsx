@@ -136,7 +136,7 @@ export function AiWriterPanel() {
           {output.kind === "error" ? (
             <p className="text-red-300">{output.value}</p>
           ) : output.kind === "text" ? (
-            <pre className="whitespace-pre-wrap font-sans text-foreground">{output.value}</pre>
+            <pre className="whitespace-pre-wrap break-words font-sans text-foreground">{output.value}</pre>
           ) : (
             <ul className="flex flex-col gap-1.5">
               {output.values.map((t, i) => (

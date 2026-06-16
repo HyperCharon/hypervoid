@@ -418,7 +418,7 @@ function Skeleton() {
 
 function Empty({ msg }: { msg: string }) {
   return (
-    <div className="hv-card flex flex-col items-center gap-3 p-10 text-center">
+    <div className="hv-card flex flex-col items-center gap-3 p-6 text-center sm:p-8 lg:p-10">
       <Music2 className="h-10 w-10 text-muted-soft/40" />
       <p className="text-sm text-muted">{msg}</p>
     </div>

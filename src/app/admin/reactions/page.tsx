@@ -69,32 +69,32 @@ export default async function AdminReactionsPage() {
         </p>
       ) : (
         <div className="hv-panel-sci overflow-x-auto p-0">
-          <table className="w-full min-w-[560px] text-sm">
+          <table className="w-full min-w-[320px] text-sm">
             <thead className="border-b border-accent/20 bg-accent/[0.06] text-left font-mono text-xs uppercase text-muted">
               <tr>
-                <th className="px-4 py-3 font-medium">POST</th>
+                <th className="px-3 py-3 font-medium">POST</th>
                 {REACTION_EMOJIS.map((e) => (
-                  <th key={e.key} className="px-2 py-3 text-center font-medium" title={e.label}>
+                  <th key={e.key} className="hidden sm:table-cell px-2 py-3 text-center font-medium" title={e.label}>
                     {e.glyph}
                   </th>
                 ))}
-                <th className="px-4 py-3 text-right font-medium">TOTAL</th>
+                <th className="px-3 py-3 text-right font-medium">TOTAL</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.slug} className="border-t border-accent/15 transition hover:bg-accent/[0.05]">
-                  <td className="max-w-[20rem] truncate px-4 py-2">
+                  <td className="max-w-[16rem] truncate px-3 py-2">
                     <Link href={"/posts/" + r.slug} className="font-medium text-foreground hover:text-foreground" title={r.title}>
                       {r.title}
                     </Link>
                   </td>
                   {REACTION_EMOJIS.map((e) => (
-                    <td key={e.key} className="px-2 py-2 text-center font-mono text-xs text-muted">
+                    <td key={e.key} className="hidden sm:table-cell px-2 py-2 text-center font-mono text-xs text-muted">
                       {r.counts[e.key] || ""}
                     </td>
                   ))}
-                  <td className="px-4 py-2 text-right font-mono text-sm font-medium text-foreground">
+                  <td className="px-3 py-2 text-right font-mono text-sm font-medium text-foreground">
                     {r.total}
                   </td>
                 </tr>

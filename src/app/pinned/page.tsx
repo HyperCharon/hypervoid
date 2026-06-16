@@ -31,7 +31,7 @@ export default async function PinnedPage() {
       </header>
 
       {pinned.length === 0 ? (
-        <div className="hv-panel border-dashed p-12 text-center text-sm text-muted">
+        <div className="hv-panel border-dashed p-6 text-center text-sm text-muted sm:p-10 lg:p-12">
           <Pin className="mx-auto h-9 w-9 text-muted-soft" aria-hidden />
           <p className="mt-3">
             管理员可以在文章编辑器中勾选&ldquo;置顶&rdquo;。

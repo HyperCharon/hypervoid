@@ -480,7 +480,7 @@ export function RamMascot() {
           {chatOpen ? (
             <div
               data-no-drag
-              className="absolute left-full top-[0.5rem] z-10 ml-10"
+              className="absolute left-full top-[0.5rem] z-10 ml-10 max-w-[calc(100vw-4rem)]"
               onPointerDown={(e) => e.stopPropagation()}
             >
               <MascotChat
@@ -510,7 +510,7 @@ export function RamMascot() {
           />
 
           {loadError ? (
-            <div className="pointer-events-none absolute left-full top-8 ml-2 flex w-44 items-center justify-center rounded-lg border border-dashed border-border bg-card/80 px-4 py-3 text-center text-xs leading-relaxed text-muted shadow-lg backdrop-blur">
+            <div className="pointer-events-none absolute left-full top-8 ml-2 flex w-44 max-w-[calc(100vw-4rem)] items-center justify-center rounded-lg border border-dashed border-border bg-card/80 px-4 py-3 text-center text-xs leading-relaxed text-muted shadow-lg backdrop-blur">
               {loadError}
             </div>
           ) : null}

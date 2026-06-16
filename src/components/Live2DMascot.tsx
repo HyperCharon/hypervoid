@@ -429,7 +429,7 @@ export function Live2DMascot() {
           {chatOpen ? (
             <div
               data-no-drag
-              className="absolute left-full top-[0.5rem] z-10 ml-10"
+              className="absolute left-full top-[0.5rem] z-10 ml-10 max-w-[calc(100vw-4rem)]"
               onPointerDown={(e) => e.stopPropagation()}
             >
               <MascotChat onClose={() => setChatOpen(false)} />

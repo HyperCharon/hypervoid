@@ -57,7 +57,7 @@ export default async function AdminSearchLogPage(props: {
       </header>
 
       <section className="hv-panel-sci flex flex-wrap items-center gap-5 p-5">
-        <div className="grid flex-1 grid-cols-3 gap-4">
+        <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-3">
           <Stat label="总查询数" value={counters.total} />
           <Stat label="不同查询" value={counters.distinctQueries} />
           <Stat label="零结果" value={counters.zero} tone={counters.zero > 0 ? "warn" : undefined} />
@@ -115,13 +115,13 @@ function QueryTable({
         <p className="p-6 text-center text-xs text-muted">{emptyHint}</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[480px] text-sm">
+          <table className="w-full min-w-[320px] text-sm">
             <thead className="text-left font-mono text-xs uppercase text-muted">
               <tr>
-                <th className="px-4 py-2 font-medium">QUERY</th>
+                <th className="px-3 py-2 font-medium">QUERY</th>
                 <th className="px-2 py-2 font-medium">HITS</th>
-                <th className="px-2 py-2 font-medium">UNIQUE_IP</th>
-                <th className="px-2 py-2 font-medium">LAST</th>
+                <th className="hidden sm:table-cell px-2 py-2 font-medium">UNIQUE_IP</th>
+                <th className="hidden sm:table-cell px-2 py-2 font-medium">LAST</th>
               </tr>
             </thead>
             <tbody>
@@ -133,8 +133,8 @@ function QueryTable({
                     </Link>
                   </td>
                   <td className="px-2 py-2 font-mono text-xs text-foreground">{r.hits}</td>
-                  <td className="px-2 py-2 font-mono text-xs text-muted">{r.uniqueIps}</td>
-                  <td className="px-2 py-2 font-mono text-[11px] text-muted">{formatDateTimeCN(r.lastSeen)}</td>
+                  <td className="hidden sm:table-cell px-2 py-2 font-mono text-xs text-muted">{r.uniqueIps}</td>
+                  <td className="hidden sm:table-cell px-2 py-2 font-mono text-[11px] text-muted">{formatDateTimeCN(r.lastSeen)}</td>
                 </tr>
               ))}
             </tbody>

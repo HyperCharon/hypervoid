@@ -62,7 +62,7 @@ export default async function YearInReviewPage(props: {
       </header>
 
       {isEmpty ? (
-        <p className="hv-panel border-dashed p-12 text-center text-muted">
+        <p className="hv-panel border-dashed p-6 text-center text-muted sm:p-10 lg:p-12">
           {y} 年还没有公开发布的文章。
         </p>
       ) : (

@@ -100,7 +100,7 @@ export function PostsTable({
       )}
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
-        <table className="w-full min-w-[520px] text-sm">
+        <table className="w-full min-w-[340px] text-sm">
           <thead className="border-b border-border text-left text-xs text-muted">
             <tr>
               <th className="w-10 px-2 py-3">
@@ -112,11 +112,11 @@ export function PostsTable({
                   aria-label="全选"
                 />
               </th>
-              <th className="px-4 py-3 font-medium">标题</th>
-              <th className="hidden md:table-cell px-4 py-3 font-medium">Slug</th>
-              <th className="px-4 py-3 font-medium">状态</th>
-              <th className="hidden sm:table-cell px-4 py-3 font-medium">发布</th>
-              <th className="px-4 py-3"></th>
+              <th className="px-3 py-3 font-medium">标题</th>
+              <th className="hidden md:table-cell px-3 py-3 font-medium">Slug</th>
+              <th className="px-2 py-3 font-medium">状态</th>
+              <th className="hidden sm:table-cell px-3 py-3 font-medium">发布</th>
+              <th className="px-2 py-3"></th>
             </tr>
           </thead>
           <tbody>
