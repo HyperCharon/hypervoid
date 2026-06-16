@@ -18,7 +18,7 @@ export async function ProfileCard() {
     <BorderGlow
       colors={["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#ec4899"]}
       glowColor="99 102 241"
-      backgroundColor="rgba(8,11,20,0.8)"
+      backgroundColor="rgba(15,22,40,1)"
       lightBackgroundColor="#fffcf5"
       borderRadius={20}
       edgeSensitivity={25}
