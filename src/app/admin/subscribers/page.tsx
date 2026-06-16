@@ -54,7 +54,7 @@ export default async function AdminSubscribersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between">
+      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-4 sm:p-6 sm:flex-row sm:items-end sm:justify-between">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -97,7 +97,7 @@ export default async function AdminSubscribersPage() {
                   <span className="font-mono text-xs">{sub.email}</span>
                 ),
                 status: (
-                  <span className={"inline-flex border px-2 py-0.5 font-mono text-[11px] uppercase clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)] " + s.cls}>
+                  <span className={"inline-flex border px-2 py-0.5 font-mono text-[11px] uppercase " + s.cls}>
                     {s.label}
                   </span>
                 ),
@@ -120,7 +120,7 @@ export default async function AdminSubscribersPage() {
                           await restoreAction(sub.id);
                         }}
                       >
-                        <button type="submit" className="hv-action min-h-0 px-3 py-1 text-[11px] font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                        <button type="submit" className="hv-action min-h-0 px-3 py-1 text-[11px] font-mono uppercase">
                           恢复
                         </button>
                       </form>
@@ -131,7 +131,7 @@ export default async function AdminSubscribersPage() {
                           await unsubscribeAction(sub.id);
                         }}
                       >
-                        <button type="submit" className="hv-action min-h-0 px-3 py-1 text-[11px] font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)] hover:border-amber-300/60 hover:text-amber-100">
+                        <button type="submit" className="hv-action min-h-0 px-3 py-1 text-[11px] font-mono uppercase hover:border-amber-300/60 hover:text-amber-100">
                           退订
                         </button>
                       </form>
@@ -142,7 +142,7 @@ export default async function AdminSubscribersPage() {
                         await deleteAction(sub.id);
                       }}
                     >
-                      <button type="submit" className="min-h-0 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                      <button type="submit" className="min-h-0 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase">
                         删除
                       </button>
                     </form>

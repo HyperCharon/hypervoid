@@ -92,7 +92,7 @@ export default async function AdminEffectsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="hv-panel-sci relative overflow-hidden p-5">
+      <header className="hv-panel-sci relative overflow-hidden p-4 sm:p-6">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -129,7 +129,7 @@ export default async function AdminEffectsPage() {
                       {effect.name}
                     </h2>
                     <span
-                      className={`shrink-0 px-2 py-0.5 font-mono text-[10px] font-medium uppercase clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)] ${
+                      className={`shrink-0 px-2 py-0.5 font-mono text-[10px] font-medium uppercase ${
                         isOn
                           ? "bg-accent/15 text-foreground"
                           : "bg-muted/30 text-muted"

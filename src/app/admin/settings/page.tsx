@@ -91,7 +91,7 @@ export default async function AdminSettingsPage() {
         <div>
           <button
             type="submit"
-            className="hv-action px-5 py-2 text-sm font-medium font-mono uppercase clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_20px_var(--accent-glow)]"
+            className="hv-action px-5 py-2 text-sm font-medium font-mono uppercase  hover:shadow-[0_0_20px_var(--accent-glow)]"
           >
             保存设置
           </button>
@@ -145,7 +145,7 @@ export default async function AdminSettingsPage() {
           <div>
             <button
               type="submit"
-              className="hv-action px-5 py-2 text-sm font-medium font-mono uppercase clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_20px_var(--accent-glow)]"
+              className="hv-action px-5 py-2 text-sm font-medium font-mono uppercase  hover:shadow-[0_0_20px_var(--accent-glow)]"
             >
               保存策略
             </button>

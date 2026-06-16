@@ -24,7 +24,7 @@ export default async function AdminRedirectsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between">
+      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-4 sm:p-6 sm:flex-row sm:items-end sm:justify-between">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -52,18 +52,18 @@ export default async function AdminRedirectsPage() {
             <span className="font-mono text-xs uppercase text-muted">CODE</span>
             <div className="flex items-center gap-1">
               <span className="font-mono text-xs text-muted">/r/</span>
-              <input type="text" name="code" required pattern="[\w-]+" placeholder="welcome" className="hv-input min-h-11 flex-1 px-3 font-mono text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]" />
+              <input type="text" name="code" required pattern="[\w-]+" placeholder="welcome" className="hv-input min-h-11 flex-1 px-3 font-mono text-sm" />
             </div>
           </label>
           <label className="flex flex-col gap-1">
             <span className="font-mono text-xs uppercase text-muted">TARGET_URL</span>
-            <input type="url" name="toUrl" required placeholder="https://..." className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]" />
+            <input type="url" name="toUrl" required placeholder="https://..." className="hv-input min-h-11 px-3 text-sm" />
           </label>
           <label className="flex flex-col gap-1">
             <span className="font-mono text-xs uppercase text-muted">NOTE</span>
-            <input type="text" name="note" placeholder="为什么造这条短链" className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]" />
+            <input type="text" name="note" placeholder="为什么造这条短链" className="hv-input min-h-11 px-3 text-sm" />
           </label>
-          <button type="submit" className="hv-action px-4 text-sm font-mono uppercase clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_16px_var(--accent-glow)]">
+          <button type="submit" className="hv-action px-4 text-sm font-mono uppercase hover:shadow-[0_0_16px_var(--accent-glow)]">
             <Plus className="h-4 w-4" aria-hidden="true" />
             创建
           </button>
@@ -107,7 +107,7 @@ export default async function AdminRedirectsPage() {
                     await deleteAction(r.id);
                   }}
                 >
-                  <button type="submit" className="inline-flex items-center gap-1 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                  <button type="submit" className="inline-flex items-center gap-1 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase">
                     <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                     删除
                   </button>

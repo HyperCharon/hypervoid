@@ -23,7 +23,7 @@ export default async function AdminTagsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci relative overflow-hidden p-5">
+      <header className="hv-panel-sci relative overflow-hidden p-4 sm:p-6">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -45,16 +45,16 @@ export default async function AdminTagsPage() {
           <form action={renameTagAction} className="mt-3 flex flex-col gap-3">
             <label className="flex flex-col gap-1">
               <span className="font-mono text-xs uppercase text-muted">OLD_TAG</span>
-              <select name="oldName" required defaultValue="" className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+              <select name="oldName" required defaultValue="" className="hv-input min-h-11 px-3 text-sm">
                 <option value="" disabled>选一个标签…</option>
                 {tags.map((t) => <option key={t.name} value={t.name}>{t.name} ({t.count})</option>)}
               </select>
             </label>
             <label className="flex flex-col gap-1">
               <span className="font-mono text-xs uppercase text-muted">NEW_NAME</span>
-              <input type="text" name="newName" required placeholder="新名字" className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]" />
+              <input type="text" name="newName" required placeholder="新名字" className="hv-input min-h-11 px-3 text-sm" />
             </label>
-            <button type="submit" className="hv-action self-start px-4 text-sm font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)] hover:shadow-[0_0_16px_var(--accent-glow)]">重命名</button>
+            <button type="submit" className="hv-action self-start px-4 text-sm font-mono uppercase hover:shadow-[0_0_16px_var(--accent-glow)]">重命名</button>
           </form>
         </div>
 
@@ -67,9 +67,9 @@ export default async function AdminTagsPage() {
           <form action={mergeTagsAction} className="mt-3 flex flex-col gap-3" id="merge-form">
             <label className="flex flex-col gap-1">
               <span className="font-mono text-xs uppercase text-muted">TARGET_TAG</span>
-              <input type="text" name="target" required placeholder="如：JavaScript" className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]" />
+              <input type="text" name="target" required placeholder="如：JavaScript" className="hv-input min-h-11 px-3 text-sm" />
             </label>
-            <button type="submit" className="hv-action self-start px-4 text-sm font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)] hover:shadow-[0_0_16px_var(--accent-glow)]">合并所选</button>
+            <button type="submit" className="hv-action self-start px-4 text-sm font-mono uppercase hover:shadow-[0_0_16px_var(--accent-glow)]">合并所选</button>
           </form>
         </div>
       </section>
@@ -105,7 +105,7 @@ export default async function AdminTagsPage() {
               ),
               actions: (
                 <form action={async () => { "use server"; await deleteTagAction(t.name); }}>
-                  <button type="submit" className="inline-flex items-center gap-1 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                  <button type="submit" className="inline-flex items-center gap-1 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase">
                     <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />删除
                   </button>
                 </form>

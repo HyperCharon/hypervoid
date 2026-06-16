@@ -29,7 +29,7 @@ export default async function AdminNotesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between">
+      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-4 sm:p-6 sm:flex-row sm:items-end sm:justify-between">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -44,7 +44,7 @@ export default async function AdminNotesPage() {
             </p>
           </div>
         </div>
-        <Link href="/admin/notes/new" className="hv-action px-4 text-sm font-mono uppercase clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_20px_var(--accent-glow)]">
+        <Link href="/admin/notes/new" className="hv-action px-4 text-sm font-mono uppercase hover:shadow-[0_0_20px_var(--accent-glow)]">
           <Plus className="h-4 w-4" aria-hidden="true" />
           NEW_NOTE
         </Link>
@@ -71,7 +71,7 @@ export default async function AdminNotesPage() {
                       PRI {a.priority}
                     </span>
                     {!a.active ? (
-                      <span className="border border-zinc-300/25 bg-zinc-400/10 px-2 py-0.5 font-mono text-[11px] uppercase text-zinc-200 clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]">
+                      <span className="border border-zinc-300/25 bg-zinc-400/10 px-2 py-0.5 font-mono text-[11px] uppercase text-zinc-200">
                         OFFLINE
                       </span>
                     ) : null}
@@ -103,7 +103,7 @@ export default async function AdminNotesPage() {
                   ) : null}
                 </div>
                 <div className="grid shrink-0 grid-cols-3 gap-2 sm:grid-cols-1">
-                  <Link href={"/admin/notes/" + a.id + "/edit"} className="hv-action min-h-0 px-3 py-1 text-center text-[11px] font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                  <Link href={"/admin/notes/" + a.id + "/edit"} className="hv-action min-h-0 px-3 py-1 text-center text-[11px] font-mono uppercase">
                     编辑
                   </Link>
                   <form
@@ -112,7 +112,7 @@ export default async function AdminNotesPage() {
                       await toggleAction(a.id);
                     }}
                   >
-                    <button type="submit" className="hv-action min-h-0 w-full px-3 py-1 text-[11px] font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)] hover:border-amber-300/60 hover:text-amber-100">
+                    <button type="submit" className="hv-action min-h-0 w-full px-3 py-1 text-[11px] font-mono uppercase hover:border-amber-300/60 hover:text-amber-100">
                       {a.active ? "停用" : "启用"}
                     </button>
                   </form>
@@ -122,7 +122,7 @@ export default async function AdminNotesPage() {
                       await deleteAction(a.id);
                     }}
                   >
-                    <button type="submit" className="w-full border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                    <button type="submit" className="w-full border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase">
                       删除
                     </button>
                   </form>

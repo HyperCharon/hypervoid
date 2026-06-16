@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function ImportPage() {
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci relative overflow-hidden p-5">
+      <header className="hv-panel-sci relative overflow-hidden p-4 sm:p-6">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />

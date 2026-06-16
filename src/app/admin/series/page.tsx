@@ -37,7 +37,7 @@ export default async function AdminSeriesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci p-5 relative overflow-hidden">
+      <header className="hv-panel-sci p-4 sm:p-6 relative overflow-hidden">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -63,7 +63,7 @@ export default async function AdminSeriesPage() {
               name="name"
               required
               placeholder="如：Next.js 实战"
-              className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 text-sm"
             />
           </label>
           <label className="flex flex-col gap-1">
@@ -74,7 +74,7 @@ export default async function AdminSeriesPage() {
               required
               pattern="[a-z0-9][a-z0-9-]*"
               placeholder="如：nextjs-practice"
-              className="hv-input min-h-11 px-3 font-mono text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 font-mono text-sm"
             />
           </label>
           <label className="flex flex-col gap-1 sm:col-span-2">
@@ -83,7 +83,7 @@ export default async function AdminSeriesPage() {
               type="text"
               name="description"
               placeholder="一句话描述这个系列"
-              className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 text-sm"
             />
           </label>
           <label className="flex flex-col gap-1 sm:col-span-2">
@@ -92,13 +92,13 @@ export default async function AdminSeriesPage() {
               type="text"
               name="cover"
               placeholder="/images/series-cover.jpg 或外部 URL"
-              className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 text-sm"
             />
           </label>
           <div className="sm:col-span-2">
             <button
               type="submit"
-              className="hv-action px-5 text-sm font-medium font-mono uppercase clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_20px_var(--accent-glow)]"
+              className="hv-action px-5 text-sm font-medium font-mono uppercase  hover:shadow-[0_0_20px_var(--accent-glow)]"
             >
               CREATE
             </button>
@@ -142,7 +142,7 @@ function SeriesCard({
           <div className="flex items-center gap-2">
             <Link
               href={`/series/${encodeURIComponent(s.name)}`}
-              className="hv-action min-h-0 px-2.5 py-1 text-[11px] font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-action min-h-0 px-2.5 py-1 text-[11px] font-mono uppercase"
             >
               VIEW
             </Link>
@@ -160,7 +160,7 @@ function SeriesCard({
               name="name"
               defaultValue={s.name}
               required
-              className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 text-sm"
             />
           </label>
           <label className="flex flex-col gap-1">
@@ -171,7 +171,7 @@ function SeriesCard({
               defaultValue={s.slug}
               required
               pattern="[a-z0-9][a-z0-9-]*"
-              className="hv-input min-h-11 px-3 font-mono text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 font-mono text-sm"
             />
           </label>
           <label className="flex flex-col gap-1 sm:col-span-2">
@@ -181,7 +181,7 @@ function SeriesCard({
               name="description"
               defaultValue={s.description ?? ""}
               placeholder="一句话描述"
-              className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 text-sm"
             />
           </label>
           <label className="flex flex-col gap-1 sm:col-span-2">
@@ -191,13 +191,13 @@ function SeriesCard({
               name="cover"
               defaultValue={s.cover ?? ""}
               placeholder="/images/cover.jpg"
-              className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 text-sm"
             />
           </label>
           <div className="flex gap-2 sm:col-span-2">
             <button
               type="submit"
-              className="hv-action px-4 text-sm font-medium font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)] hover:shadow-[0_0_16px_var(--accent-glow)]"
+              className="hv-action px-4 text-sm font-medium font-mono uppercase hover:shadow-[0_0_16px_var(--accent-glow)]"
             >
               SAVE
             </button>
@@ -209,7 +209,7 @@ function SeriesCard({
             >
               <button
                 type="submit"
-                className="border border-red-400/35 bg-red-500/10 px-4 py-2 text-sm text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+                className="border border-red-400/35 bg-red-500/10 px-4 py-2 text-sm text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase"
               >
                 DELETE
               </button>
@@ -228,9 +228,9 @@ function SeriesCard({
             {s.posts.map((p, i) => (
               <li
                 key={p.slug}
-                className="flex items-center gap-2 border border-transparent px-2 py-1.5 text-sm transition hover:border-accent/20 hover:bg-accent/5 clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+                className="flex items-center gap-2 border border-transparent px-2 py-1.5 text-sm transition hover:border-accent/20 hover:bg-accent/5"
               >
-                <span className="grid h-5 w-5 shrink-0 place-items-center border border-accent/30 bg-accent/10 font-mono text-[10px] text-foreground clip-path-[polygon(0_0,calc(100%-3px)_0,100%_3px,100%_100%,0_100%)]">
+                <span className="grid h-5 w-5 shrink-0 place-items-center border border-accent/30 bg-accent/10 font-mono text-[10px] text-foreground">
                   {p.seriesOrder ?? i + 1}
                 </span>
                 <Link
@@ -245,7 +245,7 @@ function SeriesCard({
                 }}>
                   <button
                     type="submit"
-                    className="shrink-0 border border-red-400/25 bg-red-500/5 px-1.5 py-0.5 font-mono text-[10px] text-red-200 transition hover:border-red-300 uppercase clip-path-[polygon(0_0,calc(100%-3px)_0,100%_3px,100%_100%,0_100%)]"
+                    className="shrink-0 border border-red-400/25 bg-red-500/5 px-1.5 py-0.5 font-mono text-[10px] text-red-200 transition hover:border-red-300 uppercase"
                     title="从系列中移除"
                   >
                     REMOVE
@@ -270,7 +270,7 @@ function SeriesCard({
               name="postSlug"
               required
               defaultValue=""
-              className="hv-input flex-1 px-3 py-1.5 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input flex-1 px-3 py-1.5 text-sm"
             >
               <option value="" disabled>
                 添加文章到此系列…
@@ -283,7 +283,7 @@ function SeriesCard({
             </select>
             <button
               type="submit"
-              className="hv-action min-h-0 px-3 py-1.5 text-sm font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-action min-h-0 px-3 py-1.5 text-sm font-mono uppercase"
             >
               ADD
             </button>

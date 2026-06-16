@@ -18,7 +18,7 @@ function BiField({
   textarea?: boolean;
 }) {
   const cls =
-    "hv-input w-full px-3 py-2 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]";
+    "hv-input w-full px-3 py-2 text-sm";
   return (
     <div className="flex flex-col gap-1.5">
       <span className="font-mono text-xs font-medium uppercase text-foreground">{label}</span>
@@ -64,7 +64,7 @@ export function CvEditor({ data, arraysJson }: { data: CvData; arraysJson: strin
             type="text"
             defaultValue={id.avatar}
             placeholder="/avatar.jpg"
-            className="hv-input w-full px-3 py-2 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+            className="hv-input w-full px-3 py-2 text-sm"
           />
         </label>
       </section>
@@ -90,7 +90,7 @@ export function CvEditor({ data, arraysJson }: { data: CvData; arraysJson: strin
           defaultValue={arraysJson}
           rows={22}
           spellCheck={false}
-          className="hv-input w-full px-3 py-2 font-mono text-xs leading-relaxed clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+          className="hv-input w-full px-3 py-2 font-mono text-xs leading-relaxed"
         />
       </section>
 
@@ -98,7 +98,7 @@ export function CvEditor({ data, arraysJson }: { data: CvData; arraysJson: strin
         <button
           type="submit"
           disabled={pending}
-          className="hv-action px-5 py-2 font-mono text-sm font-medium uppercase clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_20px_var(--accent-glow)] disabled:opacity-50"
+          className="hv-action px-5 py-2 font-mono text-sm font-medium uppercase  hover:shadow-[0_0_20px_var(--accent-glow)] disabled:opacity-50"
         >
           {pending ? "保存中…" : "保存简历"}
         </button>

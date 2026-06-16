@@ -54,7 +54,7 @@ export default async function AdminStatsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="hv-panel-sci p-5 sm:p-6 flex items-center gap-3 relative overflow-hidden">
+      <header className="hv-panel-sci p-4 sm:p-6 flex items-center gap-3 relative overflow-hidden">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -89,7 +89,7 @@ export default async function AdminStatsPage() {
                 title={`${m.month} · ${m.count} 篇`}
               >
                 <div
-                  className={`w-full transition clip-path-[polygon(0_0,calc(100%-2px)_0,100%_2px,100%_100%,0_100%)] ${
+                  className={`w-full transition ${
                     m.count === 0
                       ? "bg-foreground/[0.04]"
                       : isThisMonth
@@ -162,7 +162,7 @@ function VisitorList({
           {rows.map((v) => (
             <li
               key={v.githubLogin}
-              className="flex items-center gap-3 px-2 py-2 transition hover:bg-accent/5 sm:py-1.5 clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)] border border-transparent hover:border-accent/20"
+              className="flex items-center gap-3 px-2 py-2 transition hover:bg-accent/5 sm:py-1.5 border border-transparent hover:border-accent/20"
             >
               {v.avatarUrl ? (
                 <Image
@@ -172,10 +172,10 @@ function VisitorList({
                   height={72}
                   sizes="36px"
                   loading="lazy"
-                  className="h-9 w-9 shrink-0 border border-border sm:h-7 sm:w-7 clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]"
+                  className="h-9 w-9 shrink-0 border border-border sm:h-7 sm:w-7"
                 />
               ) : (
-                <div className="h-9 w-9 shrink-0 border border-border bg-foreground/[0.055] sm:h-7 sm:w-7 clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]" />
+                <div className="h-9 w-9 shrink-0 border border-border bg-foreground/[0.055] sm:h-7 sm:w-7" />
               )}
               <div className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
                 <span className="truncate text-sm">
@@ -251,7 +251,7 @@ function TopList({
           {rows.map((r, i) => (
             <li
               key={r.slug}
-              className="flex items-baseline gap-2 px-2 py-1.5 transition hover:bg-accent/5 sm:gap-3 clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)] border border-transparent hover:border-accent/20"
+              className="flex items-baseline gap-2 px-2 py-1.5 transition hover:bg-accent/5 sm:gap-3 border border-transparent hover:border-accent/20"
             >
               <span className="w-5 shrink-0 text-right font-mono text-xs text-muted">
                 {i + 1}

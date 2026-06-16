@@ -39,7 +39,7 @@ export default async function AdminLinkCheckPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between">
+      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-4 sm:p-6 sm:flex-row sm:items-end sm:justify-between">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -56,7 +56,7 @@ export default async function AdminLinkCheckPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <span className="hv-chip-sci">LINKS {list.length}</span>
-          <span className={broken.length > 0 ? "border border-red-300/35 bg-red-500/10 px-2 py-0.5 font-mono text-xs uppercase text-red-100 clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]" : "hv-chip-sci"}>BROKEN {broken.length}</span>
+          <span className={broken.length > 0 ? "border border-red-300/35 bg-red-500/10 px-2 py-0.5 font-mono text-xs uppercase text-red-100" : "hv-chip-sci"}>BROKEN {broken.length}</span>
         </div>
       </header>
 
@@ -65,14 +65,14 @@ export default async function AdminLinkCheckPage() {
           {lastRun ? <span>上次扫描：<span className="font-mono text-foreground">{formatDateTimeCN(lastRun)}</span></span> : <span>还没有扫描记录。</span>}
         </div>
         <form action={runScanAction}>
-          <button type="submit" className="hv-action px-4 text-sm font-mono uppercase clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_16px_var(--accent-glow)]">
+          <button type="submit" className="hv-action px-4 text-sm font-mono uppercase hover:shadow-[0_0_16px_var(--accent-glow)]">
             <Play className="h-4 w-4" aria-hidden="true" />
             立即扫描
           </button>
         </form>
         {list.length > 0 ? (
           <form action={clearAllAction}>
-            <button type="submit" className="inline-flex min-h-11 items-center gap-2 border border-red-400/35 bg-red-500/10 px-3 text-sm text-red-100 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)]">
+            <button type="submit" className="inline-flex min-h-11 items-center gap-2 border border-red-400/35 bg-red-500/10 px-3 text-sm text-red-100 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase">
               <Trash2 className="h-4 w-4" aria-hidden="true" />
               清空历史
             </button>
@@ -95,7 +95,7 @@ export default async function AdminLinkCheckPage() {
               key: r.url,
               cells: {
                 status: (
-                  <span className={"inline-flex items-center border px-2 py-0.5 font-mono text-[11px] clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)] " + badge.cls} title={badge.hint}>
+                  <span className={"inline-flex items-center border px-2 py-0.5 font-mono text-[11px] " + badge.cls} title={badge.hint}>
                     {badge.label}
                   </span>
                 ),
@@ -126,7 +126,7 @@ export default async function AdminLinkCheckPage() {
                       await deleteLinkAction(r.url);
                     }}
                   >
-                    <button type="submit" className="border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                    <button type="submit" className="border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase">
                       删除
                     </button>
                   </form>

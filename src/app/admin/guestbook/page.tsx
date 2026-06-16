@@ -27,7 +27,7 @@ export default async function AdminGuestbookPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between">
+      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-4 sm:p-6 sm:flex-row sm:items-end sm:justify-between">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -65,10 +65,10 @@ export default async function AdminGuestbookPage() {
                     height={80}
                     sizes="40px"
                     loading="lazy"
-                    className="h-10 w-10 shrink-0 border border-accent/30 object-cover clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]"
+                    className="h-10 w-10 shrink-0 border border-accent/30 object-cover"
                   />
                 ) : (
-                  <div className="h-10 w-10 shrink-0 border border-accent/30 bg-accent/10 clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]" />
+                  <div className="h-10 w-10 shrink-0 border border-accent/30 bg-accent/10" />
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline gap-2">
@@ -79,7 +79,7 @@ export default async function AdminGuestbookPage() {
                       @{m.githubLogin}
                     </span>
                     {m.hidden ? (
-                      <span className="border border-amber-300/30 bg-accent/10 px-2 py-0.5 font-mono text-[10px] uppercase text-amber-100 clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]">
+                      <span className="border border-amber-300/30 bg-accent/10 px-2 py-0.5 font-mono text-[10px] uppercase text-amber-100">
                         HIDDEN
                       </span>
                     ) : null}
@@ -100,7 +100,7 @@ export default async function AdminGuestbookPage() {
                       await unhideAction(m.id);
                     }}
                   >
-                    <button type="submit" className="hv-action min-h-0 px-3 py-1 text-xs font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                    <button type="submit" className="hv-action min-h-0 px-3 py-1 text-xs font-mono uppercase">
                       取消隐藏
                     </button>
                   </form>
@@ -111,7 +111,7 @@ export default async function AdminGuestbookPage() {
                       await hideAction(m.id);
                     }}
                   >
-                    <button type="submit" className="hv-action min-h-0 px-3 py-1 text-xs font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)] hover:border-amber-300/60 hover:text-amber-100">
+                    <button type="submit" className="hv-action min-h-0 px-3 py-1 text-xs font-mono uppercase hover:border-amber-300/60 hover:text-amber-100">
                       隐藏
                     </button>
                   </form>
@@ -122,7 +122,7 @@ export default async function AdminGuestbookPage() {
                     await deleteAction(m.id);
                   }}
                 >
-                  <button type="submit" className="border border-red-400/35 bg-red-500/10 px-3 py-1 text-xs text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                  <button type="submit" className="border border-red-400/35 bg-red-500/10 px-3 py-1 text-xs text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase">
                     永久删除
                   </button>
                 </form>

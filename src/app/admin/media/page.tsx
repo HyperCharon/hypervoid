@@ -30,7 +30,7 @@ export default async function AdminMediaPage() {
   if (!isBlobConfigured()) {
     return (
       <div className="flex flex-col gap-6">
-        <header className="hv-panel-sci p-5 relative overflow-hidden">
+        <header className="hv-panel-sci p-4 sm:p-6 relative overflow-hidden">
           <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
           <AdminBackLink href="/admin" label="后台" />
           <p className="hv-kicker mt-4 uppercase">MEDIA_VAULT</p>
@@ -51,7 +51,7 @@ export default async function AdminMediaPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between relative overflow-hidden">
+      <header className="hv-panel-sci flex flex-col gap-4 p-4 sm:p-6 sm:flex-row sm:items-end sm:justify-between relative overflow-hidden">
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
 
@@ -68,7 +68,7 @@ export default async function AdminMediaPage() {
         <div className="flex flex-wrap gap-2">
           <span className="hv-chip-sci">{items.length} 张</span>
           <span className="hv-chip-sci">{formatBytes(totalSize)}</span>
-          <span className={orphanCount > 0 ? "border border-amber-300/35 bg-accent/10 px-2 py-0.5 font-mono text-xs text-amber-100 clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]" : "hv-chip-sci"}>{orphanCount} 张未引用</span>
+          <span className={orphanCount > 0 ? "border border-amber-300/35 bg-accent/10 px-2 py-0.5 font-mono text-xs text-amber-100" : "hv-chip-sci"}>{orphanCount} 张未引用</span>
         </div>
       </header>
 
@@ -92,9 +92,9 @@ export default async function AdminMediaPage() {
                   />
                   <div className="absolute right-2 top-2 flex gap-1.5">
                     {refCount === 0 ? (
-                      <span className="dark-locked border border-amber-200/50 bg-accent/90 px-2 py-0.5 text-[10px] font-medium text-white font-mono uppercase clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]">ORPHAN</span>
+                      <span className="dark-locked border border-amber-200/50 bg-accent/90 px-2 py-0.5 text-[10px] font-medium text-white font-mono uppercase">ORPHAN</span>
                     ) : (
-                      <span className="dark-locked border border-emerald-200/50 bg-accent/90 px-2 py-0.5 text-[10px] font-medium text-white font-mono uppercase clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]">REF ×{refCount}</span>
+                      <span className="dark-locked border border-emerald-200/50 bg-accent/90 px-2 py-0.5 text-[10px] font-medium text-white font-mono uppercase">REF ×{refCount}</span>
                     )}
                   </div>
                 </div>
@@ -103,7 +103,7 @@ export default async function AdminMediaPage() {
                   <span className="font-mono text-[10px] text-muted uppercase">{formatBytes(item.size)} · {formatDateTimeCN(item.uploadedAt)}</span>
                   <div className="flex flex-wrap gap-1.5">
                     <CopyUrlButton url={item.url} />
-                    <a href={item.url} target="_blank" rel="noreferrer" className="hv-action min-h-0 px-2 py-0.5 text-[11px] font-mono uppercase clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]">
+                    <a href={item.url} target="_blank" rel="noreferrer" className="hv-action min-h-0 px-2 py-0.5 text-[11px] font-mono uppercase">
                       <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                       VIEW
                     </a>
@@ -114,7 +114,7 @@ export default async function AdminMediaPage() {
                       }}
                       className="ml-auto"
                     >
-                      <button type="submit" className="inline-flex items-center gap-1 border border-red-400/35 bg-red-500/10 px-2 py-0.5 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]">
+                      <button type="submit" className="inline-flex items-center gap-1 border border-red-400/35 bg-red-500/10 px-2 py-0.5 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase">
                         <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                         DELETE
                       </button>

@@ -23,7 +23,7 @@ export default async function AdminCvPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci relative overflow-hidden p-5 sm:p-6 flex items-center gap-3">
+      <header className="hv-panel-sci relative overflow-hidden p-4 sm:p-6 flex items-center gap-3">
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
         <span className="absolute right-5 top-5 h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
@@ -46,7 +46,7 @@ export default async function AdminCvPage() {
           ].map((opt) => (
             <label
               key={opt.value}
-              className={`flex cursor-pointer items-start gap-3 border p-4 transition-colors clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] ${
+              className={`flex cursor-pointer items-start gap-3 border p-4 transition-colors  ${
                 (visible ? "1" : "0") === opt.value
                   ? "border-accent/40 bg-accent/12"
                   : "border-border bg-gradient-to-br from-card to-card hover:border-accent/40"
@@ -68,7 +68,7 @@ export default async function AdminCvPage() {
           <div>
             <button
               type="submit"
-              className="hv-action px-5 py-2 font-mono text-sm font-medium uppercase clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_20px_var(--accent-glow)]"
+              className="hv-action px-5 py-2 font-mono text-sm font-medium uppercase  hover:shadow-[0_0_20px_var(--accent-glow)]"
             >
               保存可见性
             </button>

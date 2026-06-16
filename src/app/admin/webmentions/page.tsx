@@ -22,7 +22,7 @@ function hostnameOf(rawUrl: string): string {
 }
 
 function statusBadge(status: string) {
-  const base = "inline-flex border px-2 py-0.5 font-mono text-[10px] font-medium uppercase clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]";
+  const base = "inline-flex border px-2 py-0.5 font-mono text-[10px] font-medium uppercase";
   switch (status) {
     case "verified":
       return <span className={base + " border-emerald-300/35 bg-accent/10 text-emerald-100"}>VERIFIED</span>;
@@ -50,7 +50,7 @@ export default async function AdminWebmentionsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between">
+      <header className="hv-panel-sci relative overflow-hidden flex flex-col gap-4 p-4 sm:p-6 sm:flex-row sm:items-end sm:justify-between">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -83,7 +83,7 @@ export default async function AdminWebmentionsPage() {
                 <div className="flex flex-wrap items-center gap-2">
                   {statusBadge(w.status)}
                   {w.hidden ? (
-                    <span className="border border-zinc-300/25 bg-zinc-400/10 px-2 py-0.5 font-mono text-[10px] uppercase text-zinc-200 clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]">
+                    <span className="border border-zinc-300/25 bg-zinc-400/10 px-2 py-0.5 font-mono text-[10px] uppercase text-zinc-200">
                       HIDDEN
                     </span>
                   ) : null}
@@ -98,7 +98,7 @@ export default async function AdminWebmentionsPage() {
                       await toggleHiddenAction(w.id, !w.hidden);
                     }}
                   >
-                    <button type="submit" className="hv-action min-h-0 px-3 py-1 text-[11px] font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                    <button type="submit" className="hv-action min-h-0 px-3 py-1 text-[11px] font-mono uppercase">
                       {w.hidden ? "显示" : "隐藏"}
                     </button>
                   </form>
@@ -108,7 +108,7 @@ export default async function AdminWebmentionsPage() {
                       await deleteAction(w.id);
                     }}
                   >
-                    <button type="submit" className="border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]">
+                    <button type="submit" className="border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase">
                       删除
                     </button>
                   </form>

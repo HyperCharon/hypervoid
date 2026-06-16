@@ -22,7 +22,7 @@ export default async function AdminResourcesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="hv-panel-sci relative overflow-hidden p-5">
+      <header className="hv-panel-sci relative overflow-hidden p-4 sm:p-6">
         {/* Corner accents */}
         <div className="absolute left-0 top-0 h-10 w-10 border-l-2 border-t-2 border-accent/60 pointer-events-none" />
         <div className="absolute right-0 bottom-0 h-10 w-10 border-r-2 border-b-2 border-accent/60 pointer-events-none" />
@@ -50,7 +50,7 @@ export default async function AdminResourcesPage() {
               name="title"
               required
               placeholder="Figma"
-              className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 text-sm"
             />
           </label>
           <label className="flex flex-col gap-1">
@@ -60,7 +60,7 @@ export default async function AdminResourcesPage() {
               name="url"
               required
               placeholder="https://..."
-              className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 text-sm"
             />
           </label>
           <label className="flex flex-col gap-1">
@@ -69,7 +69,7 @@ export default async function AdminResourcesPage() {
               type="text"
               name="category"
               placeholder="设计 / 开发 / 软件"
-              className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 text-sm"
             />
           </label>
           <label className="flex flex-col gap-1">
@@ -78,7 +78,7 @@ export default async function AdminResourcesPage() {
               type="text"
               name="icon"
               placeholder="🎨"
-              className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 text-sm"
             />
           </label>
           <label className="flex flex-col gap-1">
@@ -87,12 +87,12 @@ export default async function AdminResourcesPage() {
               type="number"
               name="sortOrder"
               defaultValue={0}
-              className="hv-input min-h-11 w-full px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 w-full px-3 text-sm"
             />
           </label>
           <button
             type="submit"
-            className="hv-action px-4 text-sm font-medium font-mono uppercase clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] hover:shadow-[0_0_16px_var(--accent-glow)]"
+            className="hv-action px-4 text-sm font-medium font-mono uppercase hover:shadow-[0_0_16px_var(--accent-glow)]"
           >
             创建
           </button>
@@ -102,7 +102,7 @@ export default async function AdminResourcesPage() {
               type="text"
               name="description"
               placeholder="一句话说说这是什么"
-              className="hv-input min-h-11 px-3 text-sm clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+              className="hv-input min-h-11 px-3 text-sm"
             />
           </label>
         </form>
@@ -127,10 +127,10 @@ export default async function AdminResourcesPage() {
                 {items.map((r) => (
                   <details
                     key={r.id}
-                    className="group border border-accent/15 bg-black/20 clip-path-[polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)]"
+                    className="group border border-accent/15 bg-black/20"
                   >
                     <summary className="flex cursor-pointer list-none items-center gap-3 px-3 py-2 text-sm">
-                      <span className="grid h-8 w-8 shrink-0 place-items-center border border-accent/25 bg-accent/10 text-sm leading-none clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]">
+                      <span className="grid h-8 w-8 shrink-0 place-items-center border border-accent/25 bg-accent/10 text-sm leading-none">
                         {r.icon || <Link2 className="h-4 w-4" aria-hidden="true" />}
                       </span>
                       <span className="flex-1 truncate">
@@ -142,7 +142,7 @@ export default async function AdminResourcesPage() {
                         ) : null}
                       </span>
                       {r.hidden ? (
-                        <span className="border border-amber-300/35 bg-accent/10 px-2 py-0.5 font-mono text-[10px] uppercase text-amber-100 clip-path-[polygon(0_0,calc(100%-4px)_0,100%_4px,100%_100%,0_100%)]">
+                        <span className="border border-amber-300/35 bg-accent/10 px-2 py-0.5 font-mono text-[10px] uppercase text-amber-100">
                           HIDDEN
                         </span>
                       ) : null}
@@ -208,7 +208,7 @@ export default async function AdminResourcesPage() {
                         <div className="flex gap-2">
                           <button
                             type="submit"
-                            className="hv-action min-h-0 px-3 py-1 text-xs font-medium font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+                            className="hv-action min-h-0 px-3 py-1 text-xs font-medium font-mono uppercase"
                           >
                             <Save className="h-3.5 w-3.5" aria-hidden="true" />保存
                           </button>
@@ -224,7 +224,7 @@ export default async function AdminResourcesPage() {
                     >
                       <button
                         type="submit"
-                        className="inline-flex items-center gap-1 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase clip-path-[polygon(0_0,calc(100%-6px)_0,100%_6px,100%_100%,0_100%)]"
+                        className="inline-flex items-center gap-1 border border-red-400/35 bg-red-500/10 px-3 py-1 text-[11px] text-red-200 transition hover:border-red-300 hover:bg-red-500/15 font-mono uppercase"
                       >
                         <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />删除
                       </button>
