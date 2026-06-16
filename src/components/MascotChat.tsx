@@ -249,7 +249,7 @@ export function MascotChat({
 
   return (
     <div
-      className={`flex flex-col rounded-2xl border border-border bg-card text-foreground shadow-2xl transition-[width,height] duration-150 ${
+      className={`hv-mascot-chat flex flex-col rounded-2xl border border-border bg-card text-foreground shadow-2xl transition-[width,height] duration-150 ${
         expanded ? "h-[520px] w-[min(420px,calc(100vw-2rem))]" : "h-[320px] w-[min(260px,calc(100vw-2rem))]"
       }`}
     >
