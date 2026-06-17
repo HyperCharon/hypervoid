@@ -142,17 +142,38 @@ async function renderMd(src: string): Promise<string> {
 
 /* ── Epub parser (lazy) ──────────────────────────────────── */
 
+const EPUB_CLIENT_LIMIT = 10 * 1024 * 1024; // 10MB — client-side limit
+const EPUB_SERVER_LIMIT = 50 * 1024 * 1024; // 50MB — server-side limit
+
 async function parseEpubFile(file: File): Promise<{ meta: { title: string; author: string; cover: string | null }; chapters: Chapter[]; html: string }> {
-  const { parseEpub, EPUB_MAX_SIZE } = await import("@/lib/epub-reader");
-  if (file.size > EPUB_MAX_SIZE) {
-    throw new Error(`文件过大 (${fmtSize(file.size)})，epub 上限 ${fmtSize(EPUB_MAX_SIZE)}。`);
+  if (file.size > EPUB_SERVER_LIMIT) {
+    throw new Error(`文件过大 (${fmtSize(file.size)})，上限 ${fmtSize(EPUB_SERVER_LIMIT)}。`);
   }
-  const buf = await file.arrayBuffer();
-  const data = await parseEpub(buf);
-  const chapters: Chapter[] = data.chapters.map((ch, i) => ({
-    id: ch.id, title: ch.title, level: ch.level, startLine: i,
+
+  if (file.size <= EPUB_CLIENT_LIMIT) {
+    // Small file: parse client-side (fast, no upload)
+    const { parseEpub } = await import("@/lib/epub-reader");
+    const buf = await file.arrayBuffer();
+    const data = await parseEpub(buf);
+    const chapters: Chapter[] = data.chapters.map((ch, i) => ({
+      id: ch.id, title: ch.title, level: ch.level, startLine: i,
+    }));
+    return { meta: { title: data.meta.title, author: data.meta.author, cover: data.meta.cover }, chapters, html: data.fullHtml };
+  }
+
+  // Large file: upload to server for parsing
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch("/api/parse-epub", { method: "POST", body: form });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "服务器解析失败" }));
+    throw new Error(err.error || `服务器返回 ${res.status}`);
+  }
+  const data = await res.json();
+  const chapters: Chapter[] = (data.chapters || []).map((ch: any, i: number) => ({
+    id: ch.id || `ch-${i}`, title: ch.title || `第 ${i + 1} 章`, level: ch.level || 1, startLine: i,
   }));
-  return { meta: { title: data.meta.title, author: data.meta.author, cover: data.meta.cover }, chapters, html: data.fullHtml };
+  return { meta: { title: data.meta?.title || file.name, author: data.meta?.author || "", cover: null }, chapters, html: data.fullHtml || "" };
 }
 
 /* ── Main Component ──────────────────────────────────────── */
@@ -449,7 +470,7 @@ export function ReaderShell() {
           <div>
             <p className="font-medium text-foreground">拖拽文件到此处</p>
             <p className="mt-1 text-xs text-muted">
-              {isQuick ? "支持 .md / .txt / .html 格式" : "支持 .epub (≤10MB) / .md / .txt / .html 格式"}
+              {isQuick ? "支持 .md / .txt / .html 格式" : "支持 .epub (≤50MB) / .md / .txt / .html 格式"}
             </p>
           </div>
           <button type="button" className="hv-action px-4 py-2 text-sm font-medium">
