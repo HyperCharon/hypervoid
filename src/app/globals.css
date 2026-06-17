@@ -584,13 +584,8 @@ html[data-reading="large"] article .prose {
   background: rgba(239, 230, 204, 0.95);
   backdrop-filter: blur(2px);
 }
-@media (max-width: 639px) {
-  .light .hv-cosmic-hero {
-    background: var(--background) !important;
-  }
-}
 .light .hv-cosmic-hero {
-  background: #f5edd6 !important;
+  background: var(--background) !important;
 }
 .light .hv-cosmic-hero canvas {
   opacity: 0.1;

@@ -259,7 +259,8 @@
 
 /* ── Profile Card ────────────────────────────────────────── */
 .light .hv-grad-profile {
-  background: var(--grad-card) !important;
+  background: linear-gradient(160deg, #f5edd6 0%, #f0e7cd 100%) !important;
+  border: 1px solid var(--border) !important;
 }
 .light .hv-profile-name {
   background: linear-gradient(135deg, var(--text-heading), var(--accent)) !important;

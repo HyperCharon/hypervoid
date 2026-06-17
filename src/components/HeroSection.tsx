@@ -1002,7 +1002,7 @@ export function HeroSection({
   };
 
   return (
-    <section className="hv-cosmic-hero relative overflow-hidden" style={{ background: "transparent" }}>
+    <section className="hv-cosmic-hero relative overflow-hidden">
       <FullGrid />
       <Starfield />
       <NebulaGlow />
