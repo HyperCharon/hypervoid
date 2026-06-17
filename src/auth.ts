@@ -184,31 +184,49 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       // Public routes that never require login
-      const publicRoutes = ["/sign-in", "/api/auth", "/api/webmention"];
-      if (publicRoutes.some((r) => pathname.startsWith(r))) return true;
+      const publicRoutes = [
+        "/sign-in",
+        "/api/auth",
+        "/api/webmention",
+        "/api/subscribe",
+        "/api/unsubscribe",
+        "/api/friends/apply",
+        "/api/mascot",
+        "/api/music",
+        "/api/effects",
+        "/api/bangumi",
+        "/r/",
+        "/rss.xml",
+        "/subscribe",
+        "/donate",
+        "/friends",
+        "/offline",
+      ];
+      if (publicRoutes.some((r) => pathname === r || pathname.startsWith(r))) return true;
 
-      // Check login policy from DB
+      // Check login policy from DB — fail-open so a DB hiccup doesn't lock
+      // everyone out of a public blog.
       try {
         const policy = (await getSiteSetting("site_login_required")) || "optional";
 
         if (policy === "required") {
-          // All pages require login
           return !!auth?.user;
         }
 
         if (policy === "private_only") {
-          // Only /private routes require login
           if (pathname.startsWith("/private")) {
             return !!auth?.user;
           }
           return true;
         }
 
-        // "optional" — no login required
+        // "optional" (default) — no login required
         return true;
       } catch {
-        // DB error — fail closed (deny access)
-        return false;
+        // DB error — fail-open (allow access). The blog is public by default;
+        // locking everyone out due to a transient DB issue is worse than
+        // letting a visitor through.
+        return true;
       }
     },
   },
