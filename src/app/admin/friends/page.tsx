@@ -1,3 +1,5 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -18,6 +20,9 @@ export default async function AdminFriendsList() {
     listFriends(),
     listPendingApplications().catch(() => []),
   ]);
+
+  const session = await auth();
+  if (!session?.user) redirect("/sign-in");
 
   return (
     <div className="flex flex-col gap-6">

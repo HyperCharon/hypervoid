@@ -1,3 +1,5 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { FriendEditor } from "@/components/admin/FriendEditor";
 import { AdminBackLink } from "@/components/admin/AdminBackLink";

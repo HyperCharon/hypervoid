@@ -1,3 +1,5 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Folder, PenLine } from "lucide-react";
 import type { Metadata } from "next";

@@ -1,3 +1,5 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { AlbumForm } from "@/components/admin/AlbumForm";
 import { AdminBackLink } from "@/components/admin/AdminBackLink";

@@ -1,3 +1,5 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { PostEditor } from "@/components/admin/PostEditor";
 import { AdminBackLink } from "@/components/admin/AdminBackLink";
