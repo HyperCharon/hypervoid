@@ -8,5 +8,5 @@ import { signOut } from "@/auth";
  * CSRF tokens, session cookies, and redirect.
  */
 export async function signOutAction(): Promise<void> {
-  await signOut({ redirectTo: "/" });
+  await signOut({ redirectTo: "/sign-in" });
 }
