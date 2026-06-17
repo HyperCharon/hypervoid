@@ -88,8 +88,20 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
   const [emailValue, setEmailValue] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
   const emailId = useId();
   const reducedMotion = useReducedMotion();
+
+  // Check guest flag on mount — if set, treat as logged out
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("hypervoid:guest") === "1") {
+        setIsGuest(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
@@ -129,12 +141,14 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
     pointerY.set(0);
   }
 
-  const currentIdentity = currentUser?.login
-    ? "@" + currentUser.login
-    : currentUser?.name || currentUser?.email || "已登录用户";
+  // Guest flag overrides server session — show logged-out state
+  const effectiveUser = isGuest ? null : currentUser;
+  const currentIdentity = effectiveUser?.login
+    ? "@" + effectiveUser.login
+    : effectiveUser?.name || effectiveUser?.email || "已登录用户";
   const visibleError = authError ?? readableError(error);
-  const primaryHref = currentUser && redirectTo !== "/" ? redirectTo : "/";
-  const primaryLabel = currentUser && redirectTo !== "/" ? "继续访问" : "进入主页";
+  const primaryHref = effectiveUser && redirectTo !== "/" ? redirectTo : "/";
+  const primaryLabel = effectiveUser && redirectTo !== "/" ? "继续访问" : "进入主页";
 
   // SignOutButton handles the actual signout — this is just for loading state
   const [signingOut, setSigningOut] = useState(false);
@@ -276,14 +290,14 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
             >
               <div className="hypervoid-glow-pulse mb-7 inline-flex items-center gap-3 border border-emerald-100/25 bg-white/[0.045] px-4 py-2 font-mono text-[11px] uppercase text-emerald-50/85 shadow-[0_0_28px_rgba(34,211,238,0.12)] backdrop-blur-md">
                 <CircleDot className="h-3.5 w-3.5 text-emerald-200" aria-hidden />
-                {currentUser ? "SIGNED IN / " + currentIdentity : "HV-001 / VOID ACCESS"}
+                {effectiveUser ? "SIGNED IN / " + currentIdentity : "HV-001 / VOID ACCESS"}
               </div>
 
               <h1 className="hypervoid-glow-pulse max-w-full text-[clamp(3.1rem,14vw,10rem)] font-black uppercase leading-[0.82] text-white drop-shadow-[0_0_46px_rgba(125,211,252,0.36)]">
                 Hypervoid
               </h1>
               <p className="mt-7 max-w-[34rem] font-mono text-xs uppercase leading-6 text-emerald-50/72 sm:text-sm">
-                {currentUser ? "Identity confirmed. Session channel is active." : "GitHub primary access online. Email magic link remains on standby."}
+                {effectiveUser ? "Identity confirmed. Session channel is active." : "GitHub primary access online. Email magic link remains on standby."}
               </p>
 
               <button
@@ -343,7 +357,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                   ) : null}
                 </div>
 
-                {currentUser ? (
+                {effectiveUser ? (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -352,10 +366,10 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                     <div className="flex items-start gap-4">
                       <div
                         className="grid h-12 w-12 shrink-0 place-items-center border border-emerald-100/50 bg-black/35 bg-cover bg-center text-sm font-black text-emerald-100"
-                        style={currentUser.image ? { backgroundImage: "url(" + currentUser.image + ")" } : undefined}
+                        style={effectiveUser.image ? { backgroundImage: "url(" + effectiveUser.image + ")" } : undefined}
                         aria-hidden
                       >
-                        {currentUser.image ? null : currentIdentity.slice(0, 1).toUpperCase()}
+                        {effectiveUser.image ? null : currentIdentity.slice(0, 1).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-mono text-xs uppercase text-emerald-50">GitHub 已连接</p>
@@ -371,7 +385,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                             {primaryLabel}
                             <ArrowRight className="h-4 w-4" aria-hidden />
                           </Link>
-                          {currentUser.isAdmin ? (
+                          {effectiveUser.isAdmin ? (
                             <Link
                               href="/admin"
                               className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 whitespace-nowrap border px-4 text-sm font-black uppercase transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/70"
@@ -495,7 +509,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                 )}
 
                 {/* Guest mode */}
-                {!currentUser ? (
+                {!effectiveUser ? (
                   <>
                     <div className="my-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:my-4">
                       <div className="h-px bg-white/12" />
@@ -549,7 +563,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                       <span className="text-emerald-50/60">{label}</span>
                       <span className="inline-flex items-center gap-2 text-emerald-50">
                         <BadgeCheck className="h-3.5 w-3.5 text-emerald-200" aria-hidden />
-                        {label === "GitHub" && currentUser ? "已连接" : label === "邮箱中继" ? (emailEnabled ? value : "未启用") : value}
+                        {label === "GitHub" && effectiveUser ? "已连接" : label === "邮箱中继" ? (emailEnabled ? value : "未启用") : value}
                       </span>
                     </div>
                   ))}

@@ -120,7 +120,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     ? {
         cookies: {
           sessionToken: {
-            name: `${USE_SECURE_COOKIES ? "__Secure-" : ""}authjs.session-token`,
+            // The __Secure- prefix MUST match the Secure flag — the browser
+            // rejects the cookie if the prefix is present but Secure is absent.
+            name: USE_SECURE_COOKIES
+              ? "__Secure-authjs.session-token"
+              : "authjs.session-token",
             options: {
               httpOnly: true,
               sameSite: "lax" as const,
