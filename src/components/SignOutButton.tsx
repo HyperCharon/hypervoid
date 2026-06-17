@@ -4,8 +4,8 @@ import { signOut } from "next-auth/react";
 import { useCallback, useTransition } from "react";
 
 /**
- * Logout button. Calls client-side signOut to clear the session cookie,
- * then forces a full page reload to /sign-in.
+ * Logout button. Calls client-side signOut which POSTs to /api/auth/signout,
+ * clears the session cookie, and redirects to /sign-in.
  */
 export function SignOutButton({
   className = "",
@@ -19,12 +19,7 @@ export function SignOutButton({
 
   const handleClick = useCallback(() => {
     startTransition(async () => {
-      try {
-        await signOut({ redirect: false });
-      } catch {
-        // signOut may throw — that's expected
-      }
-      window.location.href = "/sign-in";
+      await signOut({ callbackUrl: "/sign-in" });
     });
   }, []);
 
