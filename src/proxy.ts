@@ -1,6 +1,36 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { auth, ADMIN_LOGIN, verifyAdminIdentity } from "@/auth";
 
+/** Read the logout timestamp cookie. Returns 0 if not set. */
+function getLogoutTimestamp(req: NextRequest): number {
+  const v = req.cookies.get("hv-logout-at")?.value;
+  return v ? Number(v) : 0;
+}
+
+/**
+ * Check if the JWT was issued before the last logout.
+ * We decode the JWT payload without verification (middleware runs at edge,
+ * we can't verify signatures here — Auth.js does that in the auth() call).
+ * We only need the `iat` claim to compare timestamps.
+ */
+function isJwtStale(req: NextRequest, logoutAt: number): boolean {
+  if (!logoutAt) return false;
+  try {
+    // Extract JWT from the session cookie
+    const token = req.cookies.get("authjs.session-token")?.value
+      || req.cookies.get("__Secure-authjs.session-token")?.value
+      || req.cookies.get("next-auth.session-token")?.value
+      || req.cookies.get("__Secure-next-auth.session-token")?.value;
+    if (!token) return false;
+    // Decode payload (middle part of JWT)
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    // iat is in seconds, logoutAt is in milliseconds
+    return (payload.iat || 0) * 1000 <= logoutAt;
+  } catch {
+    return false; // can't decode — don't block
+  }
+}
+
 /**
  * Per-request CSP nonce + preview-deployment/admin gate + optional site-wide login.
  *
@@ -205,14 +235,21 @@ async function denyUnauthorized(req: NextRequest): Promise<NextResponse | null> 
     return null;
   }
 
+  // Check if the JWT was issued before the last logout.
+  // If so, reject the session entirely — this handles the case where
+  // the browser still sends a stale JWT cookie that couldn't be deleted.
+  const logoutAt = getLogoutTimestamp(req);
+  if (logoutAt > 0 && isJwtStale(req, logoutAt)) {
+    // Stale JWT — redirect to sign-in
+    const signInUrl = new URL("/sign-in", req.nextUrl);
+    return NextResponse.redirect(signInUrl);
+  }
+
   const session = await auth();
   const user = session?.user as
     | { login?: string | null; email?: string | null; isAdmin?: boolean | null }
     | undefined;
   // Defense-in-depth: verify BOTH JWT claims AND actual identity.
-  // A stale JWT may still claim isAdmin=true after logout if the cookie
-  // wasn't properly cleared. The identity check against env vars ensures
-  // only the real admin can access admin routes.
   const allowed = (user?.isAdmin === true || user?.login === ADMIN_LOGIN) && verifyAdminIdentity(user);
   if (allowed) return null;
 

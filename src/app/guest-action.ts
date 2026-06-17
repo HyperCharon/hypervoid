@@ -2,13 +2,17 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { recordLogout } from "@/lib/session-invalidate";
 
 /**
- * Enter guest mode: clears ALL NextAuth cookies so the middleware
- * treats the user as unauthenticated, then redirects to /.
+ * Enter guest mode: records logout timestamp, clears ALL NextAuth
+ * cookies, then redirects to /.
  */
 export async function enterGuestAction(): Promise<never> {
   const store = await cookies();
+
+  // Record logout timestamp BEFORE clearing cookies
+  await recordLogout();
 
   const names = [
     "__Secure-authjs.session-token",
