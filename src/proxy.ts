@@ -167,8 +167,10 @@ async function routeToolsSubdomain(req: NextRequest): Promise<NextResponse | nul
   return NextResponse.rewrite(url, { request: { headers } });
 }
 
-// Paths exempt from site-wide login check
+// Paths exempt from site-wide login check.
+// "/" is always public so guest login works regardless of login policy.
 const PUBLIC_PATHS = [
+  "/",
   "/sign-in",
   "/cv", // public résumé — recruiter-facing, must bypass the site-login gate
   "/api/auth",
