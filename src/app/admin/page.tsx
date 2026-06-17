@@ -124,10 +124,10 @@ export default async function AdminHome() {
       {/* Recent + Pending */}
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         {/* Recent published */}
-        <div className="rounded-xl border border-border bg-card">
+        <div className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="text-sm font-medium">最近发布</h2>
-            <Link href="/admin/posts" className="flex items-center gap-1 text-xs text-accent hover:underline">
+            <Link href="/admin/posts" className="flex shrink-0 items-center gap-1 text-xs text-accent hover:underline">
               全部 <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
@@ -136,8 +136,8 @@ export default async function AdminHome() {
           ) : (
             <ul className="divide-y divide-border">
               {recentPublished.map((p) => (
-                <li key={p.slug}>
-                  <Link href={`/admin/posts/${p.slug}/edit`} className="flex items-baseline justify-between gap-3 px-4 py-2.5 hover:bg-card-hover transition-colors">
+                <li key={p.slug} className="overflow-hidden">
+                  <Link href={`/admin/posts/${p.slug}/edit`} className="flex items-baseline gap-2 px-4 py-2.5 hover:bg-card-hover transition-colors">
                     <span className="min-w-0 flex-1 truncate text-sm">
                       {p.visibility === "private" && <LockKeyhole className="mr-1 inline h-3 w-3 text-muted" />}
                       {p.title}
@@ -151,25 +151,26 @@ export default async function AdminHome() {
         </div>
 
         {/* Pending items */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 overflow-hidden">
           {[
             { icon: FileEdit, label: "草稿", count: drafts.length, href: "/admin/posts", color: "text-amber-500", bg: "bg-amber-500/10" },
             { icon: Clock, label: "定时待发", count: scheduled.length, href: "/admin/posts", color: "text-blue-500", bg: "bg-blue-500/10" },
             { icon: Lock, label: "私密文章", count: privateOnes.length, href: "/admin/posts", color: "text-zinc-400", bg: "bg-zinc-400/10" },
           ].map(({ icon: Icon, label, count, href, color, bg }) => (
-            <Link key={label} href={href} className="group flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 hover:bg-card-hover transition-colors">
-              <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${bg}`}>
+            <Link key={label} href={href} className="group flex items-center gap-3 overflow-hidden rounded-xl border border-border bg-card px-4 py-3 hover:bg-card-hover transition-colors">
+              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${bg}`}>
                 <Icon className={`h-4 w-4 ${color}`} />
               </div>
-              <span className="flex-1 text-sm">{label}</span>
-              <span className="text-lg font-bold tabular-nums">{count}</span>
-              <ArrowRight className="h-4 w-4 text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+              <span className="min-w-0 flex-1 truncate text-sm">{label}</span>
+              <span className="shrink-0 text-lg font-bold tabular-nums">{count}</span>
+              <ArrowRight className="h-4 w-4 shrink-0 text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
             </Link>
           ))}
           {missingSummary.length > 0 && (
-            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
+            <div className="overflow-hidden rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
               <p className="flex items-center gap-1.5 font-medium text-amber-700 dark:text-amber-300">
-                <ShieldAlert className="h-3.5 w-3.5" /> {missingSummary.length} 篇缺少 AI 摘要
+                <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
+                <span className="min-w-0">{missingSummary.length} 篇缺少 AI 摘要</span>
               </p>
               <p className="mt-1 text-muted">编辑页可手动生成</p>
             </div>
