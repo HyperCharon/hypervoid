@@ -1328,10 +1328,10 @@ html[data-reading="large"] article .prose {
   isolation: isolate;
   max-width: 100rem;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 1rem 1rem 0;
 }
-@media (min-width: 640px) { .hv-main-shell { padding: 0 1.5rem; } }
-@media (min-width: 1024px) { .hv-main-shell { padding: 0 2rem; } }
+@media (min-width: 640px) { .hv-main-shell { padding: 1.5rem 1.5rem 0; } }
+@media (min-width: 1024px) { .hv-main-shell { padding: 2rem 2rem 0; } }
 
 html[data-fullscreen-route="true"] .hv-chrome-only { display: none !important; }
 html[data-fullscreen-route="true"] .hv-main-shell { max-width: none !important; padding: 0 !important; }
