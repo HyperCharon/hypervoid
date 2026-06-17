@@ -45,7 +45,7 @@ export function ReadingMode() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative shrink-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -62,7 +62,7 @@ export function ReadingMode() {
             onClick={() => setOpen(false)}
             aria-hidden
           />
-          <div className="hv-panel absolute right-0 top-10 z-40 flex w-44 flex-col gap-0.5 p-1 shadow-2xl">
+          <div className="hv-panel absolute right-0 top-full mt-1 z-40 flex w-44 flex-col gap-0.5 p-1 shadow-2xl">
             {(
               [
                 ["normal", "默认"],

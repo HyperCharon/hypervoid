@@ -21,7 +21,7 @@ export function BookmarkButton({
       onClick={() => toggle({ slug, title, description })}
       aria-label={active ? "取消收藏" : "收藏文章"}
       title={active ? "取消收藏" : "加入收藏 → /bookmarks"}
-      className={"hv-action h-9 w-9 p-0 " + (
+      className={"hv-action h-9 w-9 p-0 shrink-0 " + (
         active ? "border-accent bg-accent/14 text-foreground" : ""
       )}
     >

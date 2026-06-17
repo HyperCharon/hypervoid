@@ -134,7 +134,7 @@ export default async function PostPage(props: { params: Promise<Params> }) {
       <ReadingProgress />
       <ReadTracker slug={slug} />
       <article className="mx-auto w-full ">
-        <div className="flex flex-wrap items-center justify-between gap-2 sm:flex-nowrap sm:gap-3">
+        <div className="flex items-center justify-between gap-2 sm:gap-3">
           <Link
             href="/posts"
             className="hv-action shrink-0 px-4 text-sm font-medium whitespace-nowrap"
@@ -143,7 +143,7 @@ export default async function PostPage(props: { params: Promise<Params> }) {
             <span className="hidden sm:inline">返回文章列表</span>
             <span className="sm:hidden">返回</span>
           </Link>
-          <div className="flex flex-wrap items-center gap-1 sm:flex-nowrap">
+          <div className="flex items-center gap-1 overflow-x-auto">
             <ReadingMode />
             <BookmarkButton
               slug={slug}
@@ -310,7 +310,7 @@ export default async function PostPage(props: { params: Promise<Params> }) {
                 target="_blank"
                 rel="noreferrer noopener"
                 title="GitHub Discussions 是评论真实存储地。点这里跳到对应 discussion 删评论"
-                className="hv-action min-h-8 px-2.5 text-[11px]"
+                className="hv-action min-h-8 px-2.5 text-xs"
               >
                 <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> 在 GitHub 管理
                 <ExternalLink className="h-3 w-3" aria-hidden />

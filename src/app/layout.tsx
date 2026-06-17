@@ -42,7 +42,9 @@ const orbitron = Orbitron({
   // Only the weights actually used by the display face (--font-display):
   // 600 (ToolsTopBar), 700 (tools headings), 900 (Hero). Trimmed from 6.
   weight: ["600", "700", "900"],
-  display: "swap",
+  // "optional" avoids preload warnings on pages that don't use this font
+  // (e.g. /sign-in). Geist/JetBrains stay "swap" since they're used everywhere.
+  display: "optional",
 });
 
 export const viewport: Viewport = {

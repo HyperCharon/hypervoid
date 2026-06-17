@@ -23,7 +23,7 @@ export function ReadLaterButton({
       onClick={() => toggle({ slug, title, description })}
       aria-label={active ? t.readLater.remove : t.readLater.add}
       title={active ? t.readLater.added : t.readLater.hint}
-      className={"hv-action h-9 w-9 p-0 " + (
+      className={"hv-action h-9 w-9 p-0 shrink-0 " + (
         active ? "border-accent bg-accent/14 text-foreground" : ""
       )}
     >
