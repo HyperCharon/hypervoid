@@ -19,9 +19,31 @@ export function SignOutButton({
   const [pending, startTransition] = useTransition();
 
   function handleClick() {
-    // Clear guest flag immediately (client-side)
+    // Clear guest flag
     try {
       localStorage.removeItem("hypervoid:guest");
+    } catch {
+      // ignore
+    }
+    // Clear ALL auth cookies client-side as well (belt-and-suspenders —
+    // the server action also deletes them, but the browser may have
+    // legacy __Secure- cookies that server-side delete can't reach if
+    // the domain doesn't match).
+    try {
+      const cookieNames = [
+        "authjs.session-token",
+        "__Secure-authjs.session-token",
+        "next-auth.session-token",
+        "__Secure-next-auth.session-token",
+      ];
+      const host = location.hostname;
+      const root = host.split(".").slice(-2).join(".");
+      for (const name of cookieNames) {
+        for (const d of [host, root, `.${root}`, ""]) {
+          const suffix = d ? `; domain=${d}` : "";
+          document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${suffix}`;
+        }
+      }
     } catch {
       // ignore
     }

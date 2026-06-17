@@ -113,22 +113,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   adapter: isAuthEmailConfigured() ? HypervoidAuthAdapter() : undefined,
   session: { strategy: "jwt" },
-  // Always set cookie config explicitly so the __Secure- prefix is in sync
-  // with the Secure flag. Auth.js v5 defaults use __Secure- in production
-  // but may not set Secure correctly in all environments, causing the
-  // browser to reject the cookie ("invalid prefix").
+  // Always set cookie config explicitly. Auth.js v5's internal secure-cookie
+  // detection can mismatch the __Secure- prefix with the actual Secure flag,
+  // causing the browser to reject the cookie entirely. Using a plain name
+  // (no __Secure- prefix) avoids this class of bug completely.
   cookies: {
     sessionToken: {
-      name: USE_SECURE_COOKIES
-        ? "__Secure-authjs.session-token"
-        : "authjs.session-token",
+      name: "authjs.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax" as const,
         path: "/",
         secure: USE_SECURE_COOKIES,
-        // Only set domain when AUTH_COOKIE_DOMAIN is configured (for
-        // subdomain session sharing). Otherwise leave host-only (default).
         ...(AUTH_COOKIE_DOMAIN ? { domain: AUTH_COOKIE_DOMAIN } : {}),
       },
     },
