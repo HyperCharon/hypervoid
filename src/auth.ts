@@ -111,44 +111,13 @@ const emailProviders = isAuthEmailConfigured()
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
+  // Force useSecureCookies to match NODE_ENV so the __Secure- prefix
+  // is in sync with the actual Secure flag. Without this, Auth.js v5
+  // detects HTTPS from the URL protocol which may not match the actual
+  // cookie delivery context (e.g. Vercel edge vs origin).
+  useSecureCookies: USE_SECURE_COOKIES,
   adapter: isAuthEmailConfigured() ? HypervoidAuthAdapter() : undefined,
   session: { strategy: "jwt" },
-  // Always set cookie config explicitly. Auth.js v5's internal secure-cookie
-  // detection can mismatch the __Secure- prefix with the actual Secure flag,
-  // causing the browser to reject the cookie entirely. Using a plain name
-  // (no __Secure- prefix) avoids this class of bug completely.
-  cookies: {
-    sessionToken: {
-      name: "authjs.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax" as const,
-        path: "/",
-        secure: USE_SECURE_COOKIES,
-        ...(AUTH_COOKIE_DOMAIN ? { domain: AUTH_COOKIE_DOMAIN } : {}),
-      },
-    },
-    csrfToken: {
-      // Auth.js default uses __Host- prefix which requires Secure + Path=/ + no Domain.
-      // Use plain name to avoid prefix mismatch.
-      name: "authjs.csrf-token",
-      options: {
-        httpOnly: false,
-        sameSite: "lax" as const,
-        path: "/",
-        secure: USE_SECURE_COOKIES,
-      },
-    },
-    callbackUrl: {
-      name: "authjs.callback-url",
-      options: {
-        httpOnly: false,
-        sameSite: "lax" as const,
-        path: "/",
-        secure: USE_SECURE_COOKIES,
-      },
-    },
-  },
   providers: [GitHub, ...emailProviders],
   pages: {
     signIn: "/sign-in",

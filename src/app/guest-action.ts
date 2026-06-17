@@ -6,25 +6,31 @@ import { redirect } from "next/navigation";
 /**
  * Enter guest mode: clears ALL NextAuth cookies so the middleware
  * treats the user as unauthenticated, then redirects to /.
- * Uses both delete() and set("", maxAge=0) to ensure cookies are
- * removed regardless of how they were originally set.
  */
 export async function enterGuestAction(): Promise<never> {
   const store = await cookies();
+
   const names = [
+    "__Secure-authjs.session-token",
+    "__Host-authjs.csrf-token",
+    "__Secure-authjs.callback-url",
+    "__Secure-authjs.pkce.code_verifier",
+    "__Secure-authjs.state",
+    "__Secure-authjs.nonce",
     "authjs.session-token",
     "authjs.csrf-token",
     "authjs.callback-url",
-    "__Secure-authjs.session-token",
-    "__Secure-next-auth.session-token",
-    "__Secure-authjs.callback-url",
-    "__Host-authjs.csrf-token",
+    "authjs.pkce.code_verifier",
+    "authjs.state",
+    "authjs.nonce",
     "next-auth.session-token",
+    "__Secure-next-auth.session-token",
+    "next-auth.csrf-token",
+    "next-auth.callback-url",
   ];
 
   for (const name of names) {
     store.delete(name);
-    // Belt-and-suspenders: also set empty with maxAge=0
     store.set(name, "", { maxAge: 0, path: "/" });
   }
 
