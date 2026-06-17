@@ -8,7 +8,12 @@ export const metadata: Metadata = {
 };
 
 export default async function ReaderPage() {
-  const session = await auth().catch(() => null);
-  const isAdmin = Boolean((session?.user as any)?.isAdmin);
+  let isAdmin = false;
+  try {
+    const session = await auth();
+    isAdmin = Boolean((session?.user as any)?.isAdmin);
+  } catch {
+    // auth failed — non-admin
+  }
   return <ReaderShell isAdmin={isAdmin} />;
 }

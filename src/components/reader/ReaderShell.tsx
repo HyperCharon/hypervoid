@@ -219,7 +219,11 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
 
     (async () => {
       try {
-        const content = await loadBookContent(activeId);
+        // Timeout protection — IndexedDB reads should complete within 5s
+        const content = await Promise.race([
+          loadBookContent(activeId),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+        ]);
         if (cancelled) return;
         if (!content) { setLoading(false); return; }
         const book = library.find(b => b.id === activeId);
@@ -235,7 +239,10 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
           setRawContent(content);
           setChapters(extractMdChapters(content));
           try {
-            const h = await renderMd(content);
+            const h = await Promise.race([
+              renderMd(content),
+              new Promise<string>((_, reject) => setTimeout(() => reject(new Error("渲染超时")), 10000)),
+            ]);
             if (!cancelled) { setHtmlContent(h); setLoading(false); }
           } catch {
             if (!cancelled) {
