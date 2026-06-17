@@ -1,15 +1,12 @@
 "use server";
 
 import { signOut } from "@/auth";
-import { redirect } from "next/navigation";
 
 /**
- * Server-side signout action. Called from SignOutButton client component.
- * Uses the server-side signOut from NextAuth which properly handles
- * CSRF tokens and session cookies. Then uses Next.js redirect() to
- * navigate — signOut's own redirect doesn't work from server actions.
+ * Server-side signout action. signOut() from NextAuth returns a redirect
+ * response that includes the Set-Cookie header to clear the session.
+ * The `redirect` option tells NextAuth where to redirect after signout.
  */
-export async function signOutAction(): Promise<never> {
-  await signOut({ redirectTo: "/sign-in" });
-  redirect("/sign-in");
+export async function signOutAction(): Promise<void> {
+  await signOut({ redirect: false });
 }

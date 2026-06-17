@@ -3,17 +3,15 @@
 import { useCallback, useState, useTransition } from "react";
 
 /**
- * Logout via server action. Calls the server-side signOut from @/auth
- * which properly handles CSRF, cookies, and session invalidation.
+ * Logout button. Calls the server-side signOut action to clear the
+ * session cookie, then forces a full page reload to /sign-in.
  */
 export function SignOutButton({
-  redirectTo = "/",
   className = "",
   children = "退出登录",
   signOutAction,
   ...rest
 }: {
-  redirectTo?: string;
   className?: string;
   children?: React.ReactNode;
   signOutAction: () => Promise<void>;
@@ -26,9 +24,13 @@ export function SignOutButton({
     startTransition(async () => {
       try {
         await signOutAction();
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "退出失败");
+      } catch {
+        // signOut may throw a redirect error — that's expected
       }
+      // Force full page reload to /sign-in regardless of what signOut
+      // returned. The server action clears the session cookie; the
+      // reload ensures the browser picks up the cleared state.
+      window.location.href = "/sign-in";
     });
   }, [signOutAction]);
 
