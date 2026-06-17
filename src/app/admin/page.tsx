@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { SignOutButton } from "@/components/SignOutButton";
+import { signOutAction } from "@/app/signout-action";
 import {
   ArrowRight, FileUser, LockKeyhole, LogOut, PenLine, ShieldAlert,
   FileText, Bot, BarChart3, Palette, Eye, Heart, Users, Clock,
@@ -77,7 +78,7 @@ export default async function AdminHome() {
           >
             <PenLine className="h-4 w-4" /> 写文章
           </Link>
-          <SignOutButton redirectTo="/" className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-muted hover:text-foreground hover:bg-card-hover transition-colors">
+          <SignOutButton signOutAction={signOutAction} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-muted hover:text-foreground hover:bg-card-hover transition-colors">
             <LogOut className="h-4 w-4" /> 退出
           </SignOutButton>
         </div>

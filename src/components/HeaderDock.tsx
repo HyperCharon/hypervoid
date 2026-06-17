@@ -10,6 +10,7 @@ import { LOCALES, LOCALE_LABEL } from "@/lib/i18n";
 import { SiteSettings } from "@/components/SiteSettings";
 import { NotificationBell } from "@/components/NotificationBell";
 import { SignOutButton } from "@/components/SignOutButton";
+import { signOutAction } from "@/app/signout-action";
 
 function DockIcon({ children }: { children: ReactNode }) {
   return <span className="hv-dock-icon">{children}</span>;
@@ -88,7 +89,7 @@ export function HeaderDock({ hasSession = false }: { hasSession?: boolean }) {
 
         {hasSession ? (
           <DockSlot label="退出登录" className="hv-dock-item-danger">
-            <SignOutButton redirectTo="/" className="hv-dock-trigger" aria-label="退出登录" title="退出登录">
+            <SignOutButton signOutAction={signOutAction} className="hv-dock-trigger" aria-label="退出登录" title="退出登录">
               <DockIcon><LogOut className="h-4 w-4" aria-hidden /></DockIcon>
             </SignOutButton>
           </DockSlot>

@@ -26,6 +26,7 @@ import {
 import { type FormEvent, type PointerEvent, useEffect, useId, useState } from "react";
 import { signIn } from "next-auth/react";
 import { SignOutButton } from "@/components/SignOutButton";
+import { signOutAction } from "@/app/signout-action";
 
 type EntryState = "explore" | "login";
 type AuthLoading = "github" | "email" | "signout" | null;
@@ -382,7 +383,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                           ) : null}
                         </div>
                         <SignOutButton
-                          redirectTo="/"
+                          signOutAction={signOutAction}
                           className="mt-4 inline-flex min-h-10 cursor-pointer items-center gap-2 px-0 text-sm font-bold uppercase text-emerald-100 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/60"
                         >
                           <LogOut className="h-4 w-4" aria-hidden />
