@@ -1,10 +1,11 @@
 "use client";
 
+import { signOut } from "next-auth/react";
 import { useCallback, useState } from "react";
 
 /**
- * Reliable logout. Uses fetch to POST to the NextAuth signout endpoint,
- * then forces a full page reload to clear client state.
+ * Logout button using signOut from next-auth/react with forced reload.
+ * The forced reload ensures the server picks up the cleared session cookie.
  */
 export function SignOutButton({
   redirectTo = "/",
@@ -21,26 +22,16 @@ export function SignOutButton({
   const handleClick = useCallback(async () => {
     setLoading(true);
     try {
-      // 1. Get a fresh CSRF token
-      const csrfRes = await fetch("/api/auth/csrf");
-      const { csrfToken } = await csrfRes.json();
-
-      // 2. POST to signout endpoint
-      await fetch("/api/auth/signout", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ csrfToken, callbackUrl: redirectTo }),
-        redirect: "manual", // don't follow the redirect automatically
-      });
-
-      // 3. Force full page reload — clears all client state + picks up
-      //    the cleared session cookie from the Set-Cookie header.
-      window.location.href = redirectTo;
+      // signOut clears the session cookie server-side.
+      // redirect: false so we can force a full reload instead of
+      // NextAuth's client-side navigation (which sometimes doesn't
+      // pick up the cleared cookie).
+      await signOut({ redirect: false });
     } catch {
-      // Fallback: just navigate (session cookie might still be set,
-      // but at least the user isn't stuck)
-      window.location.href = redirectTo;
+      // ignore — the cookie might already be cleared
     }
+    // Force full page reload to pick up the cleared session cookie.
+    window.location.href = redirectTo;
   }, [redirectTo]);
 
   return (
