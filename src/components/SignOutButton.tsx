@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 /**
- * Zero-dependency logout button. No useSession, no SessionProvider.
- * Fetches CSRF token from NextAuth, then submits a form POST.
- * Renders unconditionally — parent controls visibility via server-side session.
+ * Reliable logout. Uses fetch to POST to the NextAuth signout endpoint,
+ * then forces a full page reload to clear client state.
  */
 export function SignOutButton({
   redirectTo = "/",
@@ -17,22 +16,42 @@ export function SignOutButton({
   className?: string;
   children?: React.ReactNode;
 } & React.HTMLAttributes<HTMLElement>) {
-  const [csrfToken, setCsrfToken] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/auth/csrf")
-      .then((r) => r.json())
-      .then((data) => setCsrfToken(data?.csrfToken ?? ""))
-      .catch(() => {});
-  }, []);
+  const handleClick = useCallback(async () => {
+    setLoading(true);
+    try {
+      // 1. Get a fresh CSRF token
+      const csrfRes = await fetch("/api/auth/csrf");
+      const { csrfToken } = await csrfRes.json();
+
+      // 2. POST to signout endpoint
+      await fetch("/api/auth/signout", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ csrfToken, callbackUrl: redirectTo }),
+        redirect: "manual", // don't follow the redirect automatically
+      });
+
+      // 3. Force full page reload — clears all client state + picks up
+      //    the cleared session cookie from the Set-Cookie header.
+      window.location.href = redirectTo;
+    } catch {
+      // Fallback: just navigate (session cookie might still be set,
+      // but at least the user isn't stuck)
+      window.location.href = redirectTo;
+    }
+  }, [redirectTo]);
 
   return (
-    <form method="POST" action="/api/auth/signout" className="inline">
-      <input type="hidden" name="csrfToken" value={csrfToken} />
-      <input type="hidden" name="callbackUrl" value={redirectTo} />
-      <button type="submit" className={className} {...rest}>
-        {children}
-      </button>
-    </form>
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={loading}
+      className={className}
+      {...rest}
+    >
+      {children}
+    </button>
   );
 }
