@@ -113,29 +113,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   adapter: isAuthEmailConfigured() ? HypervoidAuthAdapter() : undefined,
   session: { strategy: "jwt" },
-  // When AUTH_COOKIE_DOMAIN is set, scope the session cookie to the registrable
-  // domain so cv./tools. subdomains share the admin's login. Left default
-  // (host-only) otherwise.
-  ...(AUTH_COOKIE_DOMAIN
-    ? {
-        cookies: {
-          sessionToken: {
-            // The __Secure- prefix MUST match the Secure flag — the browser
-            // rejects the cookie if the prefix is present but Secure is absent.
-            name: USE_SECURE_COOKIES
-              ? "__Secure-authjs.session-token"
-              : "authjs.session-token",
-            options: {
-              httpOnly: true,
-              sameSite: "lax" as const,
-              path: "/",
-              secure: USE_SECURE_COOKIES,
-              domain: AUTH_COOKIE_DOMAIN,
-            },
-          },
-        },
-      }
-    : {}),
+  // Always set cookie config explicitly so the __Secure- prefix is in sync
+  // with the Secure flag. Auth.js v5 defaults use __Secure- in production
+  // but may not set Secure correctly in all environments, causing the
+  // browser to reject the cookie ("invalid prefix").
+  cookies: {
+    sessionToken: {
+      name: USE_SECURE_COOKIES
+        ? "__Secure-authjs.session-token"
+        : "authjs.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: USE_SECURE_COOKIES,
+        // Only set domain when AUTH_COOKIE_DOMAIN is configured (for
+        // subdomain session sharing). Otherwise leave host-only (default).
+        ...(AUTH_COOKIE_DOMAIN ? { domain: AUTH_COOKIE_DOMAIN } : {}),
+      },
+    },
+  },
   providers: [GitHub, ...emailProviders],
   pages: {
     signIn: "/sign-in",
