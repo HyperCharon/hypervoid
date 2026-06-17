@@ -317,14 +317,6 @@
   color: var(--accent) !important;
 }
 
-/* ── Tab Bar ─────────────────────────────────────────────── */
-.light .hv-grad-tabbar {
-  background: var(--grad-header) !important;
-  border-top: 1px solid var(--divider) !important;
-  box-shadow: 0 -2px 12px rgba(44,24,16,0.06) !important;
-}
-
-
 
 /* ── Text Readability ────────────────────────────────────── */
 .light .text-readable {
@@ -374,23 +366,6 @@
 .light .hv-spectrum-line-fade {
   background: linear-gradient(90deg, transparent, #0284c7, #0ea5e9, #38bdf8, #06b6d4, transparent) !important;
   opacity: 0.3 !important;
-}
-
-/* ── Aurora Blob ─────────────────────────────────────────── */
-.light .hv-aurora-blob {
-  background: radial-gradient(circle, rgba(2,132,199,0.07), rgba(14,165,233,0.045), rgba(6,182,212,0.03), transparent 70%) !important;
-}
-
-/* ── Glitch Title ────────────────────────────────────────── */
-.light .hv-compact-title {
-  color: var(--accent) !important;
-  text-shadow: none !important;
-}
-.light .hv-compact-card:hover .hv-compact-title {
-  text-shadow: 0 0 8px rgba(2,132,199,0.18), 0 0 12px rgba(14,165,233,0.08) !important;
-}
-.light .hv-compact-glow {
-  background: radial-gradient(ellipse at 50% 50%, rgba(2,132,199,0.04), rgba(14,165,233,0.025), transparent 70%) !important;
 }
 
 /* ── Scroll Progress ─────────────────────────────────────── */

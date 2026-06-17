@@ -532,12 +532,6 @@ html[data-reading="large"] article .prose {
   background: linear-gradient(145deg, rgba(239,68,68,0.18), rgba(249,115,22,0.14), rgba(234,179,8,0.14), rgba(34,197,94,0.16), rgba(6,182,212,0.18), rgba(59,130,246,0.2), rgba(99,102,241,0.18), rgba(139,92,246,0.16), rgba(217,70,239,0.14), #0c1224);
 }
 
-/* Tab bar gradient */
-.dark .hv-grad-tabbar {
-  background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(234,179,8,0.12), rgba(34,197,94,0.13), rgba(59,130,246,0.18), rgba(99,102,241,0.15), rgba(139,92,246,0.14), #0c1224);
-  border-top-color: rgba(255,255,255,0.06);
-}
-
 /* Social icon button gradient */
 .dark .hv-grad-social {
   background: rgba(15, 22, 40, 0.9);
@@ -558,10 +552,6 @@ html[data-reading="large"] article .prose {
   background: linear-gradient(90deg, transparent, #ef4444, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #d946ef, transparent);
 }
 
-/* Aurora blob (dark) */
-.dark .hv-aurora-blob {
-  background: radial-gradient(circle, #f43f5e 0%, #8b5cf6 40%, transparent 70%);
-}
 
 /* Avatar ring (dark) */
 .dark .hv-avatar-ring {
@@ -691,15 +681,6 @@ html[data-reading="large"] article .prose {
   color: var(--foreground);
   letter-spacing: var(--tracking-tight);
   font-weight: 700;
-  text-wrap: balance;
-}
-
-/* Display — for hero-scale headings using the Orbitron display face */
-.hv-display {
-  font-family: var(--font-display), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  letter-spacing: var(--tracking-display);
-  line-height: var(--leading-display);
-  font-weight: 800;
   text-wrap: balance;
 }
 
@@ -1347,22 +1328,6 @@ html[data-fullscreen-route="true"] body { overflow-x: hidden; }
   transition: width 100ms linear;
 }
 
-/* ── Compact Post Card ─────────────────────────────────────── */
-.hv-compact-title {
-  color: var(--card-accent);
-  text-shadow: none;
-}
-.hv-compact-card:hover .hv-compact-title {
-  text-shadow: 0 0 12px color-mix(in srgb, var(--card-accent) 40%, transparent);
-}
-.hv-compact-glow {
-  background: radial-gradient(
-    ellipse at 50% 50%,
-    color-mix(in srgb, var(--card-accent) 3%, transparent),
-    transparent 70%
-  );
-}
-
 /* ── Glow Underline ────────────────────────────────────────── */
 .glow-underline {
   position: relative;
@@ -1440,9 +1405,6 @@ html[data-fullscreen-route="true"] body { overflow-x: hidden; }
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16), 0 0 24px var(--accent-glow);
 }
 .hv-magic-bento-card.is-featured { min-height: 13rem; }
-
-/* ── Homepage Layout ───────────────────────────────────────── */
-.hv-home-grid { align-items: start; }
 
 .hv-magic-bento-content {
   position: relative;
