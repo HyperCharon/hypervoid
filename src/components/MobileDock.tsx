@@ -30,12 +30,14 @@ import {
   Pin,
   BookOpenText,
   Shuffle,
+  LogOut,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useLocale } from "@/components/LocaleProvider";
 import { useT } from "@/components/LocaleProvider";
 import { LOCALES } from "@/lib/i18n";
 import { SiteSettings } from "@/components/SiteSettings";
+import { signOut } from "@/auth.client";
 
 /* ── Mobile Dock (top-right, visible <xl) ─────────────────── */
 export function MobileDock() {
@@ -44,9 +46,19 @@ export function MobileDock() {
   const t = useT();
   const [mounted, setMounted] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [hasSession, setHasSession] = useState(false);
   const navToggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/session")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => { if (active) setHasSession(Boolean(data?.user)); })
+      .catch(() => { if (active) setHasSession(false); });
+    return () => { active = false; };
+  }, []);
 
   const isDark = mounted ? resolvedTheme !== "light" : true;
   const nextLocale = LOCALES[(LOCALES.indexOf(locale) + 1) % LOCALES.length];
@@ -114,7 +126,7 @@ export function MobileDock() {
       </button>
 
       {/* Nav drawer */}
-      <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} toggleRef={navToggleRef} />
+      <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} toggleRef={navToggleRef} hasSession={hasSession} />
     </div>
   );
 }
@@ -170,9 +182,10 @@ const NAV_GROUPS = [
   },
 ];
 
-function NavDrawer({ open, onClose, toggleRef }: { open: boolean; onClose: () => void; toggleRef?: React.RefObject<HTMLButtonElement | null> }) {
+function NavDrawer({ open, onClose, toggleRef, hasSession }: { open: boolean; onClose: () => void; toggleRef?: React.RefObject<HTMLButtonElement | null>; hasSession?: boolean }) {
   const pathname = usePathname();
   const drawerRef = useRef<HTMLDivElement>(null);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -243,6 +256,26 @@ function NavDrawer({ open, onClose, toggleRef }: { open: boolean; onClose: () =>
               </div>
             </div>
           ))}
+          {hasSession ? (
+            <div className="mt-3 border-t border-border pt-3">
+              <button
+                type="button"
+                onClick={async () => {
+                  setSigningOut(true);
+                  try {
+                    await signOut({ redirectTo: "/" });
+                  } catch {
+                    setSigningOut(false);
+                  }
+                }}
+                disabled={signingOut}
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10 active:bg-red-500/10 disabled:opacity-50"
+              >
+                <LogOut className="h-4.5 w-4.5 shrink-0" />
+                <span>{signingOut ? "退出中..." : "退出登录"}</span>
+              </button>
+            </div>
+          ) : null}
         </div>
       </div>
     </>

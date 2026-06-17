@@ -1,6 +1,7 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
+import { SessionProvider } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { LocaleProvider } from "@/components/LocaleProvider";
@@ -20,18 +21,20 @@ export function Providers({
   const forcedTheme = isCvContext(pathname ?? "") ? "dark" : undefined;
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      themes={["dark", "light"]}
-      enableSystem
-      disableTransitionOnChange
-      nonce={nonce}
-      forcedTheme={forcedTheme}
-    >
-      <LocaleProvider>
-        <PlayerProvider>{children}</PlayerProvider>
-      </LocaleProvider>
-    </ThemeProvider>
+    <SessionProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        themes={["dark", "light"]}
+        enableSystem
+        disableTransitionOnChange
+        nonce={nonce}
+        forcedTheme={forcedTheme}
+      >
+        <LocaleProvider>
+          <PlayerProvider>{children}</PlayerProvider>
+        </LocaleProvider>
+      </ThemeProvider>
+    </SessionProvider>
   );
 }
