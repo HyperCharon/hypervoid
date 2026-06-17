@@ -19,7 +19,7 @@ export async function ProfileCard() {
       colors={["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#ec4899"]}
       glowColor="99 102 241"
       backgroundColor="rgba(15,22,40,1)"
-      lightBackgroundColor="#fffcf5"
+      lightBackgroundColor="#efe6cc"
       borderRadius={20}
       edgeSensitivity={25}
       glowRadius={40}

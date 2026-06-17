@@ -12,7 +12,7 @@ export function PostCard({ post }: { post: PostMeta }) {
       colors={["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#ec4899"]}
       glowColor="99 102 241"
       backgroundColor="rgba(12,18,36,0.9)"
-      lightBackgroundColor="#fffcf5"
+      lightBackgroundColor="#efe6cc"
       borderRadius={16}
       edgeSensitivity={20}
       glowRadius={30}

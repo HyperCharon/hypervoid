@@ -33,23 +33,23 @@
 /* ── Background Options ──────────────────────────────────── */
 .light {
   --bg-image: none;
-  --bg-color: #f8f2dc;
+  --bg-color: #f5edd6;
   --bg-size: cover;
   --bg-position: center;
   --bg-repeat: no-repeat;
   --background: var(--bg-color);
 }
 
-.light[data-bg="parchment"] { --bg-color: #f4ece0; }
-.light[data-bg="linen"] { --bg-color: #f0e8d8; }
-.light[data-bg="cream"] { --bg-color: #fefcf7; }
-.light[data-bg="warm-gray"] { --bg-color: #ede6d8; }
+.light[data-bg="parchment"] { --bg-color: #f0e7cd; }
+.light[data-bg="linen"] { --bg-color: #ece3c4; }
+.light[data-bg="cream"] { --bg-color: #f8f2dc; }
+.light[data-bg="warm-gray"] { --bg-color: #e8ddbf; }
 
 /* ── Missing variable definitions ─────────────────────────── */
 .light {
-  --text-muted: #6b5b48;
+  --text-muted: #7a6b52;
   --text-body: #3d3229;
-  --grad-input: linear-gradient(160deg, #fdf9ee, #f5edcf);
+  --grad-input: linear-gradient(160deg, #efe6cc, #e8ddbf);
 }
 
 /* ── Body ────────────────────────────────────────────────── */
@@ -97,7 +97,7 @@
   filter: blur(2rem) !important;
 }
 .light .hv-grad-player .bg-gradient-to-b {
-  background: linear-gradient(to bottom, rgba(254,252,247,0.3), rgba(254,252,247,0.95)) !important;
+  background: linear-gradient(to bottom, rgba(245,237,214,0.3), rgba(245,237,214,0.95)) !important;
 }
 
 /* Light mode image overlays — soften */
@@ -732,7 +732,7 @@
 
 /* ── Scrollbar ───────────────────────────────────────────── */
 .light {
-  scrollbar-color: rgba(140,122,106,0.2) var(--bg-color);
+  scrollbar-color: rgba(120,107,82,0.2) var(--bg-color);
   scrollbar-width: thin;
 }
 .light ::-webkit-scrollbar {
@@ -743,11 +743,11 @@
   background: var(--bg-color);
 }
 .light ::-webkit-scrollbar-thumb {
-  background: rgba(140,122,106,0.2);
+  background: rgba(120,107,82,0.2);
   border-radius: 4px;
 }
 .light ::-webkit-scrollbar-thumb:hover {
-  background: rgba(140,122,106,0.35);
+  background: rgba(120,107,82,0.35);
 }
 
 /* ── 404 Void Icon ──────────────────────────────────────── */
