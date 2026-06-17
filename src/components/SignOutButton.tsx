@@ -1,12 +1,12 @@
 "use client";
 
-import { signOut } from "next-auth/react";
-import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useCallback, useRef } from "react";
 
 /**
- * Reliable logout button. Tries client-side signOut first; if it
- * doesn't redirect within 2s, falls back to a form POST to the
- * signout endpoint so the browser navigates regardless.
+ * Reliable logout button. Uses a plain form POST to the NextAuth signout
+ * endpoint. If the redirect doesn't happen within 3s, forces navigation
+ * via window.location.
  */
 export function SignOutButton({
   redirectTo = "/",
@@ -17,36 +17,31 @@ export function SignOutButton({
   redirectTo?: string;
   className?: string;
   children?: React.ReactNode;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  const [fallingBack, setFallingBack] = useState(false);
+} & React.HTMLAttributes<HTMLElement>) {
+  const { data: session, status } = useSession();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  async function handleSignOut() {
-    try {
-      await signOut({ callbackUrl: redirectTo, redirect: true });
-    } catch {
-      // signOut threw — use form fallback
-      setFallingBack(true);
-    }
-    // If signOut resolved but didn't navigate (happens in some NextAuth
-    // beta builds), fall back after a short delay.
-    setTimeout(() => setFallingBack(true), 2000);
-  }
+  const onSubmit = useCallback(() => {
+    // Safety net: if the POST redirect doesn't fire within 3s, force nav.
+    timerRef.current = setTimeout(() => {
+      window.location.href = redirectTo;
+    }, 3000);
+  }, [redirectTo]);
 
-  // Form fallback — POSTs directly to the signout endpoint.
-  if (fallingBack) {
-    return (
-      <form method="POST" action="/api/auth/signout" className="inline">
-        <input type="hidden" name="callbackUrl" value={redirectTo} />
-        <button type="submit" className={className} {...rest}>
-          {children}
-        </button>
-      </form>
-    );
-  }
+  // Don't render while loading or when not authenticated.
+  if (status !== "authenticated" || !session?.user) return null;
 
   return (
-    <button type="button" onClick={handleSignOut} className={className} {...rest}>
-      {children}
-    </button>
+    <form
+      method="POST"
+      action="/api/auth/signout"
+      className="inline"
+      onSubmit={onSubmit}
+    >
+      <input type="hidden" name="callbackUrl" value={redirectTo} />
+      <button type="submit" className={className} {...rest}>
+        {children}
+      </button>
+    </form>
   );
 }
