@@ -23,9 +23,10 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import { type FormEvent, type PointerEvent, useEffect, useId, useState } from "react";
+import { type FormEvent, type PointerEvent, useEffect, useId, useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
 import { SignOutButton } from "@/components/SignOutButton";
+import { enterGuestAction } from "@/app/guest-action";
 
 type EntryState = "explore" | "login";
 type AuthLoading = "github" | "email" | "signout" | null;
@@ -89,6 +90,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
   const [emailSent, setEmailSent] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isGuest, setIsGuest] = useState(false);
+  const [, startGuestTransition] = useTransition();
   const emailId = useId();
   const reducedMotion = useReducedMotion();
 
@@ -516,16 +518,19 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                       <span className="font-mono text-[10px] uppercase text-white/35">或</span>
                       <div className="h-px bg-white/12" />
                     </div>
-                    <Link
-                      href="/"
+                    <button
+                      type="button"
                       onClick={() => {
                         try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
+                        startGuestTransition(async () => {
+                          await enterGuestAction();
+                        });
                       }}
-                      className="group flex min-h-11 w-full items-center justify-center gap-2 border border-white/30 bg-white/10 text-sm font-semibold text-white/90 transition hover:border-white/45 hover:bg-white/15 hover:text-white"
+                      className="group flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 border border-white/30 bg-white/10 text-sm font-semibold text-white/90 transition hover:border-white/45 hover:bg-white/15 hover:text-white"
                     >
                       游客访问（仅阅读）
                       <ArrowRight className="h-3.5 w-3.5 opacity-50 transition group-hover:translate-x-0.5 group-hover:opacity-100" aria-hidden />
-                    </Link>
+                    </button>
                   </>
                 ) : null}
 
