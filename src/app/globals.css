@@ -907,6 +907,31 @@ html[data-reading="large"] article .prose {
   border-radius: 2px;
   padding: 0 2px;
 }
+/* Epub chapter divider */
+.epub-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+  opacity: 0.5;
+}
+/* Epub content images */
+.reader-content .hv-prose img,
+.reader-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+/* Epub content tables */
+.reader-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.reader-content th, .reader-content td {
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  text-align: left;
+}
 .reader-content .hv-prose h1,
 .reader-content .hv-prose h2,
 .reader-content .hv-prose h3,
