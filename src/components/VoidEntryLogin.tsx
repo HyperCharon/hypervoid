@@ -24,7 +24,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { type FormEvent, type PointerEvent, useEffect, useId, useState } from "react";
-import { signIn, signOut } from "next-auth/react";
+import { signIn } from "next-auth/react";
+import { SignOutButton } from "@/components/SignOutButton";
 
 type EntryState = "explore" | "login";
 type AuthLoading = "github" | "email" | "signout" | null;
@@ -135,16 +136,8 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
   const primaryHref = currentUser && redirectTo !== "/" ? redirectTo : "/";
   const primaryLabel = currentUser && redirectTo !== "/" ? "继续访问" : "进入主页";
 
-  async function handleSignOut() {
-    setAuthError(null);
-    setLoading("signout");
-    try {
-      await signOut({ callbackUrl: "/" });
-    } catch {
-      setAuthError("退出登录失败，请刷新后重试。");
-      setLoading(null);
-    }
-  }
+  // SignOutButton handles the actual signout — this is just for loading state
+  const [signingOut, setSigningOut] = useState(false);
 
   async function handleGitHub() {
     setAuthError(null);
@@ -388,15 +381,13 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                             </Link>
                           ) : null}
                         </div>
-                        <button
-                          type="button"
-                          onClick={handleSignOut}
-                          disabled={loading !== null}
-                          className="mt-4 inline-flex min-h-10 cursor-pointer items-center gap-2 px-0 text-sm font-bold uppercase text-emerald-100 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/60 disabled:cursor-not-allowed disabled:opacity-55"
+                        <SignOutButton
+                          redirectTo="/"
+                          className="mt-4 inline-flex min-h-10 cursor-pointer items-center gap-2 px-0 text-sm font-bold uppercase text-emerald-100 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/60"
                         >
-                          {loading === "signout" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <LogOut className="h-4 w-4" aria-hidden />}
+                          <LogOut className="h-4 w-4" aria-hidden />
                           退出登录
-                        </button>
+                        </SignOutButton>
                       </div>
                     </div>
                   </motion.div>

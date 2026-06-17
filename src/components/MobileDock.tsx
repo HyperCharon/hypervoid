@@ -37,7 +37,8 @@ import { useLocale } from "@/components/LocaleProvider";
 import { useT } from "@/components/LocaleProvider";
 import { LOCALES } from "@/lib/i18n";
 import { SiteSettings } from "@/components/SiteSettings";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { SignOutButton } from "@/components/SignOutButton";
 
 /* ── Mobile Dock (top-right, visible <xl) ─────────────────── */
 export function MobileDock() {
@@ -176,7 +177,6 @@ const NAV_GROUPS = [
 function NavDrawer({ open, onClose, toggleRef, hasSession }: { open: boolean; onClose: () => void; toggleRef?: React.RefObject<HTMLButtonElement | null>; hasSession?: boolean }) {
   const pathname = usePathname();
   const drawerRef = useRef<HTMLDivElement>(null);
-  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -249,22 +249,13 @@ function NavDrawer({ open, onClose, toggleRef, hasSession }: { open: boolean; on
           ))}
           {hasSession ? (
             <div className="mt-3 border-t border-border pt-3">
-              <button
-                type="button"
-                onClick={async () => {
-                  setSigningOut(true);
-                  try {
-                    await signOut({ callbackUrl: "/" });
-                  } catch {
-                    setSigningOut(false);
-                  }
-                }}
-                disabled={signingOut}
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10 active:bg-red-500/10 disabled:opacity-50"
+              <SignOutButton
+                redirectTo="/"
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10 active:bg-red-500/10"
               >
                 <LogOut className="h-4.5 w-4.5 shrink-0" />
-                <span>{signingOut ? "退出中..." : "退出登录"}</span>
-              </button>
+                <span>退出登录</span>
+              </SignOutButton>
             </div>
           ) : null}
         </div>

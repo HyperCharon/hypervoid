@@ -5,11 +5,12 @@ import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState, type ReactNode } from "react";
 import { Languages, LogOut, Moon, Search, Settings2, Sun } from "lucide-react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useLocale } from "@/components/LocaleProvider";
 import { LOCALES, LOCALE_LABEL } from "@/lib/i18n";
 import { SiteSettings } from "@/components/SiteSettings";
 import { NotificationBell } from "@/components/NotificationBell";
+import { SignOutButton } from "@/components/SignOutButton";
 
 function DockIcon({ children }: { children: ReactNode }) {
   return <span className="hv-dock-icon">{children}</span>;
@@ -89,9 +90,9 @@ export function HeaderDock() {
 
         {session?.user ? (
           <DockSlot label="退出登录" className="hv-dock-item-danger">
-            <button type="button" onClick={() => signOut({ callbackUrl: "/" })} className="hv-dock-trigger" aria-label="退出登录" title="退出登录">
+            <SignOutButton redirectTo="/" className="hv-dock-trigger" aria-label="退出登录" title="退出登录">
               <DockIcon><LogOut className="h-4 w-4" aria-hidden /></DockIcon>
-            </button>
+            </SignOutButton>
           </DockSlot>
         ) : null}
       </div>

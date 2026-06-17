@@ -11,6 +11,7 @@ import {
   signInForGuestbook,
   signOutFromGuestbook,
 } from "@/app/guestbook/actions";
+import { SignOutButton } from "@/components/SignOutButton";
 
 export const metadata: Metadata = {
   title: "留言板",
@@ -50,14 +51,9 @@ export default async function GuestbookPage() {
                 {t.guestbook.loggedIn}
                 <span className="font-mono font-medium text-foreground">@{currentLogin ?? "?"}</span>
               </span>
-              <form action={signOutFromGuestbook}>
-                <button
-                  type="submit"
-                  className="text-xs text-muted-soft hover:text-foreground transition"
-                >
-                  {t.guestbook.signOut}
-                </button>
-              </form>
+              <SignOutButton redirectTo="/guestbook" className="text-xs text-muted-soft hover:text-foreground transition">
+                {t.guestbook.signOut}
+              </SignOutButton>
             </div>
             <GuestbookForm />
           </div>
