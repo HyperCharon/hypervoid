@@ -98,19 +98,19 @@ html[data-font-size="large"] .prose {
 /* ── Theme Variables: Light ─────────────────────────────────── */
 .light {
   color-scheme: light;
-  --background: #f8f2dc;
-  --foreground: #1e1e1e;
-  --card: #fdf9ee;
-  --card-hover: #f5edcf;
-  --muted: #6b5b48;
-  --muted-soft: #786853;
-  --border: rgba(0, 0, 0, 0.08);
+  --background: #f5edd6;
+  --foreground: #2c2416;
+  --card: #efe6cc;
+  --card-hover: #e8ddbf;
+  --muted: #7a6b52;
+  --muted-soft: #8c7d64;
+  --border: rgba(120, 95, 50, 0.12);
   --accent: #0369a1;
   --accent-soft: #38bdf8;
   --accent-glow: rgba(2, 132, 199, 0.12);
   --accent-gradient: linear-gradient(135deg, #38bdf8, #0284c7, #0369a1);
-  --glass-bg: #fdf9ee;
-  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-bg: #efe6cc;
+  --glass-border: rgba(120, 95, 50, 0.10);
   --glass-blur: 16px;
   --primary: var(--accent);
   --primary-foreground: #ffffff;
@@ -122,18 +122,18 @@ html[data-font-size="large"] .prose {
   --rainbow-glow: rgba(2, 132, 199, 0.08);
 
   /* Semantic */
-  --inset-highlight: rgba(0,0,0,0.03);
-  --overlay-dark: rgba(0,0,0,0.06);
+  --inset-highlight: rgba(0,0,0,0.04);
+  --overlay-dark: rgba(0,0,0,0.08);
   --overlay-backdrop: rgba(0,0,0,0.25);
-  --shadow-heavy: rgba(0,0,0,0.06);
-  --heatmap-0: rgba(0,0,0,0.04);
+  --shadow-heavy: rgba(0,0,0,0.08);
+  --heatmap-0: rgba(0,0,0,0.05);
   --heatmap-1: #9be9a8;
   --heatmap-2: #40c463;
   --heatmap-3: #30a14e;
   --heatmap-4: #216e39;
-  --code-header: #f5f0dc;
-  --code-text: #1e1e1e;
-  --code-border: rgba(0,0,0,0.08);
+  --code-header: #ebe2c8;
+  --code-text: #2c2416;
+  --code-border: rgba(120, 95, 50, 0.12);
   --code-selection: rgba(2,132,199,0.12);
   --code-btn: #9ca3af;
   --code-btn-hover-bg: rgba(2,132,199,0.08);
@@ -143,25 +143,25 @@ html[data-font-size="large"] .prose {
   --danger-bg: rgba(220,38,38,0.08);
   --glitch-pink: #0ea5e9;
   --glitch-violet: #0369a1;
-  --glitch-bg: #fdf9ee;
+  --glitch-bg: #efe6cc;
   --spotlight: rgba(2, 132, 199, 0.06);
 
   /* Light-specific gradients */
-  --grad-card: linear-gradient(160deg, #fdf9ee 0%, #f5edcf 100%);
-  --grad-card-hover: linear-gradient(160deg, #fdf9ee 0%, #f2e9c4 100%);
-  --grad-panel: linear-gradient(160deg, rgba(253,249,238,0.95) 0%, rgba(245,237,207,0.95) 100%);
-  --grad-header: linear-gradient(160deg, rgba(253,249,238,0.97) 0%, rgba(248,242,220,0.97) 100%);
-  --grad-hero: linear-gradient(160deg, rgba(253,249,238,0.98) 0%, rgba(248,242,220,0.92) 50%, rgba(242,234,196,0.88) 100%);
-  --grad-chip: linear-gradient(160deg, #f5edcf 0%, #f0e6c0 100%);
-  --grad-button: linear-gradient(160deg, #fdf9ee 0%, #f5edcf 100%);
-  --grad-button-hover: linear-gradient(160deg, #fdf9ee 0%, #f2e9c4 100%);
-  --grad-footer: linear-gradient(160deg, #f5edcf 0%, #f0e6c0 100%);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  --grad-card: linear-gradient(160deg, #efe6cc 0%, #e8ddbf 100%);
+  --grad-card-hover: linear-gradient(160deg, #efe6cc 0%, #e2d6b4 100%);
+  --grad-panel: linear-gradient(160deg, #efe6cc 0%, #e8ddbf 100%);
+  --grad-header: linear-gradient(160deg, #f0e7cd 0%, #ece3c4 100%);
+  --grad-hero: linear-gradient(160deg, #f0e7cd 0%, #ece3c4 50%, #e6dcbd 100%);
+  --grad-chip: linear-gradient(160deg, #e8ddbf 0%, #e2d6b4 100%);
+  --grad-button: linear-gradient(160deg, #efe6cc 0%, #e8ddbf 100%);
+  --grad-button-hover: linear-gradient(160deg, #efe6cc 0%, #e2d6b4 100%);
+  --grad-footer: linear-gradient(160deg, #e8ddbf 0%, #e2d6b4 100%);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.09), 0 0 0 1px rgba(0, 0, 0, 0.05);
   --shadow-glow: 0 0 12px rgba(2, 132, 199, 0.08);
-  --divider: rgba(0, 0, 0, 0.08);
-  --text-heading: #1a1a1a;
+  --divider: rgba(120, 95, 50, 0.12);
+  --text-heading: #1a1610;
 
   /* Effect intensities — subdued for light */
   --fx-glow: 0.2;
@@ -391,7 +391,7 @@ html[data-reading="large"] article .prose {
   background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.55), rgba(0,0,0,0.3));
 }
 .light .hv-cover-overlay {
-  background: linear-gradient(to top, rgba(250,246,239,0.92), rgba(250,246,239,0.6), rgba(250,246,239,0.2));
+  background: linear-gradient(to top, rgba(239,230,204,0.92), rgba(239,230,204,0.6), rgba(239,230,204,0.2));
 }
 
 /* ── Settings Panel (theme-aware) ──────────────────────────── */
@@ -581,7 +581,7 @@ html[data-reading="large"] article .prose {
 
 /* Cosmic Hero — light mode */
 .light .hv-light-overlay {
-  background: rgba(248, 242, 220, 0.95);
+  background: rgba(239, 230, 204, 0.95);
   backdrop-filter: blur(2px);
 }
 @media (max-width: 639px) {
@@ -590,7 +590,7 @@ html[data-reading="large"] article .prose {
   }
 }
 .light .hv-cosmic-hero {
-  background: var(--background) !important;
+  background: #f5edd6 !important;
 }
 .light .hv-cosmic-hero canvas {
   opacity: 0.1;
@@ -629,7 +629,7 @@ html[data-reading="large"] article .prose {
 }
 .light .hv-ticker-outer {
   border-bottom-color: var(--divider);
-  background: rgba(250, 246, 239, 0.85);
+  background: rgba(239, 230, 204, 0.85);
 }
 /* Subtitle */
 .light .hv-cosmic-hero .hv-kicker,
