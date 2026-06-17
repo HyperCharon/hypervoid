@@ -9,7 +9,7 @@ import { HeaderDock } from "@/components/HeaderDock";
 import { MobileDock } from "@/components/MobileDock";
 import { useT, useLocale } from "@/components/LocaleProvider";
 
-export function SiteHeader({ cvVisible = false }: { cvVisible?: boolean }) {
+export function SiteHeader({ cvVisible = false, hasSession = false }: { cvVisible?: boolean; hasSession?: boolean }) {
   const t = useT();
   const { locale } = useLocale();
   return (
@@ -86,8 +86,8 @@ export function SiteHeader({ cvVisible = false }: { cvVisible?: boolean }) {
 
         {/* Right: Desktop dock / Mobile dock */}
         <div className="ml-auto flex shrink-0 items-center xl:ml-0">
-          <HeaderDock />
-          <MobileDock />
+          <HeaderDock hasSession={hasSession} />
+          <MobileDock hasSession={hasSession} />
         </div>
       </div>
     </header>

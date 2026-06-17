@@ -5,7 +5,6 @@ import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState, type ReactNode } from "react";
 import { Languages, LogOut, Moon, Search, Settings2, Sun } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useLocale } from "@/components/LocaleProvider";
 import { LOCALES, LOCALE_LABEL } from "@/lib/i18n";
 import { SiteSettings } from "@/components/SiteSettings";
@@ -53,9 +52,8 @@ function ThemeDockButton() {
   );
 }
 
-export function HeaderDock() {
+export function HeaderDock({ hasSession = false }: { hasSession?: boolean }) {
   const { locale, setLocale, t } = useLocale();
-  const { data: session } = useSession();
   const nextLocale = LOCALES[(LOCALES.indexOf(locale) + 1) % LOCALES.length];
 
   return (
@@ -88,7 +86,7 @@ export function HeaderDock() {
           <NotificationBell triggerClassName="hv-dock-trigger" />
         </DockSlot>
 
-        {session?.user ? (
+        {hasSession ? (
           <DockSlot label="退出登录" className="hv-dock-item-danger">
             <SignOutButton redirectTo="/" className="hv-dock-trigger" aria-label="退出登录" title="退出登录">
               <DockIcon><LogOut className="h-4 w-4" aria-hidden /></DockIcon>

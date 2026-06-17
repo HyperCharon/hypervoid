@@ -5,6 +5,7 @@ import { Geist, JetBrains_Mono, Orbitron } from "next/font/google";
 import "./globals.css";
 import "remark-github-blockquote-alert/alert.css";
 import { Providers } from "@/components/Providers";
+import { auth } from "@/auth";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { UmamiScript } from "@/components/UmamiScript";
@@ -127,6 +128,8 @@ export default async function RootLayout({
 
   const isFullScreenRoute = isFullScreenPath(pathname);
   const cvVisible = await isCvVisible();
+  const session = await auth().catch(() => null);
+  const hasSession = Boolean(session?.user);
   return (
     <html
       lang="zh-CN"
@@ -169,7 +172,7 @@ export default async function RootLayout({
             <div className="hv-route-chrome contents">
               <div className="hv-chrome-only contents">
                 <AnnouncementWrapper />
-                <SiteHeader cvVisible={cvVisible} />
+                <SiteHeader cvVisible={cvVisible} hasSession={hasSession} />
                 <BannerStrip />
               </div>
               <main id="main-content" tabIndex={-1} className="page-fade hv-main-shell w-full flex-1">

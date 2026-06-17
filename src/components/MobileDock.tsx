@@ -37,15 +37,13 @@ import { useLocale } from "@/components/LocaleProvider";
 import { useT } from "@/components/LocaleProvider";
 import { LOCALES } from "@/lib/i18n";
 import { SiteSettings } from "@/components/SiteSettings";
-import { useSession } from "next-auth/react";
 import { SignOutButton } from "@/components/SignOutButton";
 
 /* ── Mobile Dock (top-right, visible <xl) ─────────────────── */
-export function MobileDock() {
+export function MobileDock({ hasSession = false }: { hasSession?: boolean }) {
   const { resolvedTheme, setTheme } = useTheme();
   const { locale, setLocale } = useLocale();
   const t = useT();
-  const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const navToggleRef = useRef<HTMLButtonElement>(null);
@@ -118,7 +116,7 @@ export function MobileDock() {
       </button>
 
       {/* Nav drawer */}
-      <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} toggleRef={navToggleRef} hasSession={Boolean(session?.user)} />
+      <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} toggleRef={navToggleRef} hasSession={hasSession} />
     </div>
   );
 }
