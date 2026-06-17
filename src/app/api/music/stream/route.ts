@@ -62,6 +62,15 @@ export async function GET(req: Request): Promise<Response> {
     );
   }
 
+  // Verify upstream returned audio, not an error page or HTML.
+  const upstreamCt = upstream.headers.get("content-type") ?? "";
+  if (!upstreamCt.startsWith("audio/") && !upstreamCt.startsWith("application/octet-stream")) {
+    return NextResponse.json(
+      { error: "upstream returned non-audio content" },
+      { status: 502 },
+    );
+  }
+
   const resHeaders = new Headers();
   copyHeader(upstream.headers, resHeaders, "content-type");
   copyHeader(upstream.headers, resHeaders, "content-length");

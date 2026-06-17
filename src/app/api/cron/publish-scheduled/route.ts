@@ -48,8 +48,8 @@ export async function GET(request: Request) {
     );
     rateLimitsPurged =
       (rl as unknown as { rowCount?: number }).rowCount ?? 0;
-  } catch {
-    /* swallow */
+  } catch (e) {
+    console.warn("[cron] rate_limits purge failed:", e instanceof Error ? e.message : e);
   }
   try {
     const au = await getDb()
@@ -57,16 +57,16 @@ export async function GET(request: Request) {
       .where(lt(schema.aiUsage.date, isoDateNDaysAgo(90)))
       .returning({ date: schema.aiUsage.date });
     aiUsagePurged = au.length;
-  } catch {
-    /* swallow */
+  } catch (e) {
+    console.warn("[cron] ai_usage purge failed:", e instanceof Error ? e.message : e);
   }
   try {
     const a = await getDb().execute(
       sql`DELETE FROM audit_log WHERE action = 'ai.call' AND created_at < NOW() - INTERVAL '30 days'`,
     );
     aiAuditPurged = (a as unknown as { rowCount?: number }).rowCount ?? 0;
-  } catch {
-    /* swallow */
+  } catch (e) {
+    console.warn("[cron] audit_log purge failed:", e instanceof Error ? e.message : e);
   }
 
   return Response.json({

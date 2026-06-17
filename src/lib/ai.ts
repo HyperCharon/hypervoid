@@ -280,6 +280,22 @@ export async function ocrQuestionFromImage(
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY 未配置");
 
+  // SSRF guard — refuse to fetch private/internal hosts.
+  const PRIVATE_HOST_RE =
+    /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|169\.254\.|::1|fc[0-9a-f]{2}:|fe[89ab][0-9a-f]:)/i;
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(imageUrl);
+  } catch {
+    throw new Error("图片 URL 无效");
+  }
+  if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+    throw new Error("图片 URL 协议不支持");
+  }
+  if (PRIVATE_HOST_RE.test(parsedUrl.hostname)) {
+    throw new Error("不允许访问内网地址");
+  }
+
   // Fetch the image and convert to base64.
   const imgRes = await fetch(imageUrl);
   if (!imgRes.ok) throw new Error("图片下载失败");

@@ -17,7 +17,6 @@ export async function GET(
   try {
     const res = await fetch(`https://api.bgm.tv/v0/subjects/${id}`, {
       headers: { "User-Agent": UA, Accept: "application/json" },
-      next: { revalidate: 86400 },
     });
     if (!res.ok) {
       return new Response("upstream error", { status: 502 });

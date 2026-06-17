@@ -1,10 +1,29 @@
+import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getDb, schema } from "@/db/client";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
+function getIp(request: Request): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
 export async function GET(request: Request) {
+  const rl = await rateLimit(getIp(request), {
+    key: "unsubscribe",
+    limit: 20,
+    windowSec: 600,
+  });
+  if (!rl.ok) {
+    redirect("/subscribe/result?status=rate-limited");
+  }
+
   const url = new URL(request.url);
   const token = url.searchParams.get("token");
   if (!token) {
@@ -25,7 +44,12 @@ export async function GET(request: Request) {
 
   await db
     .update(schema.subscribers)
-    .set({ unsubscribedAt: new Date(), verified: false })
+    .set({
+      unsubscribedAt: new Date(),
+      verified: false,
+      // Invalidate token so it can't be reused.
+      unsubscribeToken: randomUUID() + randomUUID(),
+    })
     .where(eq(schema.subscribers.id, row.id));
 
   redirect("/subscribe/result?status=unsubscribed");

@@ -33,6 +33,11 @@ const MESSAGES: Record<string, { title: string; body: string; tone: "ok" | "erro
     body: "你已成功退订，以后不会再收到 Hypervoid 的邮件。随时可以再次订阅。",
     tone: "info",
   },
+  "rate-limited": {
+    title: "请求过于频繁",
+    body: "请稍后再试。",
+    tone: "error",
+  },
 };
 
 function ToneIcon({ tone }: { tone: "ok" | "error" | "info" }) {

@@ -58,7 +58,7 @@ export async function GET(req: Request): Promise<Response> {
     const msg = e instanceof Error ? e.message : "unknown";
     console.error("[music/playlist] " + msg);
     return NextResponse.json(
-      { error: "获取音乐数据失败：" + msg },
+      { error: "获取音乐数据失败，请稍后重试" },
       { status: 502 },
     );
   }

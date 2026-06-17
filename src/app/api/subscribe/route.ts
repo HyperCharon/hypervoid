@@ -68,11 +68,30 @@ export async function POST(request: Request) {
   const unsubscribeToken = randomUUID() + randomUUID();
 
   if (!row) {
-    const inserted = await db
-      .insert(schema.subscribers)
-      .values({ email, verifyToken, unsubscribeToken })
-      .returning();
-    row = inserted[0];
+    try {
+      const inserted = await db
+        .insert(schema.subscribers)
+        .values({ email, verifyToken, unsubscribeToken })
+        .returning();
+      row = inserted[0];
+    } catch {
+      // Concurrent request inserted the same email — re-fetch.
+      const refetch = await db
+        .select()
+        .from(schema.subscribers)
+        .where(eq(schema.subscribers.email, email))
+        .limit(1);
+      row = refetch[0];
+      if (row?.verified) {
+        return Response.json({ ok: true, already: true, message: "你已订阅。" });
+      }
+      if (row) {
+        await db
+          .update(schema.subscribers)
+          .set({ verifyToken, unsubscribeToken, unsubscribedAt: null })
+          .where(eq(schema.subscribers.id, row.id));
+      }
+    }
   } else {
     await db
       .update(schema.subscribers)
@@ -102,8 +121,9 @@ ${verifyUrl}
   });
 
   if ("error" in result) {
+    console.error("[subscribe] email send failed:", result.error);
     return Response.json(
-      { error: `发送验证邮件失败: ${result.error}` },
+      { error: "发送验证邮件失败，请稍后重试" },
       { status: 502 },
     );
   }

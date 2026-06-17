@@ -42,6 +42,7 @@ export interface RateLimitResult {
 // ---------------------------------------------------------------------------
 
 const _memBuckets = new Map<string, { count: number; windowStart: number; windowSec: number }>();
+const MEM_MAX_ENTRIES = 10_000;
 
 function memRateLimit(
   identifier: string,
@@ -52,6 +53,8 @@ function memRateLimit(
   const bucket = _memBuckets.get(memKey);
 
   if (!bucket || now - bucket.windowStart >= bucket.windowSec) {
+    // Cap memory usage — evict stale entries before inserting if over limit.
+    if (_memBuckets.size >= MEM_MAX_ENTRIES) maybeEvictMem();
     _memBuckets.set(memKey, { count: 1, windowStart: now, windowSec: opts.windowSec });
     return { ok: true, remaining: opts.limit - 1, resetInSec: opts.windowSec, dbReachable: false };
   }

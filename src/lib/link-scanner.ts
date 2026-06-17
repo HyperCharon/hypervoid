@@ -10,6 +10,9 @@ const TRAILING_PUNCT = /[.,;:!?)]+$/;
 const PROBE_TIMEOUT_MS = 8000;
 const CONCURRENCY = 6;
 
+const PRIVATE_HOST_RE =
+  /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|169\.254\.|::1|fc[0-9a-f]{2}:|fe[89ab][0-9a-f]:)/i;
+
 export function extractUrls(markdown: string): string[] {
   const out = new Set<string>();
   for (const match of markdown.matchAll(URL_REGEX)) {
@@ -27,6 +30,20 @@ async function probe(url: string): Promise<{
   status: number | null;
   errorMessage: string | null;
 }> {
+  // SSRF guard — refuse to fetch private/internal hosts.
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return { status: null, errorMessage: "invalid url" };
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+    return { status: null, errorMessage: "unsupported protocol" };
+  }
+  if (PRIVATE_HOST_RE.test(parsed.hostname)) {
+    return { status: null, errorMessage: "private host blocked" };
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
   try {
