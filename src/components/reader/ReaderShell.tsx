@@ -178,7 +178,7 @@ async function parseEpubFile(file: File): Promise<{ meta: { title: string; autho
 
 /* ── Main Component ──────────────────────────────────────── */
 
-export function ReaderShell() {
+export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   const { resolvedTheme, setTheme } = useTheme();
 
   // State
@@ -318,6 +318,10 @@ export function ReaderShell() {
       const isEpub = /\.epub$/i.test(file.name);
       const isText = /\.(md|markdown|txt|text|html|htm)$/i.test(file.name);
       if (!isEpub && !isText) continue;
+      if (isEpub && !isAdmin) {
+        errors.push(`${file.name}: epub 格式仅管理员可用`);
+        continue;
+      }
 
       const id = uid();
 
@@ -424,7 +428,8 @@ export function ReaderShell() {
           </h1>
         </header>
 
-        {/* Mode switcher */}
+        {/* Mode switcher — novel mode is admin-only */}
+        {isAdmin && (
         <div className="flex gap-2">
           {([["quick", Zap, "快速阅读", ".md / .txt"], ["novel", BookMarked, "小说模式", ".epub / .txt / .md"]] as const).map(([m, Icon, label, ext]) => (
             <button key={m} type="button" onClick={() => setMode(m)}
@@ -437,6 +442,7 @@ export function ReaderShell() {
             </button>
           ))}
         </div>
+        )}
 
         {/* Import error */}
         {importError && (
@@ -447,7 +453,7 @@ export function ReaderShell() {
 
         {/* Features */}
         <div className="grid w-full max-w-lg grid-cols-2 gap-2 sm:grid-cols-4">
-          {(isQuick
+          {(isQuick || !isAdmin
             ? [{ l: "Markdown", d: "完整渲染" }, { l: "目录导航", d: "标题提取" }, { l: "进度记忆", d: "自动保存" }, { l: "字号调节", d: "A- / A+" }]
             : [{ l: "Epub 支持", d: "章节解析" }, { l: "书签标记", d: "按 B 添加" }, { l: "阅读主题", d: "默认/护眼/绿底" }, { l: "全文搜索", d: "Ctrl+F 搜索" }]
           ).map(f => (
@@ -476,7 +482,7 @@ export function ReaderShell() {
           <button type="button" className="hv-action px-4 py-2 text-sm font-medium">
             <FileText className="h-4 w-4" aria-hidden /> 选择文件
           </button>
-          <input ref={fileRef} type="file" accept={isQuick ? ".md,.markdown,.txt,.text,.html,.htm" : ".epub,.md,.markdown,.txt,.text,.html,.htm"} multiple hidden onChange={e => importFiles(e.target.files || [])} />
+          <input ref={fileRef} type="file" accept={isQuick || !isAdmin ? ".md,.markdown,.txt,.text,.html,.htm" : ".epub,.md,.markdown,.txt,.text,.html,.htm"} multiple hidden onChange={e => importFiles(e.target.files || [])} />
         </div>
 
         {/* Library */}
@@ -743,7 +749,7 @@ export function ReaderShell() {
         </div>
       )}
 
-      <input ref={fileRef} type="file" accept={isQuick ? ".md,.markdown,.txt,.text,.html,.htm" : ".epub,.md,.markdown,.txt,.text,.html,.htm"} multiple hidden onChange={e => importFiles(e.target.files || [])} />
+      <input ref={fileRef} type="file" accept={isQuick || !isAdmin ? ".md,.markdown,.txt,.text,.html,.htm" : ".epub,.md,.markdown,.txt,.text,.html,.htm"} multiple hidden onChange={e => importFiles(e.target.files || [])} />
     </div>
   );
 }
