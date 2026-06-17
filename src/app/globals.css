@@ -786,6 +786,25 @@ html[data-reading="large"] article .prose {
 
 /* Action button — light mode warm gradient */
 
+/* Input field — always full width (Tailwind v4 utilities lose to unlayered CSS) */
+.hv-input-field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0.5rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  border-radius: 0.5rem;
+  /* Inherit hv-input theme styles */
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  outline: none;
+}
+.hv-input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
 /* Input — dark mode gradient */
 .dark .hv-input {
   border: 1px solid rgba(255,255,255,0.08);

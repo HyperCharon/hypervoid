@@ -64,7 +64,7 @@ export default async function ResourcesPage() {
                     href={r.url}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="group flex items-start gap-2.5 rounded-xl border border-border bg-card px-3 py-2.5 transition-colors hover:border-accent/30 sm:gap-3 sm:px-4 sm:py-3"
+                    className="group flex items-start gap-2.5 overflow-hidden rounded-xl border border-border bg-card px-3 py-2.5 transition-colors hover:border-accent/30 sm:gap-3 sm:px-4 sm:py-3"
                   >
                     <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-md border border-border bg-card text-muted sm:h-8 sm:w-8">
                       <Link2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" aria-hidden />
