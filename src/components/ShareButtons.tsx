@@ -61,7 +61,7 @@ function ActionButton({
       onClick={onClick}
       aria-label={label}
       title={label}
-      className="hv-action h-9 w-9 p-0 shrink-0"
+      className="hv-action hv-action-icon shrink-0"
     >
       {children}
     </button>
@@ -84,7 +84,7 @@ function ActionLink({
       rel="noreferrer noopener"
       aria-label={label}
       title={label}
-      className="hv-action h-9 w-9 p-0 shrink-0"
+      className="hv-action hv-action-icon shrink-0"
     >
       {children}
     </a>

@@ -51,7 +51,7 @@ export function ReadingMode() {
         onClick={() => setOpen((v) => !v)}
         aria-label="阅读模式"
         title="阅读模式"
-        className="hv-action h-9 w-9 p-0 touch-manipulation"
+        className="hv-action hv-action-icon touch-manipulation"
       >
         <BookOpenText aria-hidden className="h-4 w-4" />
       </button>

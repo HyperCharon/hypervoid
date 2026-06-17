@@ -92,9 +92,7 @@ export default async function Home() {
           {/* ── Daily Pick — floating card ── */}
           {dailyPick ? (
             <ScrollReveal variant="fade-up" delay={100}>
-              <div className="-mt-4 lg:-mt-6">
-                <DailyPick post={dailyPick} />
-              </div>
+              <DailyPick post={dailyPick} />
             </ScrollReveal>
           ) : null}
 

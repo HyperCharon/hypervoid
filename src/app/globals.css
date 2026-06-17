@@ -523,7 +523,8 @@ html[data-reading="large"] article .prose {
 
 /* Header/footer gradient */
 .dark .hv-grad-header {
-  background: linear-gradient(135deg, rgba(239,68,68,0.18), rgba(249,115,22,0.14), rgba(234,179,8,0.12), rgba(34,197,94,0.14), rgba(6,182,212,0.16), rgba(59,130,246,0.2), rgba(99,102,241,0.18), rgba(139,92,246,0.16), rgba(217,70,239,0.14), #0c1224);
+  background: linear-gradient(135deg, rgba(239,68,68,0.18), rgba(249,115,22,0.14), rgba(234,179,8,0.12), rgba(34,197,94,0.14), rgba(6,182,212,0.16), rgba(59,130,246,0.2), rgba(99,102,241,0.18), rgba(139,92,246,0.16), rgba(217,70,239,0.14), #0c1224),
+              #0c1224;
   border-color: rgba(255,255,255,0.06);
 }
 
@@ -735,7 +736,9 @@ html[data-reading="large"] article .prose {
 
 
 
-/* Action button — base (both themes) */
+/* Action button — base (both themes).
+   Icon variant: add `hv-action-icon` to strip padding/gap/height so
+   Tailwind h-* w-* utilities take effect. */
 .hv-action {
   display: inline-flex;
   min-height: 2.5rem;
@@ -747,6 +750,13 @@ html[data-reading="large"] article .prose {
   font-weight: 500;
   white-space: nowrap;
   flex-shrink: 0;
+}
+.hv-action-icon {
+  min-height: auto;
+  padding: 0;
+  gap: 0;
+  width: 2.25rem;
+  height: 2.25rem;
 }
 /* Action button — dark mode gradient */
 .dark .hv-action {
