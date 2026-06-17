@@ -143,7 +143,10 @@ async function renderMd(src: string): Promise<string> {
 /* ── Epub parser (lazy) ──────────────────────────────────── */
 
 async function parseEpubFile(file: File): Promise<{ meta: { title: string; author: string; cover: string | null }; chapters: Chapter[]; html: string }> {
-  const { parseEpub } = await import("@/lib/epub-reader");
+  const { parseEpub, EPUB_MAX_SIZE } = await import("@/lib/epub-reader");
+  if (file.size > EPUB_MAX_SIZE) {
+    throw new Error(`文件过大 (${fmtSize(file.size)})，epub 上限 ${fmtSize(EPUB_MAX_SIZE)}。`);
+  }
   const buf = await file.arrayBuffer();
   const data = await parseEpub(buf);
   const chapters: Chapter[] = data.chapters.map((ch, i) => ({
@@ -284,8 +287,12 @@ export function ReaderShell() {
   }, [chapters, curChIdx, scrollToCh]);
 
   // ── File import ──
+  const [importError, setImportError] = useState<string | null>(null);
+
   const importFiles = useCallback(async (files: FileList | File[]) => {
+    setImportError(null);
     const newBooks: BookMeta[] = [];
+    const errors: string[] = [];
     for (const file of Array.from(files)) {
       const isEpub = /\.epub$/i.test(file.name);
       const isText = /\.(md|markdown|txt|text|html|htm)$/i.test(file.name);
@@ -305,7 +312,9 @@ export function ReaderShell() {
             author: data.meta.author, cover: data.meta.cover,
           };
           newBooks.push(meta);
-        } catch { /* skip */ }
+        } catch (e) {
+          errors.push(`${file.name}: ${e instanceof Error ? e.message : "解析失败"}`);
+        }
       } else {
         const text = await file.text();
         localStorage.setItem(K_CONTENT + id, text.length <= MAX_SIZE ? text : text.slice(0, MAX_SIZE));
@@ -318,6 +327,9 @@ export function ReaderShell() {
     if (newBooks.length > 0) {
       setLibrary(p => [...p, ...newBooks]);
       setActiveId(newBooks[newBooks.length - 1].id);
+    }
+    if (errors.length > 0) {
+      setImportError(errors.join("; "));
     }
   }, []);
 
@@ -405,6 +417,13 @@ export function ReaderShell() {
           ))}
         </div>
 
+        {/* Import error */}
+        {importError && (
+          <div className="w-full max-w-lg rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+            {importError}
+          </div>
+        )}
+
         {/* Features */}
         <div className="grid w-full max-w-lg grid-cols-2 gap-2 sm:grid-cols-4">
           {(isQuick
@@ -430,7 +449,7 @@ export function ReaderShell() {
           <div>
             <p className="font-medium text-foreground">拖拽文件到此处</p>
             <p className="mt-1 text-xs text-muted">
-              {isQuick ? "支持 .md / .txt / .html 格式" : "支持 .epub / .md / .txt / .html 格式"}
+              {isQuick ? "支持 .md / .txt / .html 格式" : "支持 .epub (≤10MB) / .md / .txt / .html 格式"}
             </p>
           </div>
           <button type="button" className="hv-action px-4 py-2 text-sm font-medium">

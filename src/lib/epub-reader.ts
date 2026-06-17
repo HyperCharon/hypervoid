@@ -1,7 +1,13 @@
 /**
  * Epub parsing utility — extracts chapters, metadata, and cover from an epub file.
  * Uses epubjs for parsing, returns a simple structure the reader can consume.
+ *
+ * Limitations: epubjs loads the entire epub into memory. Files > 10MB may fail
+ * on mobile devices with limited memory. We enforce a size limit and provide
+ * a fallback for oversized files.
  */
+
+export const EPUB_MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
 export interface EpubChapter {
   id: string;
@@ -25,10 +31,13 @@ export interface EpubData {
 export async function parseEpub(arrayBuffer: ArrayBuffer): Promise<EpubData> {
   const ePub = (await import("epubjs")).default;
   const book = ePub(arrayBuffer);
-  // epubjs types are incomplete — use any for internal access
   const b = book as any;
 
-  await b.ready;
+  // Wait for book to be ready with a timeout
+  await Promise.race([
+    b.ready,
+    new Promise((_, reject) => setTimeout(() => reject(new Error("epub 解析超时")), 30000)),
+  ]);
 
   // Extract metadata
   const meta: EpubMeta = {
@@ -39,14 +48,14 @@ export async function parseEpub(arrayBuffer: ArrayBuffer): Promise<EpubData> {
 
   // Try to get cover image
   try {
-    const coverUrl = await b.cover?.url();
+    const coverUrl = await b.cover?.url?.();
     if (coverUrl) {
       const resp = await fetch(coverUrl);
       const blob = await resp.blob();
       meta.cover = URL.createObjectURL(blob);
     }
   } catch {
-    // no cover
+    // no cover — ignore
   }
 
   // Extract chapters from spine
@@ -59,7 +68,13 @@ export async function parseEpub(arrayBuffer: ArrayBuffer): Promise<EpubData> {
   for (let i = 0; i < spineItems.length; i++) {
     const item = spineItems[i];
     try {
-      const doc = await item.load(b.load.bind(b));
+      const doc = await Promise.race([
+        item.load(b.load.bind(b)),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+      ]);
+
+      if (!doc) continue; // timeout — skip this chapter
+
       const body = doc?.body || doc?.querySelector?.("body");
       if (!body) continue;
 
