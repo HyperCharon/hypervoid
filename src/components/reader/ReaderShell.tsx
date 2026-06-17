@@ -22,6 +22,7 @@ import {
   BookMarked,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { saveBookContent, loadBookContent, saveChapters, loadChapters, deleteBookData } from "@/lib/reader-storage";
 
 /* ── Types ───────────────────────────────────────────────── */
 
@@ -78,7 +79,8 @@ const K_POSITION = "hv-reader-pos-";
 const K_SETTINGS = "hv-reader-settings";
 const K_BOOKMARKS = "hv-reader-bm-";
 const K_MODE = "hv-reader-mode";
-const MAX_SIZE = 4 * 1024 * 1024;
+// IndexedDB has no practical limit — 200MB is safe for modern browsers
+const MAX_SIZE = 200 * 1024 * 1024;
 
 /* ── Helpers ─────────────────────────────────────────────── */
 
@@ -142,38 +144,20 @@ async function renderMd(src: string): Promise<string> {
 
 /* ── Epub parser (lazy) ──────────────────────────────────── */
 
-const EPUB_CLIENT_LIMIT = 10 * 1024 * 1024; // 10MB — client-side limit
-const EPUB_SERVER_LIMIT = 50 * 1024 * 1024; // 50MB — server-side limit
+// Client-side epub parsing limit — browser can handle 200MB+ with epubjs
+const EPUB_CLIENT_LIMIT = 200 * 1024 * 1024;
 
 async function parseEpubFile(file: File): Promise<{ meta: { title: string; author: string; cover: string | null }; chapters: Chapter[]; html: string }> {
-  if (file.size > EPUB_SERVER_LIMIT) {
-    throw new Error(`文件过大 (${fmtSize(file.size)})，上限 ${fmtSize(EPUB_SERVER_LIMIT)}。`);
+  if (file.size > EPUB_CLIENT_LIMIT) {
+    throw new Error(`文件过大 (${fmtSize(file.size)})，上限 ${fmtSize(EPUB_CLIENT_LIMIT)}。`);
   }
-
-  if (file.size <= EPUB_CLIENT_LIMIT) {
-    // Small file: parse client-side (fast, no upload)
-    const { parseEpub } = await import("@/lib/epub-reader");
-    const buf = await file.arrayBuffer();
-    const data = await parseEpub(buf);
-    const chapters: Chapter[] = data.chapters.map((ch, i) => ({
-      id: ch.id, title: ch.title, level: ch.level, startLine: i,
-    }));
-    return { meta: { title: data.meta.title, author: data.meta.author, cover: data.meta.cover }, chapters, html: data.fullHtml };
-  }
-
-  // Large file: upload to server for parsing
-  const form = new FormData();
-  form.append("file", file);
-  const res = await fetch("/api/parse-epub", { method: "POST", body: form });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "服务器解析失败" }));
-    throw new Error(err.error || `服务器返回 ${res.status}`);
-  }
-  const data = await res.json();
-  const chapters: Chapter[] = (data.chapters || []).map((ch: any, i: number) => ({
-    id: ch.id || `ch-${i}`, title: ch.title || `第 ${i + 1} 章`, level: ch.level || 1, startLine: i,
+  const { parseEpub } = await import("@/lib/epub-reader");
+  const buf = await file.arrayBuffer();
+  const data = await parseEpub(buf);
+  const chapters: Chapter[] = data.chapters.map((ch, i) => ({
+    id: ch.id, title: ch.title, level: ch.level, startLine: i,
   }));
-  return { meta: { title: data.meta?.title || file.name, author: data.meta?.author || "", cover: null }, chapters, html: data.fullHtml || "" };
+  return { meta: { title: data.meta.title, author: data.meta.author, cover: data.meta.cover }, chapters, html: data.fullHtml };
 }
 
 /* ── Main Component ──────────────────────────────────────── */
@@ -227,39 +211,51 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   useEffect(() => { try { localStorage.setItem(K_LIBRARY, JSON.stringify(library)); } catch {} }, [library]);
   useEffect(() => { try { localStorage.setItem(K_MODE, mode); } catch {} }, [mode]);
 
-  // ── Load book content ──
+  // ── Load book content (async — may come from IndexedDB) ──
   useEffect(() => {
     if (!activeId) { setRawContent(""); setHtmlContent(""); setChapters([]); return; }
     setLoading(true);
-    try {
-      const content = localStorage.getItem(K_CONTENT + activeId);
-      if (!content) { setLoading(false); return; }
-      const book = library.find(b => b.id === activeId);
+    let cancelled = false;
 
-      if (book?.isEpub) {
-        // Epub: content is stored as full HTML
-        setRawContent("");
-        setHtmlContent(content);
-        // Chapters from metadata
-        const chData = localStorage.getItem(K_CONTENT + activeId + "-chapters");
-        if (chData) setChapters(JSON.parse(chData));
-        else setChapters([]);
-      } else {
-        setRawContent(content);
-        setChapters(extractMdChapters(content));
-        renderMd(content).then(h => { setHtmlContent(h); setLoading(false); }).catch(() => {
-          setHtmlContent(`<pre style="white-space:pre-wrap">${content.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>`);
+    (async () => {
+      try {
+        const content = await loadBookContent(activeId);
+        if (cancelled) return;
+        if (!content) { setLoading(false); return; }
+        const book = library.find(b => b.id === activeId);
+
+        if (book?.isEpub) {
+          setRawContent("");
+          setHtmlContent(content);
+          const chData = loadChapters(activeId);
+          if (chData) setChapters(chData as Chapter[]);
+          else setChapters([]);
           setLoading(false);
-        });
-      }
+        } else {
+          setRawContent(content);
+          setChapters(extractMdChapters(content));
+          try {
+            const h = await renderMd(content);
+            if (!cancelled) { setHtmlContent(h); setLoading(false); }
+          } catch {
+            if (!cancelled) {
+              setHtmlContent(`<pre style="white-space:pre-wrap">${content.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>`);
+              setLoading(false);
+            }
+          }
+        }
 
-      // Restore scroll
-      const pos = localStorage.getItem(K_POSITION + activeId);
-      if (pos && contentRef.current) {
-        requestAnimationFrame(() => { if (contentRef.current) contentRef.current.scrollTop = parseFloat(pos); });
+        // Restore scroll position
+        const pos = localStorage.getItem(K_POSITION + activeId);
+        if (pos && contentRef.current) {
+          requestAnimationFrame(() => { if (contentRef.current) contentRef.current.scrollTop = parseFloat(pos); });
+        }
+      } catch {
+        if (!cancelled) setLoading(false);
       }
-    } catch { setLoading(false); }
-    setLoading(false);
+    })();
+
+    return () => { cancelled = true; };
   }, [activeId]);
 
   // ── Bookmarks ──
@@ -328,9 +324,8 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       if (isEpub) {
         try {
           const data = await parseEpubFile(file);
-          const storeHtml = data.html.length <= MAX_SIZE ? data.html : data.html.slice(0, MAX_SIZE);
-          localStorage.setItem(K_CONTENT + id, storeHtml);
-          localStorage.setItem(K_CONTENT + id + "-chapters", JSON.stringify(data.chapters));
+          await saveBookContent(id, data.html);
+          saveChapters(id, data.chapters);
           const meta: BookMeta = {
             id, name: data.meta.title || file.name.replace(/\.epub$/i, ""), size: file.size,
             addedAt: Date.now(), isEpub: true, mode: "novel",
@@ -342,7 +337,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
         }
       } else {
         const text = await file.text();
-        localStorage.setItem(K_CONTENT + id, text.length <= MAX_SIZE ? text : text.slice(0, MAX_SIZE));
+        await saveBookContent(id, text);
         newBooks.push({
           id, name: file.name.replace(/\.[^.]+$/, ""), size: file.size,
           addedAt: Date.now(), mode: "quick",
@@ -359,10 +354,8 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   }, []);
 
   // ── Delete book ──
-  const deleteBook = useCallback((id: string) => {
-    [K_CONTENT, K_POSITION, K_BOOKMARKS, K_CONTENT + "-chapters"].forEach(k => {
-      try { localStorage.removeItem(k + id); } catch {}
-    });
+  const deleteBook = useCallback(async (id: string) => {
+    await deleteBookData(id);
     setLibrary(p => p.filter(b => b.id !== id));
     if (activeId === id) { setActiveId(null); setRawContent(""); setHtmlContent(""); setChapters([]); }
   }, [activeId]);
@@ -476,7 +469,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
           <div>
             <p className="font-medium text-foreground">拖拽文件到此处</p>
             <p className="mt-1 text-xs text-muted">
-              {isQuick ? "支持 .md / .txt / .html 格式" : "支持 .epub (≤50MB) / .md / .txt / .html 格式"}
+              {isQuick || !isAdmin ? "支持 .md / .txt / .html 格式" : "支持 .epub (≤200MB) / .md / .txt / .html 格式"}
             </p>
           </div>
           <button type="button" className="hv-action px-4 py-2 text-sm font-medium">
