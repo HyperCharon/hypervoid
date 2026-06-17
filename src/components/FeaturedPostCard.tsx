@@ -59,11 +59,11 @@ export function FeaturedPostCard({ post }: { post: PostMeta }) {
               <BookOpenText className="h-3 w-3 text-accent/60" aria-hidden />
               <span className="font-mono text-xs uppercase tracking-wider text-muted">{t.post.featured}</span>
             </span>
+            <ReadBadge slug={slug} />
           </div>
 
           <h3 className="text-lg font-bold leading-snug tracking-tight text-foreground transition group-hover:text-foreground sm:text-xl md:text-2xl">
             {frontmatter.title}
-            <ReadBadge slug={slug} className="ml-2 align-middle" />
           </h3>
 
           {frontmatter.description ? (

@@ -774,13 +774,14 @@ html[data-reading="large"] article .prose {
 }
 /* Action button — dark mode gradient */
 .dark .hv-action {
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
   background: rgba(15, 22, 40, 0.92);
   color: var(--foreground);
   transition: box-shadow 160ms ease, color 160ms ease;
 }
 .dark .hv-action:hover {
   background: rgba(15, 22, 40, 0.96);
+  border-color: rgba(255,255,255,0.22);
   color: var(--accent-soft);
   box-shadow: 0 0 20px var(--rainbow-glow);
 }

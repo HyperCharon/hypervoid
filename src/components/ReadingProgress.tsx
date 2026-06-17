@@ -48,7 +48,7 @@ export function ReadingProgress() {
       {pct > 2 ? (
         <span
           aria-hidden
-          className="pointer-events-none fixed right-3 top-16 z-50 rounded-full border border-border/40 bg-card/80 px-2 py-0.5 font-mono text-[11px] text-muted backdrop-blur-sm"
+          className="pointer-events-none fixed right-3 top-[68px] z-50 rounded-full border border-border/40 bg-card px-2 py-0.5 font-mono text-[11px] text-muted"
         >
           {pct}%
         </span>
