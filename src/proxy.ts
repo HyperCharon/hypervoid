@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { auth, ADMIN_LOGIN } from "@/auth";
+import { auth, ADMIN_LOGIN, verifyAdminIdentity } from "@/auth";
 
 /**
  * Per-request CSP nonce + preview-deployment/admin gate + optional site-wide login.
@@ -207,9 +207,13 @@ async function denyUnauthorized(req: NextRequest): Promise<NextResponse | null> 
 
   const session = await auth();
   const user = session?.user as
-    | { login?: string | null; isAdmin?: boolean | null }
+    | { login?: string | null; email?: string | null; isAdmin?: boolean | null }
     | undefined;
-  const allowed = user?.isAdmin === true || user?.login === ADMIN_LOGIN;
+  // Defense-in-depth: verify BOTH JWT claims AND actual identity.
+  // A stale JWT may still claim isAdmin=true after logout if the cookie
+  // wasn't properly cleared. The identity check against env vars ensures
+  // only the real admin can access admin routes.
+  const allowed = (user?.isAdmin === true || user?.login === ADMIN_LOGIN) && verifyAdminIdentity(user);
   if (allowed) return null;
 
   if (isAdminApi || isToolsApi) {

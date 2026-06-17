@@ -239,6 +239,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 export const ADMIN_LOGIN = ADMIN_GITHUB_LOGIN;
 
 /**
+ * Verify admin identity against environment variables — independent of JWT claims.
+ * Used by middleware for defense-in-depth: even if a stale JWT claims isAdmin,
+ * the identity must also match the actual admin credentials.
+ */
+export function verifyAdminIdentity(user: { login?: string | null; email?: string | null } | undefined): boolean {
+  if (!user) return false;
+  const email = user.email?.trim().toLowerCase();
+  return user.login === ADMIN_GITHUB_LOGIN || Boolean(ADMIN_EMAIL && email === ADMIN_EMAIL);
+}
+
+/**
  * Defense-in-depth gate for server actions and route handlers. Middleware
  * already blocks unauthorized requests to /admin/* and /api/admin/*, but
  * server actions can be invoked from any page in the app, so each one
