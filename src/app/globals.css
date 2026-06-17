@@ -578,6 +578,17 @@ html[data-reading="large"] article .prose {
 .light .hv-cosmic-hero {
   background: var(--background) !important;
 }
+/* Bottom gradient fade — blends hero effects into the site background */
+.hv-cosmic-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 40%;
+  min-height: 80px;
+  background: linear-gradient(to bottom, transparent, var(--background));
+  pointer-events: none;
+  z-index: 4;
+}
 .light .hv-cosmic-hero canvas {
   opacity: 0.1;
 }
