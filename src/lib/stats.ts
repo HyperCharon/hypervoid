@@ -229,6 +229,18 @@ export type YearInReview = {
   topTags: { tag: string; count: number }[];
 };
 
+const EMPTY_REVIEW: YearInReview = {
+  year: 0,
+  postCount: 0,
+  totalWords: 0,
+  totalReactions: 0,
+  totalViews: 0,
+  totalReadingMinutes: 1,
+  monthly: Array.from({ length: 12 }, (_, i) => ({ month: i + 1, count: 0 })),
+  topPosts: [],
+  topTags: [],
+};
+
 export async function getYearInReview(year: number): Promise<YearInReview> {
   const db = getDb();
   const startIso = `${year}-01-01T00:00:00+08:00`;
@@ -236,22 +248,28 @@ export async function getYearInReview(year: number): Promise<YearInReview> {
   const start = new Date(startIso);
   const end = new Date(endIso);
 
-  const rows = await db
-    .select({
-      slug: schema.posts.slug,
-      title: schema.posts.title,
-      wordCount: schema.posts.wordCount,
-      tags: schema.posts.tags,
-      publishAt: schema.posts.publishAt,
-      createdAt: schema.posts.createdAt,
-    })
-    .from(schema.posts)
-    .where(
-      sql`(status = 'published' OR (status = 'scheduled' AND publish_at <= NOW()))
-          AND visibility = 'public'
-          AND COALESCE(publish_at, created_at) >= ${start.toISOString()}
-          AND COALESCE(publish_at, created_at) < ${end.toISOString()}`,
-    );
+  let rows;
+  try {
+    rows = await db
+      .select({
+        slug: schema.posts.slug,
+        title: schema.posts.title,
+        wordCount: schema.posts.wordCount,
+        tags: schema.posts.tags,
+        publishAt: schema.posts.publishAt,
+        createdAt: schema.posts.createdAt,
+      })
+      .from(schema.posts)
+      .where(
+        sql`(status = 'published' OR (status = 'scheduled' AND publish_at <= NOW()))
+            AND visibility = 'public'
+            AND COALESCE(publish_at, created_at) >= ${start.toISOString()}
+            AND COALESCE(publish_at, created_at) < ${end.toISOString()}`,
+      );
+  } catch (e) {
+    console.error("[getYearInReview] query failed:", e);
+    return { ...EMPTY_REVIEW, year };
+  }
 
   const slugs = rows.map((r) => r.slug);
 
@@ -259,20 +277,25 @@ export async function getYearInReview(year: number): Promise<YearInReview> {
   const viewMap = new Map<string, number>();
   const reactionMap = new Map<string, number>();
   if (slugs.length > 0) {
-    const [viewRows, reactionRows] = await Promise.all([
-      db.select({
-        slug: schema.postViews.slug,
-        count: schema.postViews.count,
-      }).from(schema.postViews).where(sql`${schema.postViews.slug} = ANY(${slugs})`),
-      db.select({
-        slug: schema.postReactions.slug,
-        total: sql<number>`SUM(${schema.postReactions.count})::int`,
-      }).from(schema.postReactions)
-        .where(sql`${schema.postReactions.slug} = ANY(${slugs})`)
-        .groupBy(schema.postReactions.slug),
-    ]);
-    for (const v of viewRows) viewMap.set(v.slug, v.count);
-    for (const r of reactionRows) reactionMap.set(r.slug, r.total);
+    try {
+      const [viewRows, reactionRows] = await Promise.all([
+        db.select({
+          slug: schema.postViews.slug,
+          count: schema.postViews.count,
+        }).from(schema.postViews).where(sql`${schema.postViews.slug} = ANY(${slugs})`),
+        db.select({
+          slug: schema.postReactions.slug,
+          total: sql<number>`SUM(${schema.postReactions.count})::int`,
+        }).from(schema.postReactions)
+          .where(sql`${schema.postReactions.slug} = ANY(${slugs})`)
+          .groupBy(schema.postReactions.slug),
+      ]);
+      for (const v of viewRows) viewMap.set(v.slug, v.count);
+      for (const r of reactionRows) reactionMap.set(r.slug, r.total);
+    } catch (e) {
+      console.error("[getYearInReview] stats query failed:", e);
+      // Continue with empty maps — page still renders with 0 counts
+    }
   }
 
   let totalWords = 0;
@@ -289,15 +312,19 @@ export async function getYearInReview(year: number): Promise<YearInReview> {
     }
     const dateUsed = row.publishAt ?? row.createdAt;
     if (dateUsed) {
-      // Local CN month
-      const m =
-        Number(
-          new Intl.DateTimeFormat("en-US", {
-            timeZone: "Asia/Shanghai",
-            month: "numeric",
-          }).format(dateUsed),
-        ) - 1;
-      if (m >= 0 && m < 12) monthly[m].count += 1;
+      try {
+        // Local CN month
+        const m =
+          Number(
+            new Intl.DateTimeFormat("en-US", {
+              timeZone: "Asia/Shanghai",
+              month: "numeric",
+            }).format(dateUsed),
+          ) - 1;
+        if (m >= 0 && m < 12) monthly[m].count += 1;
+      } catch {
+        // Invalid date — skip
+      }
     }
   }
 
