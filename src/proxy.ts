@@ -190,17 +190,6 @@ function isPublicPath(pathname: string): boolean {
   return false;
 }
 
-async function isSiteLoginRequired(): Promise<boolean> {
-  try {
-    const { getSiteSetting } = await import("@/db/site-settings");
-    const val = await getSiteSetting("site_login_required");
-    return val === "required";
-  } catch {
-    // DB error — assume login required (fail closed)
-    return true;
-  }
-}
-
 async function denyUnauthorized(req: NextRequest): Promise<NextResponse | null> {
   const { pathname } = req.nextUrl;
   const isAdminPath = pathname.startsWith("/admin");
@@ -239,9 +228,25 @@ async function checkSiteLogin(req: NextRequest): Promise<NextResponse | null> {
     return null;
   }
 
-  const required = await isSiteLoginRequired();
-  if (!required) return null;
+  // Check login policy from DB
+  let policy: string;
+  try {
+    const { getSiteSetting } = await import("@/db/site-settings");
+    policy = (await getSiteSetting("site_login_required")) || "optional";
+  } catch {
+    // DB error — fail-open
+    return null;
+  }
 
+  // "optional" (default) — no login required
+  if (policy === "optional") return null;
+
+  // "private_only" — only /private needs login
+  if (policy === "private_only") {
+    if (!pathname.startsWith("/private")) return null;
+  }
+
+  // "required" or private_only+/private — check session
   const session = await auth();
   if (session?.user) return null;
 
