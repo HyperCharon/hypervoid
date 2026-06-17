@@ -104,11 +104,11 @@ export default async function PostPage(props: { params: Promise<Params> }) {
   const { frontmatter, content } = post;
   const toc = extractTOC(content);
   const [viewCount, reactionCounts, adjacent, related, backlinks, webmentions] = await Promise.all([
-    getViewCount(slug),
-    getReactionCounts(slug),
-    getAdjacentPosts(slug, { isAdmin: viewer.isAdmin }),
-    getRelatedPosts(slug, frontmatter.tags ?? [], { isAdmin: viewer.isAdmin }),
-    getBacklinks(slug, { isAdmin: viewer.isAdmin }),
+    getViewCount(slug).catch(() => null),
+    getReactionCounts(slug).catch(() => null),
+    getAdjacentPosts(slug, { isAdmin: viewer.isAdmin }).catch(() => ({ prev: null, next: null })),
+    getRelatedPosts(slug, frontmatter.tags ?? [], { isAdmin: viewer.isAdmin }).catch(() => []),
+    getBacklinks(slug, { isAdmin: viewer.isAdmin }).catch(() => []),
     listWebmentions(slug).catch(() => []),
   ]);
   const aiConfigured = await isAiConfigured();
