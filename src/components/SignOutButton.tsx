@@ -32,9 +32,13 @@ export function SignOutButton({
     try {
       const cookieNames = [
         "authjs.session-token",
+        "authjs.csrf-token",
+        "authjs.callback-url",
         "__Secure-authjs.session-token",
-        "next-auth.session-token",
         "__Secure-next-auth.session-token",
+        "__Secure-authjs.callback-url",
+        "__Host-authjs.csrf-token",
+        "next-auth.session-token",
       ];
       const host = location.hostname;
       const root = host.split(".").slice(-2).join(".");

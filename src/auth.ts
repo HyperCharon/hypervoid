@@ -128,6 +128,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         ...(AUTH_COOKIE_DOMAIN ? { domain: AUTH_COOKIE_DOMAIN } : {}),
       },
     },
+    csrfToken: {
+      // Auth.js default uses __Host- prefix which requires Secure + Path=/ + no Domain.
+      // Use plain name to avoid prefix mismatch.
+      name: "authjs.csrf-token",
+      options: {
+        httpOnly: false,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: USE_SECURE_COOKIES,
+      },
+    },
+    callbackUrl: {
+      name: "authjs.callback-url",
+      options: {
+        httpOnly: false,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: USE_SECURE_COOKIES,
+      },
+    },
   },
   providers: [GitHub, ...emailProviders],
   pages: {
