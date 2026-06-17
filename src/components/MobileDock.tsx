@@ -37,28 +37,19 @@ import { useLocale } from "@/components/LocaleProvider";
 import { useT } from "@/components/LocaleProvider";
 import { LOCALES } from "@/lib/i18n";
 import { SiteSettings } from "@/components/SiteSettings";
-import { signOut } from "@/auth.client";
+import { useSession, signOut } from "next-auth/react";
 
 /* ── Mobile Dock (top-right, visible <xl) ─────────────────── */
 export function MobileDock() {
   const { resolvedTheme, setTheme } = useTheme();
   const { locale, setLocale } = useLocale();
   const t = useT();
+  const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
-  const [hasSession, setHasSession] = useState(false);
   const navToggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => setMounted(true), []);
-
-  useEffect(() => {
-    let active = true;
-    fetch("/api/auth/session")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => { if (active) setHasSession(Boolean(data?.user)); })
-      .catch(() => { if (active) setHasSession(false); });
-    return () => { active = false; };
-  }, []);
 
   const isDark = mounted ? resolvedTheme !== "light" : true;
   const nextLocale = LOCALES[(LOCALES.indexOf(locale) + 1) % LOCALES.length];
@@ -126,7 +117,7 @@ export function MobileDock() {
       </button>
 
       {/* Nav drawer */}
-      <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} toggleRef={navToggleRef} hasSession={hasSession} />
+      <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} toggleRef={navToggleRef} hasSession={Boolean(session?.user)} />
     </div>
   );
 }
@@ -263,7 +254,7 @@ function NavDrawer({ open, onClose, toggleRef, hasSession }: { open: boolean; on
                 onClick={async () => {
                   setSigningOut(true);
                   try {
-                    await signOut({ redirectTo: "/" });
+                    await signOut({ callbackUrl: "/" });
                   } catch {
                     setSigningOut(false);
                   }

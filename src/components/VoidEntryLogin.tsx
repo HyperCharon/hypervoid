@@ -24,7 +24,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { type FormEvent, type PointerEvent, useEffect, useId, useState } from "react";
-import { signIn, signOut } from "@/auth.client";
+import { signIn, signOut } from "next-auth/react";
 
 type EntryState = "explore" | "login";
 type AuthLoading = "github" | "email" | "signout" | null;
@@ -139,7 +139,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
     setAuthError(null);
     setLoading("signout");
     try {
-      await signOut({ redirectTo: "/" });
+      await signOut({ callbackUrl: "/" });
     } catch {
       setAuthError("退出登录失败，请刷新后重试。");
       setLoading(null);
@@ -151,7 +151,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
     setEmailSent(false);
     setLoading("github");
     try {
-      await signIn("github", { redirectTo });
+      await signIn("github", { callbackUrl: redirectTo });
     } catch {
       setAuthError("GitHub 登录没有启动，请检查网络后重试。");
       setLoading(null);
@@ -177,7 +177,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
       const result = await signIn("email", {
         email,
         redirect: false,
-        redirectTo,
+        callbackUrl: redirectTo,
       });
 
       if (result?.error) {

@@ -5,11 +5,11 @@ import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState, type ReactNode } from "react";
 import { Languages, LogOut, Moon, Search, Settings2, Sun } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 import { useLocale } from "@/components/LocaleProvider";
 import { LOCALES, LOCALE_LABEL } from "@/lib/i18n";
 import { SiteSettings } from "@/components/SiteSettings";
 import { NotificationBell } from "@/components/NotificationBell";
-import { signOut } from "@/auth.client";
 
 function DockIcon({ children }: { children: ReactNode }) {
   return <span className="hv-dock-icon">{children}</span>;
@@ -54,22 +54,7 @@ function ThemeDockButton() {
 
 export function HeaderDock() {
   const { locale, setLocale, t } = useLocale();
-  const [hasSession, setHasSession] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    fetch("/api/auth/session")
-      .then((response) => (response.ok ? response.json() : null))
-      .then((data) => {
-        if (active) setHasSession(Boolean(data?.user));
-      })
-      .catch(() => {
-        if (active) setHasSession(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
+  const { data: session } = useSession();
   const nextLocale = LOCALES[(LOCALES.indexOf(locale) + 1) % LOCALES.length];
 
   return (
@@ -102,9 +87,9 @@ export function HeaderDock() {
           <NotificationBell triggerClassName="hv-dock-trigger" />
         </DockSlot>
 
-        {hasSession ? (
+        {session?.user ? (
           <DockSlot label="退出登录" className="hv-dock-item-danger">
-            <button type="button" onClick={() => signOut({ redirectTo: "/" })} className="hv-dock-trigger" aria-label="退出登录" title="退出登录">
+            <button type="button" onClick={() => signOut({ callbackUrl: "/" })} className="hv-dock-trigger" aria-label="退出登录" title="退出登录">
               <DockIcon><LogOut className="h-4 w-4" aria-hidden /></DockIcon>
             </button>
           </DockSlot>
