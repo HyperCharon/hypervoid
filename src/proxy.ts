@@ -168,9 +168,8 @@ async function routeToolsSubdomain(req: NextRequest): Promise<NextResponse | nul
 }
 
 // Paths exempt from site-wide login check.
-// "/" is always public so guest login works regardless of login policy.
+// "/" is handled separately in isPublicPath() — always public for guest login.
 const PUBLIC_PATHS = [
-  "/",
   "/sign-in",
   "/cv", // public résumé — recruiter-facing, must bypass the site-login gate
   "/api/auth",
@@ -182,7 +181,8 @@ const PUBLIC_PATHS = [
 ];
 
 function isPublicPath(pathname: string): boolean {
-  if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/")))
+  if (pathname === "/") return true; // home page always public (guest login)
+  if (PUBLIC_PATHS.some((p) => p !== "/" && (pathname === p || pathname.startsWith(p + "/"))))
     return true;
   // Static assets
   if (pathname.startsWith("/_next/") || pathname.startsWith("/live2d/"))
