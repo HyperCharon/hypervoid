@@ -336,12 +336,16 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
           errors.push(`${file.name}: ${e instanceof Error ? e.message : "解析失败"}`);
         }
       } else {
-        const text = await file.text();
-        await saveBookContent(id, text);
-        newBooks.push({
-          id, name: file.name.replace(/\.[^.]+$/, ""), size: file.size,
-          addedAt: Date.now(), mode: "quick",
-        });
+        try {
+          const text = await file.text();
+          await saveBookContent(id, text);
+          newBooks.push({
+            id, name: file.name.replace(/\.[^.]+$/, ""), size: file.size,
+            addedAt: Date.now(), mode: "quick",
+          });
+        } catch (e) {
+          errors.push(`${file.name}: ${e instanceof Error ? e.message : "保存失败"}`);
+        }
       }
     }
     if (newBooks.length > 0) {
