@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Coffee, Dices, ExternalLink, LockKeyhole, Pin, RefreshCcw, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import type { PluggableList } from "unified";
 // KaTeX stylesheet — scoped to article pages so the ~50KB of CSS isn't
 // pulled in on /posts, /tags, /home etc. when no math is rendered.
 import "katex/dist/katex.min.css";
@@ -45,6 +46,29 @@ import { getViewCount } from "@/db/posts-stats";
 import { isAiConfigured } from "@/lib/ai";
 
 type Params = { slug: string };
+
+/** MDX wrapper that catches rendering errors and shows a fallback. */
+function MdxContent({ content, remarkPlugins, rehypePlugins }: {
+  content: string; remarkPlugins: PluggableList; rehypePlugins: PluggableList;
+}) {
+  try {
+    return (
+      <MDXRemote
+        source={content}
+        components={mdxComponents}
+        options={{ mdxOptions: { remarkPlugins, rehypePlugins } }}
+      />
+    );
+  } catch (e) {
+    // Fallback: render raw content if MDX parsing fails
+    console.error("[MDX] render failed:", e);
+    return (
+      <pre className="whitespace-pre-wrap break-words text-sm text-muted">
+        {content}
+      </pre>
+    );
+  }
+}
 
 /**
  * ISR — cache rendered HTML for 5 minutes, invalidate via revalidatePath
@@ -227,44 +251,19 @@ export default async function PostPage(props: { params: Promise<Params> }) {
           </aside>
         ) : null}
         <div className="prose prose-zinc dark:prose-invert hv-prose mt-8 max-w-none">
-          <MDXRemote
-            source={content}
-            components={mdxComponents}
-            options={{
-              mdxOptions: {
-                remarkPlugins: [remarkGfm, remarkMath, remarkAlert, remarkMermaid, remarkVideoEmbed],
-                rehypePlugins: [
-                  rehypeSlug,
-                  [
-                    rehypeAutolinkHeadings,
-                    { behavior: "wrap", properties: { className: ["heading-anchor"] } },
-                  ],
-                  rehypeKatex,
-                  [
-                    rehypeShiki,
-                    {
-                      themes: { light: "github-light", dark: "github-dark" },
-                      transformers: [transformerCodeMeta],
-                      langs: [
-                        "ts",
-                        "tsx",
-                        "js",
-                        "jsx",
-                        "json",
-                        "md",
-                        "mdx",
-                        "bash",
-                        "sh",
-                        "css",
-                        "html",
-                        "yaml",
-                        "python",
-                      ],
-                    },
-                  ],
-                ],
-              },
-            }}
+          <MdxContent
+            content={content}
+            remarkPlugins={[remarkGfm, remarkMath, remarkAlert, remarkMermaid, remarkVideoEmbed]}
+            rehypePlugins={[
+              rehypeSlug,
+              [rehypeAutolinkHeadings, { behavior: "wrap", properties: { className: ["heading-anchor"] } }],
+              rehypeKatex,
+              [rehypeShiki, {
+                themes: { light: "github-light", dark: "github-dark" },
+                transformers: [transformerCodeMeta],
+                langs: ["ts", "tsx", "js", "jsx", "json", "md", "mdx", "bash", "sh", "css", "html", "yaml", "python"],
+              }],
+            ]}
           />
         </div>
         {reactionCounts !== null ? (
