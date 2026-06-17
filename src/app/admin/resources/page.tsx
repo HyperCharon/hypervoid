@@ -41,7 +41,7 @@ export default async function AdminResourcesPage() {
         <div className="flex items-center gap-2"><Plus className="h-4 w-4 text-muted" aria-hidden="true" /><h2 className="font-mono text-xs font-semibold tracking-wider uppercase text-foreground sm:text-sm">NEW_RESOURCE</h2></div>
         <form
           action={createAction}
-          className="mt-3 grid gap-2.5 sm:gap-3 sm:grid-cols-[1.4fr_2fr_1fr_0.6fr_0.6fr_auto] sm:items-end"
+          className="mt-3 flex flex-col gap-2.5 sm:grid sm:gap-3 sm:grid-cols-[1.4fr_2fr_1fr_0.6fr_0.6fr_auto] sm:items-end"
         >
           <label className="flex flex-col gap-1">
             <span className="font-mono text-[10px] uppercase text-muted sm:text-xs">TITLE</span>
@@ -50,7 +50,7 @@ export default async function AdminResourcesPage() {
               name="title"
               required
               placeholder="Figma"
-              className="hv-input min-h-10 px-2.5 text-sm sm:min-h-11 sm:px-3"
+              className="hv-input min-h-10 w-full min-w-0 px-2.5 text-sm sm:min-h-11 sm:px-3"
             />
           </label>
           <label className="flex flex-col gap-1">
@@ -60,7 +60,7 @@ export default async function AdminResourcesPage() {
               name="url"
               required
               placeholder="https://..."
-              className="hv-input min-h-10 px-2.5 text-sm sm:min-h-11 sm:px-3"
+              className="hv-input min-h-10 w-full min-w-0 px-2.5 text-sm sm:min-h-11 sm:px-3"
             />
           </label>
           <label className="flex flex-col gap-1">
@@ -69,7 +69,7 @@ export default async function AdminResourcesPage() {
               type="text"
               name="category"
               placeholder="设计 / 开发 / 软件"
-              className="hv-input min-h-10 px-2.5 text-sm sm:min-h-11 sm:px-3"
+              className="hv-input min-h-10 w-full min-w-0 px-2.5 text-sm sm:min-h-11 sm:px-3"
             />
           </label>
           <div className="grid grid-cols-2 gap-2.5 sm:contents">
@@ -79,7 +79,7 @@ export default async function AdminResourcesPage() {
                 type="text"
                 name="icon"
                 placeholder="🎨"
-                className="hv-input min-h-10 px-2.5 text-sm sm:min-h-11 sm:px-3"
+                className="hv-input min-h-10 w-full min-w-0 px-2.5 text-sm sm:min-h-11 sm:px-3"
               />
             </label>
             <label className="flex flex-col gap-1">
@@ -88,7 +88,7 @@ export default async function AdminResourcesPage() {
                 type="number"
                 name="sortOrder"
                 defaultValue={0}
-                className="hv-input min-h-10 w-full px-2.5 text-sm sm:min-h-11 sm:px-3"
+                className="hv-input min-h-10 w-full min-w-0 px-2.5 text-sm sm:min-h-11 sm:px-3"
               />
             </label>
           </div>
@@ -104,7 +104,7 @@ export default async function AdminResourcesPage() {
               type="text"
               name="description"
               placeholder="一句话说说这是什么"
-              className="hv-input min-h-10 px-2.5 text-sm sm:min-h-11 sm:px-3"
+              className="hv-input min-h-10 w-full min-w-0 px-2.5 text-sm sm:min-h-11 sm:px-3"
             />
           </label>
         </form>
@@ -155,7 +155,7 @@ export default async function AdminResourcesPage() {
                     </summary>
                     <form
                       action={updateAction}
-                      className="grid gap-2 border-t border-accent/15 px-2.5 py-3 text-sm sm:grid-cols-[1.4fr_2fr_1fr_0.6fr_0.6fr] sm:px-3"
+                      className="flex flex-col gap-2 border-t border-accent/15 px-2.5 py-3 text-sm sm:grid sm:grid-cols-[1.4fr_2fr_1fr_0.6fr_0.6fr] sm:px-3"
                     >
                       <input type="hidden" name="id" value={r.id} />
                       <input
@@ -163,33 +163,33 @@ export default async function AdminResourcesPage() {
                         name="title"
                         defaultValue={r.title}
                         required
-                        className="hv-input px-2 py-1.5 text-xs"
+                        className="hv-input min-w-0 px-2 py-1.5 text-xs"
                       />
                       <input
                         type="url"
                         name="url"
                         defaultValue={r.url}
                         required
-                        className="hv-input px-2 py-1.5 text-xs"
+                        className="hv-input min-w-0 px-2 py-1.5 text-xs"
                       />
                       <input
                         type="text"
                         name="category"
                         defaultValue={r.category}
-                        className="hv-input px-2 py-1.5 text-xs"
+                        className="hv-input min-w-0 px-2 py-1.5 text-xs"
                       />
                       <div className="grid grid-cols-2 gap-2 sm:contents">
                         <input
                           type="text"
                           name="icon"
                           defaultValue={r.icon ?? ""}
-                          className="hv-input px-2 py-1.5 text-xs"
+                          className="hv-input min-w-0 px-2 py-1.5 text-xs"
                         />
                         <input
                           type="number"
                           name="sortOrder"
                           defaultValue={r.sortOrder}
-                          className="hv-input px-2 py-1.5 text-xs"
+                          className="hv-input min-w-0 px-2 py-1.5 text-xs"
                         />
                       </div>
                       <input
@@ -197,7 +197,7 @@ export default async function AdminResourcesPage() {
                         name="description"
                         defaultValue={r.description ?? ""}
                         placeholder="描述（可选）"
-                        className="hv-input px-2 py-1.5 text-xs sm:col-span-full"
+                        className="hv-input min-w-0 px-2 py-1.5 text-xs sm:col-span-full"
                       />
                       <div className="flex items-center justify-between gap-3 sm:col-span-full">
                         <label className="flex items-center gap-1.5 text-[11px] text-muted sm:text-xs">

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db/client";
 import { recordAudit } from "@/lib/audit";
 
@@ -25,7 +25,7 @@ function todayKey(): string {
   return `${y}-${m}-${day}`;
 }
 
-export class QuotaExceededError extends Error {
+class QuotaExceededError extends Error {
   provider: string;
   used: number;
   limit: number;
@@ -92,27 +92,6 @@ export async function getTodayUsage(): Promise<ProviderUsage[]> {
       totalTokens: r.totalTokens,
       requests: r.requests,
     }));
-  } catch {
-    return [];
-  }
-}
-
-export async function getUsageHistory(
-  days: number,
-): Promise<{ date: string; provider: string; totalTokens: number }[]> {
-  const since = new Date();
-  since.setDate(since.getDate() - days);
-  const sinceKey = since.toISOString().slice(0, 10);
-  try {
-    const rows = await getDb()
-      .select({
-        date: schema.aiUsage.date,
-        provider: schema.aiUsage.provider,
-        totalTokens: schema.aiUsage.totalTokens,
-      })
-      .from(schema.aiUsage)
-      .where(gte(schema.aiUsage.date, sinceKey));
-    return rows;
   } catch {
     return [];
   }

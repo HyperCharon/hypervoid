@@ -4,7 +4,6 @@ import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db/client";
 import {
   customRowToModel,
-  listCustomModels,
   getCustomModel,
   type CustomModelRow,
 } from "@/lib/ai-custom-models";
@@ -99,9 +98,6 @@ export const BUILTIN_PROVIDERS: { id: AiProvider; label: string }[] = [
   { id: "anthropic", label: "Claude (Anthropic)" },
 ];
 
-/** Back-compat alias — some pages import this name. */
-export const PROVIDERS = BUILTIN_PROVIDERS;
-
 const MODEL_KEY = "ai.model";
 
 function isBuiltinValid(id: string): boolean {
@@ -112,16 +108,6 @@ function fallbackModel(): AiModel {
   return (
     AI_MODELS.find((m) => m.id === DEFAULT_AI_MODEL_ID) ?? AI_MODELS[0]
   );
-}
-
-/**
- * Returns all models (built-in + custom). Custom rows are converted to the
- * AiModel shape; their keys/baseUrls stay in CustomModelRow accessible via
- * resolveModelRow().
- */
-export async function listAllModels(): Promise<AiModel[]> {
-  const custom = await listCustomModels();
-  return [...AI_MODELS, ...custom.map(customRowToModel)];
 }
 
 /** Resolves to the stored selection (DB), or falls back to the default. */
@@ -167,15 +153,6 @@ export async function resolveActiveModelWithRow(): Promise<{
   return { model, custom: null };
 }
 
-/**
- * Legacy compat: returns just the upstream ID. Older callers used this to
- * get a string they could pass to the Anthropic SDK; the new ai-client.ts
- * dispatches via the full AiModel record instead.
- */
-export async function getAiModel(): Promise<string> {
-  return (await getActiveAiModel()).upstreamId;
-}
-
 export async function setAiModel(id: string): Promise<void> {
   const valid = isBuiltinValid(id) || id.startsWith("custom:");
   if (!valid) throw new Error(`unknown model: ${id}`);
@@ -204,14 +181,7 @@ export function isProviderConfigured(provider: AiProvider): boolean {
   return false;
 }
 
-/** True if the currently-selected model's provider has its key set. */
-export async function isAiKeyConfigured(): Promise<boolean> {
-  const { model, custom } = await resolveActiveModelWithRow();
-  if (custom) return Boolean(custom.apiKey);
-  return isProviderConfigured(model.provider);
-}
-
-export function maskKey(raw: string | undefined): string {
+function maskKey(raw: string | undefined): string {
   if (!raw) return "未配置";
   if (raw.length <= 12) return "已配置（长度过短）";
   return `${raw.slice(0, 10)}…${raw.slice(-4)}`;

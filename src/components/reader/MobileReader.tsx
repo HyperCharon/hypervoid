@@ -87,7 +87,10 @@ async function renderMd(src: string): Promise<string> {
       const label = lang ? ` data-lang="${lang}"` : "";
       return `<div class="mcode"><div class="mcode-hd"${label}><span>${lang || "code"}</span></div><pre><code>${escaped}</code></pre></div>`;
     };
-    r.codespan = ({ text }: { text: string }) => `<code>${text}</code>`;
+    r.codespan = ({ text }: { text: string }) => {
+      const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return `<code>${escaped}</code>`;
+    };
     marked.use({ renderer: r });
     markedFn = (s) => {
       const result = marked(s);

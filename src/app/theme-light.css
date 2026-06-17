@@ -91,15 +91,6 @@
   saturate: 1 !important;
 }
 
-/* Player widget — soften dark overlay */
-.light .hv-grad-player img {
-  opacity: 0.12 !important;
-  filter: blur(2rem) !important;
-}
-.light .hv-grad-player .bg-gradient-to-b {
-  background: linear-gradient(to bottom, rgba(245,237,214,0.3), rgba(245,237,214,0.95)) !important;
-}
-
 /* Light mode image overlays — soften */
 .light [class*="bg-gradient-to-t"][class*="from-black"] {
   background: linear-gradient(to top, rgba(44,24,16,0.08), transparent) !important;

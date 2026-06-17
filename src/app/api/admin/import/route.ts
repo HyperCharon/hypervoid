@@ -3,6 +3,7 @@
  */
 import { requireAdmin } from "@/auth";
 import { createPost } from "@/db/admin-posts";
+import { rateLimit } from "@/lib/rate-limit";
 import matter from "gray-matter";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,9 @@ export async function POST(request: Request) {
   } catch {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rl = await rateLimit("admin", { key: "admin:import", limit: 5, windowSec: 60 });
+  if (!rl.ok) return Response.json({ error: "导入过于频繁，请稍后再试" }, { status: 429 });
 
   const formData = await request.formData();
   const files = formData.getAll("files").filter((f): f is File => f instanceof File);

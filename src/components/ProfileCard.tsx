@@ -61,7 +61,7 @@ export async function ProfileCard() {
               rel="noreferrer noopener"
               title={s.name}
               aria-label={s.name}
-              className="hv-grad-social inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition hover:shadow-[0_0_20px_var(--rainbow-glow)] sm:h-10 sm:w-10"
+              className="hv-grad-social inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition hover:shadow-[0_0_20px_var(--rainbow-glow)] sm:h-11 sm:w-11"
             >
               <SocialIcon name={s.icon} className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </a>

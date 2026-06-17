@@ -176,7 +176,8 @@ async function renderMarkdown(src: string): Promise<string> {
     };
 
     renderer.codespan = function ({ text }: { text: string }) {
-      return `<code>${text}</code>`;
+      const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return `<code>${escaped}</code>`;
     };
 
     _marked.setOptions({ gfm: true, breaks: false });

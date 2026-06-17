@@ -26,7 +26,6 @@ import {
 import { type FormEvent, type PointerEvent, useEffect, useId, useState } from "react";
 import { signIn } from "next-auth/react";
 import { SignOutButton } from "@/components/SignOutButton";
-import { signOutAction } from "@/app/signout-action";
 
 type EntryState = "explore" | "login";
 type AuthLoading = "github" | "email" | "signout" | null;
@@ -324,7 +323,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                     onClick={() => setEntryState("explore")}
                     aria-label="Back to explore"
                     title="Back to explore"
-                    className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center border border-white/15 bg-white/10 text-white/80 transition hover:border-emerald-100/50 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/80 sm:h-11 sm:w-11"
+                    className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center border border-white/15 bg-white/10 text-white/80 transition hover:border-emerald-100/50 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/80"
                   >
                     <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
                   </button>
@@ -383,7 +382,6 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                           ) : null}
                         </div>
                         <SignOutButton
-                          signOutAction={signOutAction}
                           className="mt-4 inline-flex min-h-10 cursor-pointer items-center gap-2 px-0 text-sm font-bold uppercase text-emerald-100 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/60"
                         >
                           <LogOut className="h-4 w-4" aria-hidden />

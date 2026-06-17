@@ -100,21 +100,6 @@ export async function decrementReaction(
   }
 }
 
-/** Sum of all reactions across all emojis — for site-wide engagement stats. */
-export async function getTotalReactionCount(): Promise<number> {
-  if (!isConfigured()) return 0;
-  try {
-    const rows = await getDb()
-      .select({
-        total: sql<number>`coalesce(sum(${schema.postReactions.count}), 0)::int`,
-      })
-      .from(schema.postReactions);
-    return rows[0]?.total ?? 0;
-  } catch {
-    return 0;
-  }
-}
-
 /**
  * Admin-only: every post's reaction breakdown joined with title.
  * Used by /admin/reactions for the per-post analytics dashboard.

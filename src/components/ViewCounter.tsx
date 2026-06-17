@@ -20,7 +20,7 @@ export function ViewCounter({
     setHasIncremented(true);
     recordView(slug).then((newCount) => {
       if (newCount !== null) setCount(newCount);
-    });
+    }).catch(() => {});
   }, [slug, hasIncremented]);
 
   if (count === null) return null;

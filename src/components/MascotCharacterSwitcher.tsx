@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { fetchMascotPolicy, type MascotPolicy } from "@/lib/mascot-policy-cache";
 
 export type MascotCharacter = "kanna" | "rem" | "ram";
 
@@ -21,12 +22,6 @@ type Props = {
   menuClassName?: string;
 };
 
-type MascotPolicy = {
-  allowUserSwitch: boolean;
-  showSwitchButton: boolean;
-  defaultCharacter: MascotCharacter;
-};
-
 export function MascotCharacterSwitcher({
   current,
   className = "",
@@ -38,30 +33,11 @@ export function MascotCharacterSwitcher({
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/mascot/policy", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data: Partial<MascotPolicy>) => {
-        if (cancelled) return;
-        setPolicy({
-          allowUserSwitch: data.allowUserSwitch !== false,
-          showSwitchButton: data.showSwitchButton !== false,
-          defaultCharacter:
-            data.defaultCharacter === "kanna" ||
-            data.defaultCharacter === "rem" ||
-            data.defaultCharacter === "ram"
-              ? data.defaultCharacter
-              : "ram",
-        });
+    fetchMascotPolicy()
+      .then((p) => {
+        if (!cancelled) setPolicy(p);
       })
-      .catch(() => {
-        if (!cancelled) {
-          setPolicy({
-            allowUserSwitch: true,
-            showSwitchButton: true,
-            defaultCharacter: "ram",
-          });
-        }
-      });
+      .catch(() => {});
     return () => {
       cancelled = true;
     };

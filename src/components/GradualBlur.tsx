@@ -38,7 +38,7 @@ export function GradualBlur({
       const fadeStart = fraction * 100 * 0.4;
       const fadeEnd = fraction * 100;
 
-      let maskDir: string;
+      let maskDir = "to top";
       switch (position) {
         case "bottom":
           maskDir = "to top";

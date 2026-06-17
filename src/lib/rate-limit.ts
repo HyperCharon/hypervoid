@@ -142,18 +142,3 @@ export async function rateLimit(
   }
 }
 
-/**
- * Periodic-cleanup helper — not run automatically. Hook into your existing
- * cron if you want to keep the table small; otherwise stale rows just sit
- * idle. Returns the number of rows deleted.
- */
-export async function purgeStaleRateLimits(): Promise<number> {
-  try {
-    const res = await getDb().execute(sql`
-      DELETE FROM rate_limits WHERE window_start < NOW() - INTERVAL '24 hours';
-    `);
-    return (res as unknown as { rowCount?: number }).rowCount ?? 0;
-  } catch {
-    return 0;
-  }
-}

@@ -194,7 +194,7 @@ export function PomodoroTimer({ todaySeconds = 0 }: { todaySeconds?: number }) {
     }
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
-  });
+  }, [isTransition, running, isIdle, isWork, isBreak, elapsed, startBreak, pause, start, reset, finishWork, finishBreak, skipBreakAndIdle]);
 
   function start() {
     if (phase === "idle") setPhase("work");

@@ -46,7 +46,7 @@ async function load(): Promise<CvCache> {
   return _cache;
 }
 
-export function invalidateCvCache(): void {
+function invalidateCvCache(): void {
   _cache = null;
   _cacheTs = 0;
 }
@@ -59,12 +59,6 @@ export async function getCvData(): Promise<CvData> {
 /** Whether the résumé is publicly shown (chip + page). Default false (hidden). */
 export async function isCvVisible(): Promise<boolean> {
   return (await load()).visible;
-}
-
-/** Editable JSON text for the admin editor — stored text, or pretty defaults. */
-export async function getCvRaw(): Promise<string> {
-  const { raw } = await load();
-  return raw || JSON.stringify(cvData, null, 2);
 }
 
 /** Just the repeating-array sections, pretty-printed for the admin JSON box. */

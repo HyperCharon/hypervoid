@@ -97,6 +97,14 @@ export function HvPlayer({
     if (playing) el.play().catch(() => {});
   }, [track?.url]);
 
+  // Sync play/pause when `playing` changes (same track)
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el || !track) return;
+    if (playing) el.play().catch(() => {});
+    else el.pause();
+  }, [playing]);
+
   /* ── Audio events ── */
   const onTimeUpdate = useCallback(() => {
     const el = audioRef.current;

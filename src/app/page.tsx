@@ -136,14 +136,14 @@ export default async function Home() {
                             href={`/posts/${post.slug}`}
                             className="group flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-2.5 transition-all duration-200 hover:border-accent/30 hover:bg-card-hover"
                           >
-                            <span className="w-5 shrink-0 text-center font-mono text-[11px] text-muted">
+                            <span className="w-5 shrink-0 text-center font-mono text-xs text-muted">
                               {String(i + 1).padStart(2, "0")}
                             </span>
                             <div className="min-w-0 flex-1">
                               <h3 className="truncate text-[13px] font-semibold tracking-tight text-foreground group-hover:text-accent">
                                 {post.frontmatter.title}
                               </h3>
-                              <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted">
+                              <div className="mt-0.5 flex items-center gap-2 text-xs text-muted">
                                 <time className="font-mono">{post.frontmatter.date}</time>
                                 <span>{post.frontmatter.readingMinutes}{t.post.readingTimeSuffix}</span>
                               </div>

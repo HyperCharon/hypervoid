@@ -38,7 +38,6 @@ import { useT } from "@/components/LocaleProvider";
 import { LOCALES } from "@/lib/i18n";
 import { SiteSettings } from "@/components/SiteSettings";
 import { SignOutButton } from "@/components/SignOutButton";
-import { signOutAction } from "@/app/signout-action";
 
 /* ── Mobile Dock (top-right, visible <xl) ─────────────────── */
 export function MobileDock({ hasSession = false }: { hasSession?: boolean }) {
@@ -60,7 +59,7 @@ export function MobileDock({ hasSession = false }: { hasSession?: boolean }) {
   }
 
   const btnClass = "flex items-center justify-center rounded-lg text-muted-soft transition-colors hover:bg-card-hover hover:text-foreground active:bg-card-hover";
-  const btnStyle = { width: "36px", height: "36px" };
+  const btnStyle = { width: "44px", height: "44px" };
 
   return (
     <div className="flex items-center gap-0.5 xl:hidden">
@@ -249,7 +248,6 @@ function NavDrawer({ open, onClose, toggleRef, hasSession }: { open: boolean; on
           {hasSession ? (
             <div className="mt-3 border-t border-border pt-3">
               <SignOutButton
-                signOutAction={signOutAction}
                 className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10 active:bg-red-500/10"
               >
                 <LogOut className="h-4.5 w-4.5 shrink-0" />

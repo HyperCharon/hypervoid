@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { fetchMascotPolicy } from "@/lib/mascot-policy-cache";
 
 const CHAR_KEY = "hypervoid:mascot-char";
 const CHAR_EVENT = "hypervoid:mascot-character-changed";
@@ -45,12 +46,9 @@ export function MascotRouter() {
   useEffect(() => {
     if (readStoredChar()) return;
     let cancelled = false;
-    fetch("/api/mascot/policy", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data: { defaultCharacter?: unknown }) => {
-        if (!cancelled && isMascotChar(data.defaultCharacter)) {
-          setCharacter(data.defaultCharacter);
-        }
+    fetchMascotPolicy()
+      .then((policy) => {
+        if (!cancelled) setCharacter(policy.defaultCharacter);
       })
       .catch(() => {});
     return () => {

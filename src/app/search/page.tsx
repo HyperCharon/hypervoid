@@ -156,14 +156,14 @@ export default async function SearchPage(props: {
               type="date"
               name="from"
               defaultValue={params.from ?? ""}
-              className="hv-input border border-border px-2 py-1 text-xs"
+              className="hv-input min-h-11 border border-border px-2 py-1 text-xs"
             />
             <span className="text-muted-soft">→</span>
             <input
               type="date"
               name="to"
               defaultValue={params.to ?? ""}
-              className="hv-input border border-border px-2 py-1 text-xs"
+              className="hv-input min-h-11 border border-border px-2 py-1 text-xs"
             />
             <button
               type="submit"
@@ -200,7 +200,7 @@ export default async function SearchPage(props: {
                     }`}
                   >
                     #{name}
-                    <span className="font-mono text-[10px] opacity-70">{n}</span>
+                    <span className="font-mono text-xs opacity-70">{n}</span>
                   </Link>
                 );
               })}
@@ -216,7 +216,7 @@ export default async function SearchPage(props: {
           ) : null}
 
           {activeFilters > 0 ? (
-            <p className="text-[10px] text-muted">
+            <p className="text-xs text-muted">
               已应用 <span className="text-foreground">{activeFilters}</span> 个过滤条件，多标签为交集匹配。
             </p>
           ) : null}

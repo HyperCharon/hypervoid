@@ -16,9 +16,3 @@ export async function getMessages(): Promise<Messages> {
   return MESSAGES[locale];
 }
 
-/**
- * Synchronous version for when you already know the locale.
- */
-export function getMessagesSync(locale: string): Messages {
-  return MESSAGES[isLocale(locale) ? locale : DEFAULT_LOCALE];
-}

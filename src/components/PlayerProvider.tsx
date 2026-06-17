@@ -554,15 +554,3 @@ export function useActions(): PlayerActions {
   if (!ctx) throw new Error("useActions must be used within PlayerProvider");
   return ctx;
 }
-
-/** Legacy combined hook — subscribes to ALL changes. Use the split hooks instead. */
-export function usePlayer(): PlayerContextValue {
-  const ctx = useContext(PlayerContext);
-  if (!ctx) throw new Error("usePlayer must be used within PlayerProvider");
-  return ctx;
-}
-
-/** Returns null when outside the provider. */
-export function usePlayerOptional(): PlayerContextValue | null {
-  return useContext(PlayerContext);
-}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { fetchEffects } from "@/lib/effects-cache";
 
 interface Particle {
   x: number;
@@ -20,8 +21,7 @@ export function ClickEffect() {
   const animFrame = useRef<number>(0);
 
   useEffect(() => {
-    fetch("/api/effects")
-      .then((r) => r.json())
+    fetchEffects()
       .then((d) => setEnabled(Boolean(d.clickParticles)))
       .catch(() => {});
   }, []);
