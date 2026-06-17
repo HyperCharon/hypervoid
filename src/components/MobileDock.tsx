@@ -221,12 +221,12 @@ function NavDrawer({ open, onClose, toggleRef, hasSession }: { open: boolean; on
   return (
     <>
       {/* Backdrop — sits behind header (z-40) so the toggle button remains clickable */}
-      <div className="fixed inset-0 top-[52px] z-[35] bg-black/50 xl:hidden" onClick={onClose} />
+      <div className="fixed inset-0 top-[56px] z-[35] bg-black/50 xl:hidden" onClick={onClose} />
 
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className="fixed inset-x-0 top-[52px] z-[50] max-h-[calc(100dvh-52px)] overflow-y-auto border-b border-border shadow-lg overscroll-contain xl:hidden"
+        className="fixed inset-x-0 top-[56px] z-[50] max-h-[calc(100dvh-56px)] overflow-y-auto border-b border-border shadow-lg overscroll-contain xl:hidden"
         style={{ background: "var(--card)", paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}
       >
         <div className="px-3 py-3">
