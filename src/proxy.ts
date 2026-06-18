@@ -263,6 +263,14 @@ async function denyUnauthorized(req: NextRequest): Promise<NextResponse | null> 
   return NextResponse.redirect(signInUrl);
 }
 
+// Paths that always require login (guests cannot access).
+const LOGIN_REQUIRED_PATHS = [
+  "/resources",
+  "/guestbook",
+  "/private",
+  "/tools",
+];
+
 async function checkSiteLogin(req: NextRequest): Promise<NextResponse | null> {
   const { pathname } = req.nextUrl;
 
@@ -271,25 +279,17 @@ async function checkSiteLogin(req: NextRequest): Promise<NextResponse | null> {
     return null;
   }
 
-  // Check login policy from DB
-  let policy: string;
-  try {
-    const { getSiteSetting } = await import("@/db/site-settings");
-    policy = (await getSiteSetting("site_login_required")) || "optional";
-  } catch {
-    // DB error — fail-open
+  // Check if this path requires login regardless of site-wide policy
+  const needsLogin = LOGIN_REQUIRED_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(p + "/"),
+  );
+
+  if (!needsLogin) {
+    // Blog posts, about, friends, etc. — always public for guests
     return null;
   }
 
-  // "optional" (default) — no login required
-  if (policy === "optional") return null;
-
-  // "private_only" — only /private needs login
-  if (policy === "private_only") {
-    if (!pathname.startsWith("/private")) return null;
-  }
-
-  // "required" or private_only+/private — check session
+  // This path requires login — check session
   const session = await auth();
   if (session?.user) return null;
 
