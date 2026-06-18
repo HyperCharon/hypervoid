@@ -1,15 +1,19 @@
 "use client";
 
 import { useTransition } from "react";
-import { signOut } from "next-auth/react";
 import { recordLogoutTimestampAction } from "@/app/signout-action";
 
 /**
- * Logout button. Calls next-auth/react's signOut() with redirect:false
- * to properly clear all cookies (including __Secure- / __Host- prefixed
- * ones) via POST /api/auth/signout, then hard-navigates to /sign-in.
+ * Logout button.
  *
- * Falls back to hard navigation if signOut throws (e.g. stream errors).
+ * 1. Records the logout timestamp server-side (for proxy stale-JWT check).
+ * 2. POSTs to NextAuth's /api/auth/signout endpoint directly — bypasses
+ *    next-auth/react's signOut() which can throw stream errors.
+ * 3. Hard-navigates to /sign-in.
+ *
+ * The proxy's stale-JWT check is the safety net: even if cookie clearing
+ * fails (e.g. __Secure- prefix on HTTP), the hv-logout-at timestamp
+ * ensures the old session is rejected.
  */
 export function SignOutButton({
   className = "",
@@ -29,13 +33,19 @@ export function SignOutButton({
     }
     startTransition(async () => {
       try {
+        // 1. Record logout timestamp (server action)
         await recordLogoutTimestampAction();
-        await signOut({ redirect: false });
+        // 2. Clear NextAuth cookies via signout endpoint
+        const { csrfToken } = await fetch("/api/auth/csrf").then((r) => r.json());
+        await fetch("/api/auth/signout", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ csrfToken }),
+        });
       } catch {
-        // signOut can throw stream errors in some environments —
-        // the hard navigation below ensures the user still lands
-        // on /sign-in; stale JWTs are caught by the proxy.
+        // ignore — proxy stale-JWT check is the safety net
       }
+      // 3. Hard navigation
       window.location.href = "/sign-in";
     });
   }
