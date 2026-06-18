@@ -254,28 +254,55 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
         const book = library.find(b => b.id === activeId);
 
         if (book?.isEpub) {
-          // Epub: chapters are stored individually — load metadata + current chapter
+          // Epub: try per-chapter storage first, fall back to old monolithic format
           const chData = loadChapters(activeId);
           const chapterList = (chData ?? []) as Chapter[];
           if (cancelled) return;
-          setChapters(chapterList);
-          setRawContent("");
 
           if (chapterList.length === 0) {
+            // No chapter metadata — book data is missing or corrupt
             setCurrentChapterHtml("");
+            setChapters([]);
             setLoading(false);
             return;
           }
+
+          setChapters(chapterList);
+          setRawContent("");
 
           // Restore saved chapter index (or start at 0)
           const savedIdx = localStorage.getItem(K_POSITION + activeId);
           const idx = savedIdx ? Math.min(parseInt(savedIdx, 10) || 0, chapterList.length - 1) : 0;
           setCurrentChapterIndex(idx);
 
-          const chHtml = await Promise.race([
+          // Try per-chapter storage first (new format)
+          let chHtml = await Promise.race([
             loadChapterHtml(activeId, idx),
-            new Promise<null>((resolve) => setTimeout(() => resolve(null), 15000)),
+            new Promise<null>((resolve) => setTimeout(() => resolve(null), 10000)),
           ]);
+
+          // Fallback: old monolithic format (fullHtml stored as one string)
+          if (!chHtml) {
+            const fullHtml = await Promise.race([
+              loadBookContent(activeId),
+              new Promise<null>((resolve) => setTimeout(() => resolve(null), 15000)),
+            ]);
+            if (cancelled) return;
+            if (fullHtml) {
+              // Split old format by <hr class='epub-divider' /> or <section data-chapter=
+              const parts = fullHtml.split(/<hr\s+class=['"]epub-divider['"]\s*\/?>/i);
+              const sectionRe = /<section\s+data-chapter="(\d+)"[^>]*>/;
+              chHtml = parts[idx] ?? parts[0] ?? "";
+              // Extract just the section content (strip the outer section wrapper)
+              const m = chHtml.match(sectionRe);
+              if (m) {
+                const start = chHtml.indexOf(">") + 1;
+                const end = chHtml.lastIndexOf("</section>");
+                if (end > start) chHtml = chHtml.substring(start, end);
+              }
+            }
+          }
+
           if (cancelled) return;
           setCurrentChapterHtml(chHtml ?? "");
           setHtmlContent(""); // not used for epub
