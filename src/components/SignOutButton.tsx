@@ -1,53 +1,66 @@
 "use client";
 
-import { useTransition } from "react";
-import { signOut } from "next-auth/react";
+import { useCallback, useState } from "react";
 import { recordLogoutTimestampAction } from "@/app/signout-action";
 
 /**
- * Logout button.
- *
- * 1. Records the logout timestamp (for proxy stale-JWT check).
- * 2. Calls next-auth/react's signOut({ redirect: false }) which POSTs
- *    to /api/auth/signout with the X-Auth-Return-Redirect header,
- *    causing the server to return JSON instead of a 302.
- * 3. Hard-navigates to /sign-in.
- *
- * Falls back to navigation if signOut throws.
+ * Reliable logout. Uses fetch to POST to the NextAuth signout endpoint
+ * with redirect:"manual" (don't follow the 302 — just let the browser
+ * apply the Set-Cookie headers), then forces a full page reload.
  */
 export function SignOutButton({
+  redirectTo = "/sign-in",
   className = "",
   children = "退出登录",
   ...rest
 }: {
+  redirectTo?: string;
   className?: string;
   children?: React.ReactNode;
-} & React.HTMLAttributes<HTMLElement>) {
-  const [pending, startTransition] = useTransition();
+} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  const [loading, setLoading] = useState(false);
 
-  function handleClick() {
+  const handleClick = useCallback(async () => {
+    setLoading(true);
     try {
       localStorage.removeItem("hypervoid:guest");
     } catch {
       // ignore
     }
-    startTransition(async () => {
-      try {
-        await recordLogoutTimestampAction();
-        await signOut({ redirect: false });
-      } catch {
-        // signOut can throw — the hard navigation below still works;
-        // proxy stale-JWT check is the safety net.
-      }
-      window.location.href = "/sign-in";
-    });
-  }
+    try {
+      // 1. Record logout timestamp (for proxy stale-JWT check)
+      await recordLogoutTimestampAction();
+    } catch {
+      // ignore
+    }
+    try {
+      // 2. Get a fresh CSRF token
+      const csrfRes = await fetch("/api/auth/csrf");
+      const { csrfToken } = await csrfRes.json();
+
+      // 3. POST to signout endpoint — redirect:"manual" prevents the
+      //    browser from following the 302, avoiding the "Error in input
+      //    stream" that happens when trying to parse a redirect response
+      //    as JSON. Set-Cookie headers are still applied.
+      await fetch("/api/auth/signout", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ csrfToken, callbackUrl: redirectTo }),
+        redirect: "manual",
+      });
+    } catch {
+      // Fallback: navigate anyway (proxy stale-JWT check is the safety net)
+    }
+    // 4. Force full page reload — clears all client state + picks up
+    //    the cleared session cookie from the Set-Cookie header.
+    window.location.href = redirectTo;
+  }, [redirectTo]);
 
   return (
     <button
       type="button"
       onClick={handleClick}
-      disabled={pending}
+      disabled={loading}
       className={className}
       {...rest}
     >
