@@ -608,7 +608,10 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
     const h = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.key === "f" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 50); }
-      if (e.key === "Escape") { setSearchOpen(false); setSettingsOpen(false); setBmOpen(false); setTocOpen(false); }
+      if (e.key === "Escape") {
+        setSearchOpen(false); setSettingsOpen(false); setBmOpen(false); setTocOpen(false);
+        if (immersive) { document.exitFullscreen().catch(() => {}); setImmersive(false); setToolbarVisible(true); }
+      }
       if (e.key === "[") navCh(-1);
       if (e.key === "]") navCh(1);
       if (e.key === "b") addBm();
@@ -621,7 +624,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
     };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
-  }, [isQuick, activeId, navCh, addBm]);
+  }, [isQuick, activeId, navCh, addBm, immersive]);
 
   // ── Wake Lock (prevent screen sleep while reading) ──
   useEffect(() => {
@@ -701,10 +704,10 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
     const dt = Date.now() - touchStartRef.current.t;
     touchStartRef.current = null;
 
-    // Swipe: horizontal > vertical, distance > 60px, time < 400ms
-    if (Math.abs(dx) > Math.abs(dy) * 1.5 && Math.abs(dx) > 60 && dt < 400) {
-      if (dx > 0) navCh(-1); // swipe right = previous
-      else navCh(1); // swipe left = next
+    // Swipe: horizontal dominance, enough distance, fast enough, not a scroll
+    if (Math.abs(dx) > Math.abs(dy) * 2 && Math.abs(dx) > 80 && dt < 500 && dt > 50) {
+      if (dx > 0) navCh(-1); // swipe right = previous chapter
+      else navCh(1); // swipe left = next chapter
     }
   }, [navCh]);
 
@@ -857,8 +860,8 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false); }}
       onDrop={e => { e.preventDefault(); setDragOver(false); importFiles(e.dataTransfer.files); }}>
 
-      {/* ── Toolbar (auto-hide in immersive) ── */}
-      <div className={`flex shrink-0 items-center gap-0.5 border-b border-border px-1.5 py-1 transition-transform duration-200 sm:px-3 sm:py-1.5 ${!toolbarVisible && immersive ? "-translate-y-full" : ""}`}>
+      {/* ── Toolbar (absolute overlay in immersive, auto-hide) ── */}
+      <div className={`flex shrink-0 items-center gap-0.5 border-b border-border px-1.5 py-1 transition-all duration-200 sm:px-3 sm:py-1.5 ${immersive ? "absolute inset-x-0 top-0 z-10 bg-background/90 backdrop-blur" : ""} ${immersive && !toolbarVisible ? "-translate-y-full opacity-0" : ""}`}>
         <button type="button" onClick={() => setActiveId(null)} className="rdr-btn-text shrink-0" title="返回书库">
           <ChevronLeft className="h-4 w-4" /><span className="hidden sm:inline">书库</span>
         </button>
@@ -937,7 +940,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
 
       {/* ── Settings panel (novel only) ── */}
       {!isQuick && settingsOpen && (
-        <div className="shrink-0 border-b border-border bg-card/80 p-3 backdrop-blur">
+        <div className={`shrink-0 border-b border-border bg-card/80 p-3 backdrop-blur ${immersive ? "absolute inset-x-0 top-12 z-10" : ""}`}>
           <div className="mx-auto flex max-w-4xl flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-2">
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted">字号</span>
