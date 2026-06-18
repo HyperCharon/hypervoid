@@ -24,9 +24,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import { type FormEvent, type PointerEvent, useEffect, useId, useState, useTransition } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import { SignOutButton } from "@/components/SignOutButton";
-import { enterGuestAction } from "@/app/guest-action";
+import { recordGuestLogoutAction } from "@/app/guest-action";
 
 type EntryState = "explore" | "login";
 type AuthLoading = "github" | "email" | "signout" | null;
@@ -523,10 +523,11 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                       onClick={() => {
                         try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
                         startGuestTransition(async () => {
-                          await enterGuestAction();
-                          // Full reload so the server sees cleared cookies.
-                          // Cannot use redirect() in the server action because
-                          // React silently swallows redirects inside startTransition.
+                          // 1. Record logout timestamp (server-side, for proxy stale-JWT check)
+                          await recordGuestLogoutAction();
+                          // 2. Clear NextAuth cookies via the proper endpoint
+                          await signOut({ redirect: false });
+                          // 3. Hard navigation so the server sees cleared cookies
                           window.location.href = "/";
                         });
                       }}

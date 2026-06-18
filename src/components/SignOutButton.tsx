@@ -1,12 +1,14 @@
 "use client";
 
 import { useTransition } from "react";
-import { signOutAction } from "@/app/signout-action";
+import { signOut } from "next-auth/react";
+import { recordLogoutAction } from "@/app/signout-action";
 
 /**
- * Logout button. Calls a server action that deletes the NextAuth session
- * cookie directly via cookies().delete() and redirects to /sign-in.
- * Also clears the guest flag from localStorage.
+ * Logout button. Records the logout timestamp server-side (for stale-JWT
+ * protection), then calls next-auth/react's signOut() which properly clears
+ * all cookies (including __Secure- / __Host- prefixed ones) via POST
+ * /api/auth/signout, and finally hard-navigates to /sign-in.
  */
 export function SignOutButton({
   className = "",
@@ -25,37 +27,12 @@ export function SignOutButton({
     } catch {
       // ignore
     }
-    // Clear ALL auth cookies client-side as well (belt-and-suspenders —
-    // the server action also deletes them, but the browser may have
-    // legacy __Secure- cookies that server-side delete can't reach if
-    // the domain doesn't match).
-    try {
-      const cookieNames = [
-        "authjs.session-token",
-        "authjs.csrf-token",
-        "authjs.callback-url",
-        "__Secure-authjs.session-token",
-        "__Secure-next-auth.session-token",
-        "__Secure-authjs.callback-url",
-        "__Host-authjs.csrf-token",
-        "next-auth.session-token",
-      ];
-      const host = location.hostname;
-      const root = host.split(".").slice(-2).join(".");
-      for (const name of cookieNames) {
-        for (const d of [host, root, `.${root}`, ""]) {
-          const suffix = d ? `; domain=${d}` : "";
-          document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${suffix}`;
-        }
-      }
-    } catch {
-      // ignore
-    }
-    // Call server action to clear cookies, then hard-navigate to sign-in.
-    // Cannot use redirect() in the server action because React silently
-    // swallows redirects inside startTransition.
     startTransition(async () => {
-      await signOutAction();
+      // 1. Record logout timestamp (server-side, for proxy stale-JWT check)
+      await recordLogoutAction();
+      // 2. Clear NextAuth cookies via the proper endpoint
+      await signOut({ redirect: false });
+      // 3. Hard navigation so the server sees cleared cookies
       window.location.href = "/sign-in";
     });
   }
