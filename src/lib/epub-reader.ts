@@ -23,7 +23,6 @@ export interface EpubMeta {
 export interface EpubData {
   meta: EpubMeta;
   chapters: EpubChapter[];
-  fullHtml: string;
 }
 
 export async function parseEpub(arrayBuffer: ArrayBuffer): Promise<EpubData> {
@@ -58,7 +57,6 @@ export async function parseEpub(arrayBuffer: ArrayBuffer): Promise<EpubData> {
 
   // Extract chapters from spine
   const chapters: EpubChapter[] = [];
-  const allHtmlParts: string[] = [];
 
   const spine = b.spine;
   const spineItems = spine?.items || spine?.spineItems || [];
@@ -92,8 +90,6 @@ export async function parseEpub(arrayBuffer: ArrayBuffer): Promise<EpubData> {
         html,
         level: 1,
       });
-
-      allHtmlParts.push(`<section data-chapter="${i}" data-line="${i}"><h1>${chapterTitle}</h1>${html}</section>`);
     } catch {
       // skip failed chapters
     }
@@ -105,6 +101,5 @@ export async function parseEpub(arrayBuffer: ArrayBuffer): Promise<EpubData> {
   return {
     meta,
     chapters,
-    fullHtml: allHtmlParts.join("\n<hr class='epub-divider' />\n"),
   };
 }

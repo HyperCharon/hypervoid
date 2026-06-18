@@ -23,7 +23,7 @@ import {
   BookMarked,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { saveBookContent, loadBookContent, saveChapters, loadChapters, deleteBookData } from "@/lib/reader-storage";
+import { saveBookContent, loadBookContent, saveChapters, loadChapters, deleteBookData, saveChapterHtml, loadChapterHtml } from "@/lib/reader-storage";
 
 /* ── Types ───────────────────────────────────────────────── */
 
@@ -146,17 +146,14 @@ async function renderMd(src: string): Promise<string> {
 // Client-side epub parsing limit — browser can handle 200MB+ with epubjs
 const EPUB_CLIENT_LIMIT = 200 * 1024 * 1024;
 
-async function parseEpubFile(file: File): Promise<{ meta: { title: string; author: string; cover: string | null }; chapters: Chapter[]; html: string }> {
+async function parseEpubFile(file: File): Promise<{ meta: { title: string; author: string; cover: string | null }; chapters: { id: string; title: string; level: number; html: string }[] }> {
   if (file.size > EPUB_CLIENT_LIMIT) {
     throw new Error(`文件过大 (${fmtSize(file.size)})，上限 ${fmtSize(EPUB_CLIENT_LIMIT)}。`);
   }
   const { parseEpub } = await import("@/lib/epub-reader");
   const buf = await file.arrayBuffer();
   const data = await parseEpub(buf);
-  const chapters: Chapter[] = data.chapters.map((ch, i) => ({
-    id: ch.id, title: ch.title, level: ch.level, startLine: i,
-  }));
-  return { meta: { title: data.meta.title, author: data.meta.author, cover: data.meta.cover }, chapters, html: data.fullHtml };
+  return { meta: { title: data.meta.title, author: data.meta.author, cover: data.meta.cover }, chapters: data.chapters };
 }
 
 /**
@@ -177,17 +174,11 @@ function LargeTextView({ content }: { content: string }) {
   );
 }
 
-/**
- * Renders large epub HTML without DOMPurify (which blocks the main thread
- * on multi-MB HTML). Strips <script> tags with a lightweight regex as a
- * minimal safety measure. The content originates from a local epub file
- * the user explicitly uploaded, so the threat surface is low.
- */
-function LargeEpubView({ html }: { html: string }) {
+/** Renders a single epub chapter. Lightweight script-strip instead of DOMPurify. */
+function EpubChapterView({ html }: { html: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (ref.current) {
-      // Strip script tags and event handlers — lightweight alternative to DOMPurify
       const safe = html
         .replace(/<script[\s\S]*?<\/script>/gi, "")
         .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
@@ -196,6 +187,7 @@ function LargeEpubView({ html }: { html: string }) {
   }, [html]);
   return <div ref={ref} className="hv-prose max-w-none" />;
 }
+
 
 /* ── Main Component ──────────────────────────────────────── */
 
@@ -222,7 +214,8 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   const [fullscreen, setFullscreen] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [largeEpubHtml, setLargeEpubHtml] = useState("");
+  const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
+  const [currentChapterHtml, setCurrentChapterHtml] = useState("");
 
   const contentRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -231,6 +224,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   const isDark = resolvedTheme !== "light";
   const isQuick = mode === "quick";
   const activeBook = library.find(b => b.id === activeId);
+  const isEpubActive = activeBook?.isEpub === true;
 
   // ── Load persisted state ──
   useEffect(() => {
@@ -251,41 +245,51 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
 
   // ── Load book content (async — may come from IndexedDB) ──
   useEffect(() => {
-    if (!activeId) { setRawContent(""); setHtmlContent(""); setLargeEpubHtml(""); setChapters([]); return; }
+    if (!activeId) { setRawContent(""); setHtmlContent(""); setCurrentChapterHtml(""); setChapters([]); return; }
     setLoading(true);
     let cancelled = false;
 
     (async () => {
       try {
-        // Timeout protection — IndexedDB reads for large files need more time
-        const content = await Promise.race([
-          loadBookContent(activeId),
-          new Promise<null>((resolve) => setTimeout(() => resolve(null), 30000)),
-        ]);
-        if (cancelled) return;
-        if (!content) { setLoading(false); return; }
         const book = library.find(b => b.id === activeId);
 
         if (book?.isEpub) {
-          setRawContent("");
+          // Epub: chapters are stored individually — load metadata + current chapter
           const chData = loadChapters(activeId);
-          if (chData) setChapters(chData as Chapter[]);
-          else setChapters([]);
-          // Large epub HTML: skip DOMPurify (blocks main thread on huge DOM)
-          // and use a lightweight script-strip instead. Epub content comes from
-          // a local zip the user uploaded, so the risk surface is minimal.
-          const LARGE_EPUB = 5 * 1024 * 1024;
-          if (content.length > LARGE_EPUB) {
-            if (!cancelled) {
-              setLargeEpubHtml(content);
-              setHtmlContent("__LARGE_EPUB__");
-              setLoading(false);
-            }
-          } else {
-            if (!cancelled) { setHtmlContent(content); setLoading(false); }
+          const chapterList = (chData ?? []) as Chapter[];
+          if (cancelled) return;
+          setChapters(chapterList);
+          setRawContent("");
+
+          if (chapterList.length === 0) {
+            setCurrentChapterHtml("");
+            setLoading(false);
+            return;
           }
+
+          // Restore saved chapter index (or start at 0)
+          const savedIdx = localStorage.getItem(K_POSITION + activeId);
+          const idx = savedIdx ? Math.min(parseInt(savedIdx, 10) || 0, chapterList.length - 1) : 0;
+          setCurrentChapterIndex(idx);
+
+          const chHtml = await Promise.race([
+            loadChapterHtml(activeId, idx),
+            new Promise<null>((resolve) => setTimeout(() => resolve(null), 15000)),
+          ]);
+          if (cancelled) return;
+          setCurrentChapterHtml(chHtml ?? "");
+          setHtmlContent(""); // not used for epub
+          setLoading(false);
         } else {
+          // Non-epub: load full content from storage
+          const content = await Promise.race([
+            loadBookContent(activeId),
+            new Promise<null>((resolve) => setTimeout(() => resolve(null), 30000)),
+          ]);
+          if (cancelled) return;
+          if (!content) { setLoading(false); return; }
           setRawContent(content);
+          setChapters([]);
           // Large text files (>5MB): skip markdown rendering, display as plain text
           const LARGE_TEXT = 5 * 1024 * 1024;
           if (content.length > LARGE_TEXT) {
@@ -310,10 +314,12 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
           }
         }
 
-        // Restore scroll position
-        const pos = localStorage.getItem(K_POSITION + activeId);
-        if (pos && contentRef.current) {
-          requestAnimationFrame(() => { if (contentRef.current) contentRef.current.scrollTop = parseFloat(pos); });
+        // Restore scroll position (non-epub only; epub uses chapter index)
+        if (!book?.isEpub) {
+          const pos = localStorage.getItem(K_POSITION + activeId);
+          if (pos && contentRef.current) {
+            requestAnimationFrame(() => { if (contentRef.current) contentRef.current.scrollTop = parseFloat(pos); });
+          }
         }
       } catch {
         if (!cancelled) setLoading(false);
@@ -342,7 +348,12 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
     const pct = el.scrollHeight > el.clientHeight ? el.scrollTop / (el.scrollHeight - el.clientHeight) : 0;
     setScrollPct(Math.round(pct * 100));
     try {
-      localStorage.setItem(K_POSITION + activeId, String(el.scrollTop));
+      if (isEpubActive) {
+        // For epub: save chapter index as the "position"
+        localStorage.setItem(K_POSITION + activeId, String(currentChapterIndex));
+      } else {
+        localStorage.setItem(K_POSITION + activeId, String(el.scrollTop));
+      }
       setLibrary(p => p.map(b => b.id === activeId ? { ...b, lastReadAt: Date.now(), scrollPercent: Math.round(pct * 100) } : b));
     } catch {}
     // Current chapter
@@ -362,11 +373,40 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
     if (el instanceof HTMLElement) contentRef.current.scrollTo({ top: el.offsetTop - 16, behavior: "smooth" });
   }, []);
 
+  // Load a specific epub chapter from IndexedDB
+  const loadEpubChapter = useCallback(async (idx: number) => {
+    if (!activeId || idx < 0 || idx >= chapters.length) return;
+    setCurrentChapterIndex(idx);
+    setCurrentChapterHtml("");
+    setLoading(true);
+    try {
+      const chHtml = await Promise.race([
+        loadChapterHtml(activeId, idx),
+        new Promise<null>((r) => setTimeout(() => r(null), 15000)),
+      ]);
+      setCurrentChapterHtml(chHtml ?? "");
+    } catch {
+      setCurrentChapterHtml("");
+    }
+    setLoading(false);
+    // Save chapter index as position
+    try { localStorage.setItem(K_POSITION + activeId, String(idx)); } catch {}
+    // Scroll to top
+    contentRef.current?.scrollTo(0, 0);
+  }, [activeId, chapters.length]);
+
   const navCh = useCallback((dir: number) => {
     if (chapters.length === 0) return;
-    const idx = Math.max(0, Math.min(chapters.length - 1, curChIdx + dir));
-    scrollToCh(chapters[idx]);
-  }, [chapters, curChIdx, scrollToCh]);
+    if (isEpubActive) {
+      // Epub: switch chapter (loads from IndexedDB)
+      const idx = Math.max(0, Math.min(chapters.length - 1, currentChapterIndex + dir));
+      loadEpubChapter(idx);
+    } else {
+      // Non-epub: scroll to heading in the same page
+      const idx = Math.max(0, Math.min(chapters.length - 1, curChIdx + dir));
+      scrollToCh(chapters[idx]);
+    }
+  }, [chapters, curChIdx, scrollToCh, isEpubActive, currentChapterIndex, loadEpubChapter]);
 
   // ── File import ──
   const [importError, setImportError] = useState<string | null>(null);
@@ -389,8 +429,12 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       if (isEpub) {
         try {
           const data = await parseEpubFile(file);
-          await saveBookContent(id, data.html);
-          saveChapters(id, data.chapters);
+          // Save chapters individually to IndexedDB — avoids one giant string
+          const chapterMeta = data.chapters.map((ch, i) => ({ id: ch.id, title: ch.title, level: ch.level, startLine: i }));
+          saveChapters(id, chapterMeta);
+          for (let i = 0; i < data.chapters.length; i++) {
+            await saveChapterHtml(id, i, data.chapters[i].html);
+          }
           const meta: BookMeta = {
             id, name: data.meta.title || file.name.replace(/\.epub$/i, ""), size: file.size,
             addedAt: Date.now(), isEpub: true, mode: "novel",
@@ -426,7 +470,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   const deleteBook = useCallback(async (id: string) => {
     await deleteBookData(id);
     setLibrary(p => p.filter(b => b.id !== id));
-    if (activeId === id) { setActiveId(null); setRawContent(""); setHtmlContent(""); setLargeEpubHtml(""); setChapters([]); }
+    if (activeId === id) { setActiveId(null); setRawContent(""); setHtmlContent(""); setCurrentChapterHtml(""); setCurrentChapterIndex(0); setChapters([]); }
   }, [activeId]);
 
   // ── Add bookmark ──
@@ -742,8 +786,11 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
             <p className="mb-3 font-mono text-[11px] uppercase tracking-wider text-muted-soft">目录</p>
             <nav className="flex flex-col gap-0.5">
               {chapters.map((ch, i) => (
-                <button key={ch.id} type="button" onClick={() => { scrollToCh(ch); setTocOpen(false); }}
-                  className={`truncate rounded px-3 py-2.5 text-left text-sm transition ${i === curChIdx ? "bg-accent/10 font-semibold text-accent" : "text-muted hover:bg-card-hover hover:text-foreground"}`}
+                <button key={ch.id} type="button" onClick={() => {
+                  if (isEpubActive) { loadEpubChapter(i); } else { scrollToCh(ch); }
+                  setTocOpen(false);
+                }}
+                  className={`truncate rounded px-3 py-2.5 text-left text-sm transition ${i === (isEpubActive ? currentChapterIndex : curChIdx) ? "bg-accent/10 font-semibold text-accent" : "text-muted hover:bg-card-hover hover:text-foreground"}`}
                   style={{ paddingLeft: (ch.level - 1) * 16 + 12 }}>{ch.title}</button>
               ))}
             </nav>
@@ -759,10 +806,12 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
             <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-muted-soft">目录</p>
             <nav className="flex flex-col gap-0.5">
               {chapters.map((ch, i) => (
-                <button key={ch.id} type="button" onClick={() => scrollToCh(ch)}
-                  className={`truncate rounded px-2 py-1.5 text-left text-xs transition ${i === curChIdx ? "bg-accent/10 font-semibold text-accent" : "text-muted hover:bg-card hover:text-foreground"}`}
+                <button key={ch.id} type="button" onClick={() => {
+                  if (isEpubActive) { loadEpubChapter(i); } else { scrollToCh(ch); }
+                }}
+                  className={`truncate rounded px-2 py-1.5 text-left text-xs transition ${i === (isEpubActive ? currentChapterIndex : curChIdx) ? "bg-accent/10 font-semibold text-accent" : "text-muted hover:bg-card hover:text-foreground"}`}
                   style={{ paddingLeft: (ch.level - 1) * 14 + 8 }}
-                  ref={el => { if (i === curChIdx && el) el.scrollIntoView({ block: "nearest", behavior: "smooth" }); }}>
+                  ref={el => { if (i === (isEpubActive ? currentChapterIndex : curChIdx) && el) el.scrollIntoView({ block: "nearest", behavior: "smooth" }); }}>
                   {ch.title}
                 </button>
               ))}
@@ -776,10 +825,15 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
             style={{ fontSize: settings.fontSize, lineHeight: isQuick ? 1.8 : settings.lineHeight, ...(isQuick ? {} : { maxWidth: settings.maxWidth }) }}>
             {loading ? (
               <p className="py-20 text-center text-sm text-muted">渲染中…</p>
+            ) : isEpubActive ? (
+              // Epub: render current chapter HTML (lightweight sanitize, no DOMPurify)
+              currentChapterHtml ? (
+                <EpubChapterView html={currentChapterHtml} />
+              ) : (
+                <p className="py-20 text-center text-sm text-muted">无法加载内容</p>
+              )
             ) : htmlContent === "__LARGE_TEXT__" ? (
               <LargeTextView content={rawContent} />
-            ) : htmlContent === "__LARGE_EPUB__" ? (
-              <LargeEpubView html={largeEpubHtml} />
             ) : htmlContent ? (
               <div className="hv-prose max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlighted) }} />
             ) : (
@@ -791,11 +845,17 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
           <div className="flex items-center justify-between border-t border-border px-4 py-4 sm:px-8">
             {chapters.length > 1 ? (
               <>
-                <button type="button" onClick={() => navCh(-1)} className="flex h-10 items-center gap-1 rounded-md px-3 text-xs text-muted transition hover:text-foreground">
-                  <ChevronLeft className="h-3.5 w-3.5" /> 上一章
+                <button type="button" onClick={() => navCh(-1)} disabled={isEpubActive && currentChapterIndex === 0}
+                  className="flex h-10 items-center gap-1 rounded-md px-3 text-xs text-muted transition hover:text-foreground disabled:opacity-30">
+                  <ChevronLeft className="h-3.5 w-3.5" /> {isEpubActive ? "上一章" : "上一章"}
                 </button>
-                <button type="button" onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: "smooth" })} className="text-xs text-muted hover:text-foreground">顶部</button>
-                <button type="button" onClick={() => navCh(1)} className="flex h-10 items-center gap-1 rounded-md px-3 text-xs text-muted transition hover:text-foreground">
+                {isEpubActive ? (
+                  <span className="text-xs text-muted">{currentChapterIndex + 1} / {chapters.length}</span>
+                ) : (
+                  <button type="button" onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: "smooth" })} className="text-xs text-muted hover:text-foreground">顶部</button>
+                )}
+                <button type="button" onClick={() => navCh(1)} disabled={isEpubActive && currentChapterIndex >= chapters.length - 1}
+                  className="flex h-10 items-center gap-1 rounded-md px-3 text-xs text-muted transition hover:text-foreground disabled:opacity-30">
                   下一章 <ChevronRight className="h-3.5 w-3.5" />
                 </button>
               </>

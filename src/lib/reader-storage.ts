@@ -147,7 +147,71 @@ export async function deleteBookData(bookId: string): Promise<void> {
   try { localStorage.removeItem(`hv-reader-pos-${bookId}`); } catch {}
   try { localStorage.removeItem(`hv-reader-bm-${bookId}`); } catch {}
   if (hasIDB()) {
-    await idbDelete(key);
-    await idbDelete(key + "-chapters");
+    try {
+      const db = await openDB();
+      // First pass: collect per-chapter keys
+      const chapterKeys: string[] = [];
+      const readTx = db.transaction(STORE_BOOKS, "readonly");
+      const readStore = readTx.objectStore(STORE_BOOKS);
+      const prefix = key + "-ch-";
+      await new Promise<void>((resolve, reject) => {
+        const req = readStore.openCursor();
+        req.onsuccess = () => {
+          const cursor = req.result;
+          if (cursor) {
+            if (typeof cursor.key === "string" && cursor.key.startsWith(prefix)) {
+              chapterKeys.push(cursor.key);
+            }
+            cursor.continue();
+          } else {
+            resolve();
+          }
+        };
+        req.onerror = () => reject(req.error);
+      });
+      // Second pass: delete everything in one transaction
+      const writeTx = db.transaction(STORE_BOOKS, "readwrite");
+      const writeStore = writeTx.objectStore(STORE_BOOKS);
+      writeStore.delete(key);
+      writeStore.delete(key + "-chapters");
+      for (const k of chapterKeys) writeStore.delete(k);
+      await new Promise<void>((resolve, reject) => {
+        writeTx.oncomplete = () => resolve();
+        writeTx.onerror = () => reject(writeTx.error);
+      });
+    } catch {
+      // ignore
+    }
   }
+}
+
+/* ── Per-chapter storage for epub ───────────────────────── */
+
+/**
+ * Save a single chapter's HTML to IndexedDB. Used by the epub reader
+ * to avoid storing all chapters as one giant string.
+ */
+export async function saveChapterHtml(bookId: string, index: number, html: string): Promise<void> {
+  const key = `${LS_PREFIX}${bookId}-ch-${index}`;
+  if (hasIDB()) {
+    await idbSet(key, html);
+  } else {
+    // Fallback: try localStorage (may fail for large chapters)
+    try { localStorage.setItem(key, html); } catch {}
+  }
+}
+
+/**
+ * Load a single chapter's HTML from IndexedDB.
+ */
+export async function loadChapterHtml(bookId: string, index: number): Promise<string | null> {
+  const key = `${LS_PREFIX}${bookId}-ch-${index}`;
+  try {
+    const ls = localStorage.getItem(key);
+    if (ls) return ls;
+  } catch {}
+  if (hasIDB()) {
+    try { return await idbGet(key); } catch { return null; }
+  }
+  return null;
 }
