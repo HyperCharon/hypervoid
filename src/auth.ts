@@ -118,6 +118,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   useSecureCookies: USE_SECURE_COOKIES,
   adapter: isAuthEmailConfigured() ? HypervoidAuthAdapter() : undefined,
   session: { strategy: "jwt" },
+  // When AUTH_COOKIE_DOMAIN is set, scope the session cookie to the
+  // registrable domain so cv./tools. subdomains share the admin's login.
+  // Without this, signOut() clears cookies on the default host-only scope
+  // and cannot remove domain-scoped cookies left by previous logins.
+  ...(AUTH_COOKIE_DOMAIN
+    ? {
+        cookies: {
+          sessionToken: {
+            name: `${USE_SECURE_COOKIES ? "__Secure-" : ""}authjs.session-token`,
+            options: {
+              httpOnly: true,
+              sameSite: "lax" as const,
+              path: "/",
+              secure: USE_SECURE_COOKIES,
+              domain: AUTH_COOKIE_DOMAIN,
+            },
+          },
+        },
+      }
+    : {}),
   providers: [GitHub, ...emailProviders],
   pages: {
     signIn: "/sign-in",
