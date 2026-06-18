@@ -1,6 +1,5 @@
 "use client";
 
-import { useTransition } from "react";
 import { recordLogoutTimestampAction } from "@/app/signout-action";
 
 /**
@@ -11,9 +10,8 @@ import { recordLogoutTimestampAction } from "@/app/signout-action";
  *    next-auth/react's signOut() which can throw stream errors.
  * 3. Hard-navigates to /sign-in.
  *
- * The proxy's stale-JWT check is the safety net: even if cookie clearing
- * fails (e.g. __Secure- prefix on HTTP), the hv-logout-at timestamp
- * ensures the old session is rejected.
+ * No startTransition — all operations fire-and-forget so nothing blocks
+ * the hard navigation. The proxy's stale-JWT check is the safety net.
  */
 export function SignOutButton({
   className = "",
@@ -23,38 +21,33 @@ export function SignOutButton({
   className?: string;
   children?: React.ReactNode;
 } & React.HTMLAttributes<HTMLElement>) {
-  const [pending, startTransition] = useTransition();
-
   function handleClick() {
     try {
       localStorage.removeItem("hypervoid:guest");
     } catch {
       // ignore
     }
-    startTransition(async () => {
-      try {
-        // 1. Record logout timestamp (server action)
-        await recordLogoutTimestampAction();
-        // 2. Clear NextAuth cookies via signout endpoint
-        const { csrfToken } = await fetch("/api/auth/csrf").then((r) => r.json());
-        await fetch("/api/auth/signout", {
+    // Fire-and-forget: record timestamp + clear cookies.
+    // Don't await — let the hard navigation proceed immediately.
+    recordLogoutTimestampAction().catch(() => {});
+    fetch("/api/auth/csrf")
+      .then((r) => r.json())
+      .then(({ csrfToken }) =>
+        fetch("/api/auth/signout", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams({ csrfToken }),
-        });
-      } catch {
-        // ignore — proxy stale-JWT check is the safety net
-      }
-      // 3. Hard navigation
-      window.location.href = "/sign-in";
-    });
+        }),
+      )
+      .catch(() => {});
+    // Hard navigation — proxy rejects stale JWTs even if cookies persist.
+    window.location.href = "/sign-in";
   }
 
   return (
     <button
       type="button"
       onClick={handleClick}
-      disabled={pending}
       className={className}
       {...rest}
     >

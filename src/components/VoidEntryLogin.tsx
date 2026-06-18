@@ -23,7 +23,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import { type FormEvent, type PointerEvent, useEffect, useId, useState, useTransition } from "react";
+import { type FormEvent, type PointerEvent, useEffect, useId, useState } from "react";
 import { signIn } from "next-auth/react";
 import { SignOutButton } from "@/components/SignOutButton";
 import { recordLogoutTimestampAction } from "@/app/signout-action";
@@ -90,7 +90,6 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
   const [emailSent, setEmailSent] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isGuest, setIsGuest] = useState(false);
-  const [, startGuestTransition] = useTransition();
   const emailId = useId();
   const reducedMotion = useReducedMotion();
 
@@ -522,20 +521,19 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                       type="button"
                       onClick={() => {
                         try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
-                        startGuestTransition(async () => {
-                          try {
-                            await recordLogoutTimestampAction();
-                            const { csrfToken } = await fetch("/api/auth/csrf").then((r) => r.json());
-                            await fetch("/api/auth/signout", {
+                        // Fire-and-forget: record timestamp + clear cookies.
+                        recordLogoutTimestampAction().catch(() => {});
+                        fetch("/api/auth/csrf")
+                          .then((r) => r.json())
+                          .then(({ csrfToken }) =>
+                            fetch("/api/auth/signout", {
                               method: "POST",
                               headers: { "Content-Type": "application/x-www-form-urlencoded" },
                               body: new URLSearchParams({ csrfToken }),
-                            });
-                          } catch {
-                            // ignore — proxy stale-JWT check is the safety net
-                          }
-                          window.location.href = "/";
-                        });
+                            }),
+                          )
+                          .catch(() => {});
+                        window.location.href = "/";
                       }}
                       className="group flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 border border-white/30 bg-white/10 text-sm font-semibold text-white/90 transition hover:border-white/45 hover:bg-white/15 hover:text-white"
                     >
