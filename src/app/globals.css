@@ -903,6 +903,8 @@ html[data-reading="large"] article .prose {
 .hv-prose :where(ul ul, ol ol, ul ol, ol ul) { margin-top: 0.35em; margin-bottom: 0.35em; }
 
 /* Thin scrollbar utility */
+.scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-thin { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
 .scrollbar-thin::-webkit-scrollbar { width: 4px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }

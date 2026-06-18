@@ -880,17 +880,20 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       onDrop={e => { e.preventDefault(); setDragOver(false); importFiles(e.dataTransfer.files); }}>
 
       {/* ── Toolbar (absolute overlay in immersive, auto-hide) ── */}
-      <div className={`flex shrink-0 items-center gap-0.5 overflow-hidden border-b border-border px-1.5 py-1 transition-all duration-200 sm:px-3 sm:py-1.5 ${immersive ? "absolute inset-x-0 top-0 z-10 bg-background/90 backdrop-blur" : ""} ${immersive && !toolbarVisible ? "-translate-y-full opacity-0" : ""}`}>
+      <div className={`flex shrink-0 items-center border-b border-border px-1.5 py-1 transition-all duration-200 sm:px-3 sm:py-1.5 ${immersive ? "absolute inset-x-0 top-0 z-10 bg-background/90 backdrop-blur" : ""} ${immersive && !toolbarVisible ? "-translate-y-full opacity-0" : ""}`}>
         <button type="button" onClick={() => setActiveId(null)} className="rdr-btn-text shrink-0" title="返回书库">
           <ChevronLeft className="h-4 w-4" />
         </button>
 
         <div className="mx-0.5 min-w-0 flex-1 truncate sm:mx-1">
-          <span className="text-xs font-medium sm:text-sm">{activeBook?.name || "阅读中"}</span>
+          <span className="text-[11px] font-medium sm:text-sm">{activeBook?.name || "阅读中"}</span>
           {curChTitle && chapters.length > 1 && (
-            <span className="ml-1.5 hidden max-w-[200px] truncate text-xs text-muted lg:inline">{curChTitle}</span>
+            <span className="ml-1 hidden max-w-[200px] truncate text-xs text-muted lg:inline">{curChTitle}</span>
           )}
         </div>
+
+        {/* Right buttons — scrollable if overflow */}
+        <div className="flex shrink-0 items-center gap-0.5 overflow-x-auto scrollbar-none">
 
         {/* Quick mode: minimal controls */}
         {isQuick ? (
@@ -946,6 +949,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
             </button>
           </>
         )}
+        </div>
       </div>
 
       {/* ── Search bar (novel only) ── */}
