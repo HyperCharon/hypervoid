@@ -188,17 +188,39 @@ export async function deleteBookData(bookId: string): Promise<void> {
 /* ── Per-chapter storage for epub ───────────────────────── */
 
 /**
- * Save a single chapter's HTML to IndexedDB. Used by the epub reader
- * to avoid storing all chapters as one giant string.
+ * Save a single chapter's HTML to IndexedDB.
  */
 export async function saveChapterHtml(bookId: string, index: number, html: string): Promise<void> {
   const key = `${LS_PREFIX}${bookId}-ch-${index}`;
   if (hasIDB()) {
     await idbSet(key, html);
   } else {
-    // Fallback: try localStorage (may fail for large chapters)
     try { localStorage.setItem(key, html); } catch {}
   }
+}
+
+/**
+ * Save all chapters in a single IndexedDB transaction.
+ * Much faster and more reliable than calling saveChapterHtml in a loop.
+ */
+export async function saveAllChapterHtmls(bookId: string, chapters: { html: string }[]): Promise<void> {
+  if (!hasIDB()) {
+    // Fallback: save each to localStorage (may fail for large chapters)
+    for (let i = 0; i < chapters.length; i++) {
+      try { localStorage.setItem(`${LS_PREFIX}${bookId}-ch-${i}`, chapters[i].html); } catch {}
+    }
+    return;
+  }
+  const db = await openDB();
+  const tx = db.transaction(STORE_BOOKS, "readwrite");
+  const store = tx.objectStore(STORE_BOOKS);
+  for (let i = 0; i < chapters.length; i++) {
+    store.put(chapters[i].html, `${LS_PREFIX}${bookId}-ch-${i}`);
+  }
+  await new Promise<void>((resolve, reject) => {
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
 }
 
 /**

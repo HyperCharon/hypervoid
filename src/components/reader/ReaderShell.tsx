@@ -23,7 +23,7 @@ import {
   BookMarked,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { saveBookContent, loadBookContent, saveChapters, loadChapters, deleteBookData, saveChapterHtml, loadChapterHtml } from "@/lib/reader-storage";
+import { saveBookContent, loadBookContent, saveChapters, loadChapters, deleteBookData, saveChapterHtml, saveAllChapterHtmls, loadChapterHtml } from "@/lib/reader-storage";
 
 /* ── Types ───────────────────────────────────────────────── */
 
@@ -280,6 +280,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
             loadChapterHtml(activeId, idx),
             new Promise<null>((resolve) => setTimeout(() => resolve(null), 10000)),
           ]);
+          console.log(`[epub] initial loadChapterHtml(${idx}): ${chHtml ? chHtml.length + ' chars' : 'null'}, chapters: ${chapterList.length}`);
 
           // Fallback: old monolithic format (fullHtml stored as one string)
           if (!chHtml) {
@@ -400,17 +401,38 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
     if (el instanceof HTMLElement) contentRef.current.scrollTo({ top: el.offsetTop - 16, behavior: "smooth" });
   }, []);
 
-  // Load a specific epub chapter from IndexedDB
+  // Load a specific epub chapter from IndexedDB (with old-format fallback)
   const loadEpubChapter = useCallback(async (idx: number) => {
     if (!activeId || idx < 0 || idx >= chapters.length) return;
     setCurrentChapterIndex(idx);
     setCurrentChapterHtml("");
     setLoading(true);
     try {
-      const chHtml = await Promise.race([
+      let chHtml = await Promise.race([
         loadChapterHtml(activeId, idx),
-        new Promise<null>((r) => setTimeout(() => r(null), 15000)),
+        new Promise<null>((r) => setTimeout(() => r(null), 10000)),
       ]);
+      console.log(`[epub] loadChapterHtml(${idx}): ${chHtml ? chHtml.length + ' chars' : 'null'}`);
+
+      // Fallback: old monolithic format
+      if (!chHtml) {
+        const fullHtml = await Promise.race([
+          loadBookContent(activeId),
+          new Promise<null>((r) => setTimeout(() => r(null), 15000)),
+        ]);
+        if (fullHtml) {
+          const parts = fullHtml.split(/<hr\s+class=['"]epub-divider['"]\s*\/?>/i);
+          chHtml = parts[idx] ?? parts[0] ?? "";
+          const sectionRe = /<section\s+data-chapter="(\d+)"[^>]*>/;
+          const m = chHtml.match(sectionRe);
+          if (m) {
+            const start = chHtml.indexOf(">") + 1;
+            const end = chHtml.lastIndexOf("</section>");
+            if (end > start) chHtml = chHtml.substring(start, end);
+          }
+        }
+      }
+
       setCurrentChapterHtml(chHtml ?? "");
     } catch {
       setCurrentChapterHtml("");
@@ -456,12 +478,13 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       if (isEpub) {
         try {
           const data = await parseEpubFile(file);
-          // Save chapters individually to IndexedDB — avoids one giant string
+          console.log(`[epub] parsed ${data.chapters.length} chapters, saving...`);
+          // Save chapter metadata to localStorage
           const chapterMeta = data.chapters.map((ch, i) => ({ id: ch.id, title: ch.title, level: ch.level, startLine: i }));
           saveChapters(id, chapterMeta);
-          for (let i = 0; i < data.chapters.length; i++) {
-            await saveChapterHtml(id, i, data.chapters[i].html);
-          }
+          // Save all chapter HTML in a single IndexedDB transaction (fast + reliable)
+          await saveAllChapterHtmls(id, data.chapters);
+          console.log(`[epub] saved ${data.chapters.length} chapters to IndexedDB`);
           const meta: BookMeta = {
             id, name: data.meta.title || file.name.replace(/\.epub$/i, ""), size: file.size,
             addedAt: Date.now(), isEpub: true, mode: "novel",
