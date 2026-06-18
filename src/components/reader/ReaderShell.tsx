@@ -945,7 +945,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
 
       {/* ── Search bar (novel only) ── */}
       {!isQuick && searchOpen && (
-        <div className="flex shrink-0 items-center gap-2 border-b border-border bg-card/50 px-3 py-2">
+        <div className={`flex shrink-0 items-center gap-2 border-b border-border bg-card/50 px-3 py-2 ${immersive ? "absolute inset-x-0 top-12 z-10" : ""}`}>
           <Search className="h-4 w-4 text-muted" />
           <input ref={searchRef} type="text" value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="搜索当前文档…" className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-soft" />
           {searchQ && <button type="button" onClick={() => setSearchQ("")} className="text-muted hover:text-foreground"><X className="h-4 w-4" /></button>}
@@ -1014,7 +1014,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
 
       {/* ── Bookmarks panel (novel only) ── */}
       {!isQuick && bmOpen && bookmarks.length > 0 && (
-        <div className="shrink-0 border-b border-border bg-card/80 p-3 backdrop-blur">
+        <div className={`shrink-0 border-b border-border bg-card/80 p-3 backdrop-blur ${immersive ? "absolute inset-x-0 top-12 z-10" : ""}`}>
           <div className="mx-auto max-w-3xl">
             <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-muted-soft">书签</p>
             <div className="flex flex-wrap gap-2">
