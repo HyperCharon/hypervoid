@@ -524,6 +524,10 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                         try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
                         startGuestTransition(async () => {
                           await enterGuestAction();
+                          // Full reload so the server sees cleared cookies.
+                          // Cannot use redirect() in the server action because
+                          // React silently swallows redirects inside startTransition.
+                          window.location.href = "/";
                         });
                       }}
                       className="group flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 border border-white/30 bg-white/10 text-sm font-semibold text-white/90 transition hover:border-white/45 hover:bg-white/15 hover:text-white"

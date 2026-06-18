@@ -1,18 +1,19 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { recordLogout } from "@/lib/session-invalidate";
 
 // Mirror NextAuth's AUTH_COOKIE_DOMAIN so cookie-delete targets the same scope.
 const AUTH_COOKIE_DOMAIN = process.env.AUTH_COOKIE_DOMAIN?.trim() || undefined;
 
 /**
- * Server action that clears ALL NextAuth cookies (with the correct domain),
- * records the logout timestamp (so proxy can reject stale JWTs), and redirects
- * to /sign-in.
+ * Server action that clears ALL NextAuth cookies (with the correct domain)
+ * and records the logout timestamp (so proxy can reject stale JWTs).
+ * Does NOT redirect — the caller does window.location.href after cookies are
+ * flushed, because redirect() inside startTransition is silently swallowed
+ * by React.
  */
-export async function signOutAction(): Promise<never> {
+export async function signOutAction(): Promise<void> {
   const store = await cookies();
 
   // Record logout timestamp BEFORE clearing cookies
@@ -49,6 +50,4 @@ export async function signOutAction(): Promise<never> {
         : {}),
     });
   }
-
-  redirect("/sign-in");
 }

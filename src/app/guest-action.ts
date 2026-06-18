@@ -1,7 +1,6 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { recordLogout } from "@/lib/session-invalidate";
 
 // Mirror NextAuth's AUTH_COOKIE_DOMAIN so cookie-delete targets the same scope.
@@ -9,9 +8,11 @@ const AUTH_COOKIE_DOMAIN = process.env.AUTH_COOKIE_DOMAIN?.trim() || undefined;
 
 /**
  * Enter guest mode: records logout timestamp, clears ALL NextAuth
- * cookies (with the correct domain), then redirects to /.
+ * cookies (with the correct domain). Does NOT redirect — the caller
+ * does window.location.href after cookies are flushed, because
+ * redirect() inside startTransition is silently swallowed by React.
  */
-export async function enterGuestAction(): Promise<never> {
+export async function enterGuestAction(): Promise<void> {
   const store = await cookies();
 
   // Record logout timestamp BEFORE clearing cookies
@@ -48,6 +49,4 @@ export async function enterGuestAction(): Promise<never> {
         : {}),
     });
   }
-
-  redirect("/");
 }

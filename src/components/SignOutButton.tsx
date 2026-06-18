@@ -51,9 +51,12 @@ export function SignOutButton({
     } catch {
       // ignore
     }
-    // Call server action to clear cookie + redirect
+    // Call server action to clear cookies, then hard-navigate to sign-in.
+    // Cannot use redirect() in the server action because React silently
+    // swallows redirects inside startTransition.
     startTransition(async () => {
       await signOutAction();
+      window.location.href = "/sign-in";
     });
   }
 
