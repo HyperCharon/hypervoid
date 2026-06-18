@@ -1,36 +1,46 @@
 "use client";
 
-import { recordLogoutTimestampAction } from "@/app/signout-action";
+import { useEffect, useState } from "react";
 
 /**
- * Logout button. Records the logout timestamp so the proxy can reject
- * stale JWTs, then navigates to /sign-in. No signOut(), no fetch,
- * no cookie clearing — those are unreliable. The proxy's stale-JWT
- * check is the actual security gate.
+ * Logout button. Uses a native <form method="POST"> to the NextAuth
+ * signout endpoint — no fetch, no signOut(), no server actions.
+ * The browser handles the 302 redirect + Set-Cookie headers natively.
  */
 export function SignOutButton({
+  redirectTo = "/sign-in",
   className = "",
   children = "退出登录",
   ...rest
 }: {
+  redirectTo?: string;
   className?: string;
   children?: React.ReactNode;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  function handleClick() {
-    try {
-      localStorage.removeItem("hypervoid:guest");
-    } catch {
-      // ignore
-    }
-    // Fire-and-forget: record the logout timestamp.
-    // Don't await — navigate immediately so the page doesn't stall.
-    recordLogoutTimestampAction().catch(() => {});
-    window.location.href = "/sign-in";
+} & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "type">) {
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/csrf")
+      .then((r) => r.json())
+      .then((d) => setCsrfToken(d.csrfToken))
+      .catch(() => {});
+  }, []);
+
+  if (!csrfToken) {
+    return (
+      <button type="button" disabled className={className} {...rest}>
+        {children}
+      </button>
+    );
   }
 
   return (
-    <button type="button" onClick={handleClick} className={className} {...rest}>
-      {children}
-    </button>
+    <form method="POST" action="/api/auth/signout" className="inline">
+      <input type="hidden" name="csrfToken" value={csrfToken} />
+      <input type="hidden" name="callbackUrl" value={redirectTo} />
+      <button type="submit" className={className} {...rest}>
+        {children}
+      </button>
+    </form>
   );
 }

@@ -23,7 +23,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import { type FormEvent, type PointerEvent, useEffect, useId, useState, useTransition } from "react";
+import { type FormEvent, type PointerEvent, useEffect, useId, useState } from "react";
 import { signIn } from "next-auth/react";
 import { SignOutButton } from "@/components/SignOutButton";
 
@@ -89,7 +89,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
   const [emailSent, setEmailSent] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isGuest, setIsGuest] = useState(false);
-  const [, startGuestTransition] = useTransition();
+  const [guestCsrf, setGuestCsrf] = useState<string | null>(null);
   const emailId = useId();
   const reducedMotion = useReducedMotion();
 
@@ -102,6 +102,11 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
     } catch {
       // ignore
     }
+    // Prefetch CSRF token for the guest signout form
+    fetch("/api/auth/csrf")
+      .then((r) => r.json())
+      .then((d) => setGuestCsrf(d.csrfToken))
+      .catch(() => {});
   }, []);
 
   const pointerX = useMotionValue(0);
@@ -517,20 +522,31 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                       <span className="font-mono text-[10px] uppercase text-white/35">或</span>
                       <div className="h-px bg-white/12" />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
-                        startGuestTransition(async () => {
-                          try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
-                          window.location.href = "/";
-                        });
-                      }}
-                      className="group flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 border border-white/30 bg-white/10 text-sm font-semibold text-white/90 transition hover:border-white/45 hover:bg-white/15 hover:text-white"
-                    >
-                      游客访问（仅阅读）
-                      <ArrowRight className="h-3.5 w-3.5 opacity-50 transition group-hover:translate-x-0.5 group-hover:opacity-100" aria-hidden />
-                    </button>
+                    {guestCsrf ? (
+                      <form method="POST" action="/api/auth/signout" className="w-full">
+                        <input type="hidden" name="csrfToken" value={guestCsrf} />
+                        <input type="hidden" name="callbackUrl" value="/" />
+                        <button
+                          type="submit"
+                          onClick={() => {
+                            try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
+                          }}
+                          className="group flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 border border-white/30 bg-white/10 text-sm font-semibold text-white/90 transition hover:border-white/45 hover:bg-white/15 hover:text-white"
+                        >
+                          游客访问（仅阅读）
+                          <ArrowRight className="h-3.5 w-3.5 opacity-50 transition group-hover:translate-x-0.5 group-hover:opacity-100" aria-hidden />
+                        </button>
+                      </form>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        className="group flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 border border-white/30 bg-white/10 text-sm font-semibold text-white/90 opacity-50"
+                      >
+                        游客访问（仅阅读）
+                        <ArrowRight className="h-3.5 w-3.5 opacity-50" aria-hidden />
+                      </button>
+                    )}
                   </>
                 ) : null}
 
