@@ -523,14 +523,23 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                       <div className="h-px bg-white/12" />
                     </div>
                     {guestCsrf ? (
-                      <form method="POST" action="/api/auth/signout" className="w-full">
+                      <form
+                        method="POST"
+                        action="/api/auth/signout"
+                        className="w-full"
+                        onSubmit={() => {
+                          try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
+                          // Clear all possible session cookie names
+                          for (const n of ["authjs.session-token", "__Secure-authjs.session-token", "next-auth.session-token", "__Secure-next-auth.session-token"]) {
+                            document.cookie = `${n}=; path=/; max-age=0`;
+                            document.cookie = `${n}=; path=/; max-age=0; secure`;
+                          }
+                        }}
+                      >
                         <input type="hidden" name="csrfToken" value={guestCsrf} />
                         <input type="hidden" name="callbackUrl" value="/" />
                         <button
                           type="submit"
-                          onClick={() => {
-                            try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
-                          }}
                           className="group flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 border border-white/30 bg-white/10 text-sm font-semibold text-white/90 transition hover:border-white/45 hover:bg-white/15 hover:text-white"
                         >
                           游客访问（仅阅读）
