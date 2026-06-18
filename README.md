@@ -38,6 +38,12 @@ Articles live in **Postgres**, images in **Vercel Blob**, comments in **GitHub D
 
 ### Reader-facing
 
+- **Epub reader** at `/resources/reader` — JSZip-based parser (no epubjs dependency), per-chapter IndexedDB storage, chapter navigation + TOC search, internal link resolution
+- **Markdown/text reader** — client-side rendering via `marked`, large file (>5MB) plain-text fallback
+- **Immersive mode** — Browser Fullscreen API, auto-hiding toolbar, tap-zone navigation (left=up, right=down, center=toggle toolbar), swipe chapter switching, double-tap fast flip
+- **Reader settings** — font size/line-height/font-family/letter-spacing sliders, sepia/eye-care themes, max-width control
+- **Reading progress** — per-book scroll position + chapter index persisted in localStorage, bookmarks
+
 - **MDX articles** with [Shiki](https://shiki.style) syntax highlighting — filename header, copy button, language label
 - **GFM alerts** (`> [!NOTE]` etc.) + **KaTeX math** + **reading time** (CJK-aware)
 - **Pinned posts** + **prev/next nav** + **article series** (multi-part collections with sibling-article banner)
@@ -120,6 +126,7 @@ Articles live in **Postgres**, images in **Vercel Blob**, comments in **GitHub D
 /series        文章系列索引
 /series/[name] 单个系列详情
 /resources     资源库
+/resources/reader  epub/md/txt 阅读器 (沉浸模式 · 章节导航 · 点击翻页)
 /bookmarks     本地收藏夹 (localStorage)
 /reading-list  阅读队列 (localStorage)
 /donate        赞赏页 (默认隐藏，受 siteConfig.donate.enabled 控制)
@@ -210,7 +217,8 @@ For day-to-day operation — how to write a post, customize the theme, manage DN
 - [x] **v1.8** — grouped admin dashboard · APlayer music page · deployed/LX/local music source switcher
 - [x] **v2.0** — topic series · bento grid · adaptive post grid · tag cloud · private space · theme validation
 - [x] **v2.1** — sign-in reveal page (video background) · 3-option login policy · homepage login redirect · auth tables
-- [ ] **v2.x** — article-level i18n · Resend custom domain · ACG wallpapers activation · donate QR codes · pixi v8 + drizzle 0.50 upgrades
+- [x] **v3.0** — epub reader (JSZip parser, per-chapter storage) · immersive mode (Fullscreen API, tap zones, swipe) · mobile-first reader UI · security audit (XSS/SSRF/CSP)
+- [ ] **v3.x** — article-level i18n · Resend custom domain · ACG wallpapers activation · donate QR codes · pixi v8 + drizzle 0.50 upgrades
 
 ## ✦ License
 
