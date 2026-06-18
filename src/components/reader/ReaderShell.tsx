@@ -12,17 +12,14 @@ import {
   List,
   Maximize2,
   Minimize2,
-  Moon,
   Plus,
   Search,
   Settings,
-  Sun,
   Upload,
   X,
   Zap,
   BookMarked,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { saveBookContent, loadBookContent, saveChapters, loadChapters, deleteBookData, saveChapterHtml, saveAllChapterHtmls, loadChapterHtml } from "@/lib/reader-storage";
 
 /* ── Types ───────────────────────────────────────────────── */
@@ -246,8 +243,6 @@ function EpubChapterView({ html, chapters, onNavigate }: {
 /* ── Main Component ──────────────────────────────────────── */
 
 export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
-  const { resolvedTheme, setTheme } = useTheme();
-
   // State
   const [mode, setMode] = useState<ReaderMode>("novel");
   const [library, setLibrary] = useState<BookMeta[]>([]);
@@ -280,7 +275,6 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   const fileRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  const isDark = resolvedTheme !== "light";
   const isQuick = mode === "quick";
   const activeBook = library.find(b => b.id === activeId);
   const isEpubActive = activeBook?.isEpub === true;
@@ -903,9 +897,6 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
               <span className="w-5 text-center font-mono text-[10px] text-muted">{settings.fontSize}</span>
               <button type="button" onClick={() => setSettings(s => ({ ...s, fontSize: Math.min(28, s.fontSize + 1) }))} className="rdr-btn text-sm font-bold">A+</button>
             </div>
-            <button type="button" onClick={() => setTheme(isDark ? "light" : "dark")} className="rdr-btn hidden sm:inline-flex">
-              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
             {chapters.length > 0 && (
               <button type="button" onClick={() => setTocOpen(true)} className="rdr-btn"><List className="h-4 w-4" /></button>
             )}
