@@ -177,6 +177,26 @@ function LargeTextView({ content }: { content: string }) {
   );
 }
 
+/**
+ * Renders large epub HTML without DOMPurify (which blocks the main thread
+ * on multi-MB HTML). Strips <script> tags with a lightweight regex as a
+ * minimal safety measure. The content originates from a local epub file
+ * the user explicitly uploaded, so the threat surface is low.
+ */
+function LargeEpubView({ html }: { html: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (ref.current) {
+      // Strip script tags and event handlers — lightweight alternative to DOMPurify
+      const safe = html
+        .replace(/<script[\s\S]*?<\/script>/gi, "")
+        .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+      ref.current.innerHTML = safe;
+    }
+  }, [html]);
+  return <div ref={ref} className="hv-prose max-w-none" />;
+}
+
 /* ── Main Component ──────────────────────────────────────── */
 
 export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
@@ -202,6 +222,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   const [fullscreen, setFullscreen] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [largeEpubHtml, setLargeEpubHtml] = useState("");
 
   const contentRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -230,7 +251,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
 
   // ── Load book content (async — may come from IndexedDB) ──
   useEffect(() => {
-    if (!activeId) { setRawContent(""); setHtmlContent(""); setChapters([]); return; }
+    if (!activeId) { setRawContent(""); setHtmlContent(""); setLargeEpubHtml(""); setChapters([]); return; }
     setLoading(true);
     let cancelled = false;
 
@@ -247,11 +268,22 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
 
         if (book?.isEpub) {
           setRawContent("");
-          setHtmlContent(content);
           const chData = loadChapters(activeId);
           if (chData) setChapters(chData as Chapter[]);
           else setChapters([]);
-          setLoading(false);
+          // Large epub HTML: skip DOMPurify (blocks main thread on huge DOM)
+          // and use a lightweight script-strip instead. Epub content comes from
+          // a local zip the user uploaded, so the risk surface is minimal.
+          const LARGE_EPUB = 5 * 1024 * 1024;
+          if (content.length > LARGE_EPUB) {
+            if (!cancelled) {
+              setLargeEpubHtml(content);
+              setHtmlContent("__LARGE_EPUB__");
+              setLoading(false);
+            }
+          } else {
+            if (!cancelled) { setHtmlContent(content); setLoading(false); }
+          }
         } else {
           setRawContent(content);
           // Large text files (>5MB): skip markdown rendering, display as plain text
@@ -394,7 +426,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   const deleteBook = useCallback(async (id: string) => {
     await deleteBookData(id);
     setLibrary(p => p.filter(b => b.id !== id));
-    if (activeId === id) { setActiveId(null); setRawContent(""); setHtmlContent(""); setChapters([]); }
+    if (activeId === id) { setActiveId(null); setRawContent(""); setHtmlContent(""); setLargeEpubHtml(""); setChapters([]); }
   }, [activeId]);
 
   // ── Add bookmark ──
@@ -746,6 +778,8 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
               <p className="py-20 text-center text-sm text-muted">渲染中…</p>
             ) : htmlContent === "__LARGE_TEXT__" ? (
               <LargeTextView content={rawContent} />
+            ) : htmlContent === "__LARGE_EPUB__" ? (
+              <LargeEpubView html={largeEpubHtml} />
             ) : htmlContent ? (
               <div className="hv-prose max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlighted) }} />
             ) : (

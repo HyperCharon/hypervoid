@@ -32,6 +32,13 @@ const PROJECTS = [
     link: "/posts/spine36-mascot-pipeline",
     tags: ["Spine", "Next.js", "Canvas", "前端"],
   },
+  {
+    name: "MathFlow",
+    description:
+      "一站式数学建模 Python 工具库——31 个模块、105+ 算法、245 个单元测试，覆盖评价、预测、优化、图论、仿真、统计、ML、博弈论全链路，统一 API 开箱即用。",
+    link: "https://github.com/HyperCharon/mathematical-modeling",
+    tags: ["Python", "数学建模", "算法", "NumPy"],
+  },
 ];
 
 export default function ProjectsPage() {
