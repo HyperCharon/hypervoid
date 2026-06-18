@@ -865,10 +865,10 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
      ══════════════════════════════════════════════════════════ */
 
   return (
-    <div className={`rdr-shell relative flex flex-col overflow-hidden ${immersive ? "fixed inset-0 z-50" : "w-full"} ${themeCls}`}
+    <div className={`rdr-shell relative flex flex-col overflow-hidden ${immersive ? "fixed inset-0 z-50" : "sm:relative sm:w-full fixed inset-x-0 bottom-0 top-14 z-30"} ${themeCls}`}
       style={immersive
         ? { height: "100dvh", width: "100vw" }
-        : { height: "calc(100dvh - 56px)", minHeight: "calc(100vh - 56px)" }}
+        : { minHeight: "0" }}
       onDragOver={e => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setDragOver(true); } }}
       onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false); }}
       onDrop={e => { e.preventDefault(); setDragOver(false); importFiles(e.dataTransfer.files); }}>
