@@ -1,6 +1,8 @@
 /**
  * Reader storage abstraction — uses IndexedDB for large files,
  * falls back to localStorage for small files.
+ *
+ * Files > 5MB always go to IndexedDB to avoid localStorage quota errors.
  */
 
 const DB_NAME = "hv-reader";
@@ -8,6 +10,7 @@ const DB_VERSION = 1;
 const STORE_BOOKS = "books";
 
 const LS_PREFIX = "hv-reader-book-";
+const LS_SIZE_THRESHOLD = 5 * 1024 * 1024; // 5MB
 
 /** Check if IndexedDB is available. */
 function hasIDB(): boolean {
@@ -68,26 +71,31 @@ async function idbDelete(key: string): Promise<void> {
 /* ── Public API ──────────────────────────────────────────── */
 
 /**
- * Save book content. Tries localStorage first, falls back to IndexedDB.
- * Throws if both fail — caller needs to know the save didn't work.
+ * Save book content. Large files (>5MB) go directly to IndexedDB.
+ * Small files try localStorage first, then fall back to IndexedDB.
  */
 export async function saveBookContent(bookId: string, content: string): Promise<void> {
   const key = LS_PREFIX + bookId;
-  // Try localStorage first (synchronous, faster reads)
+
+  // Large files: skip localStorage entirely
+  if (content.length > LS_SIZE_THRESHOLD) {
+    if (hasIDB()) {
+      await idbSet(key, content);
+      return;
+    }
+    throw new Error("文件过大且 IndexedDB 不可用");
+  }
+
+  // Small files: try localStorage first (synchronous, faster reads)
   try {
     localStorage.setItem(key, content);
     return;
   } catch {
-    // localStorage full or not available — use IndexedDB
+    // localStorage full — use IndexedDB
   }
-  // Fall back to IndexedDB
   if (hasIDB()) {
-    try {
-      await idbSet(key, content);
-      return;
-    } catch (e) {
-      throw new Error("IndexedDB 写入失败: " + (e instanceof Error ? e.message : String(e)));
-    }
+    await idbSet(key, content);
+    return;
   }
   throw new Error("localStorage 已满且 IndexedDB 不可用");
 }

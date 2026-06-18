@@ -80,8 +80,6 @@ const K_POSITION = "hv-reader-pos-";
 const K_SETTINGS = "hv-reader-settings";
 const K_BOOKMARKS = "hv-reader-bm-";
 const K_MODE = "hv-reader-mode";
-// IndexedDB has no practical limit — 200MB is safe for modern browsers
-const MAX_SIZE = 200 * 1024 * 1024;
 
 /* ── Helpers ─────────────────────────────────────────────── */
 
@@ -220,10 +218,10 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
 
     (async () => {
       try {
-        // Timeout protection — IndexedDB reads should complete within 5s
+        // Timeout protection — IndexedDB reads for large files need more time
         const content = await Promise.race([
           loadBookContent(activeId),
-          new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 30000)),
         ]);
         if (cancelled) return;
         if (!content) { setLoading(false); return; }

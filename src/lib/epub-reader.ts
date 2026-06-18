@@ -2,12 +2,10 @@
  * Epub parsing utility — extracts chapters, metadata, and cover from an epub file.
  * Uses epubjs for parsing, returns a simple structure the reader can consume.
  *
- * Limitations: epubjs loads the entire epub into memory. Files > 10MB may fail
- * on mobile devices with limited memory. We enforce a size limit and provide
- * a fallback for oversized files.
+ * Limitations: epubjs loads the entire epub into memory. Files > 200MB may fail
+ * on mobile devices with limited memory. The caller (ReaderShell) enforces the
+ * size limit via EPUB_CLIENT_LIMIT.
  */
-
-export const EPUB_MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
 export interface EpubChapter {
   id: string;
