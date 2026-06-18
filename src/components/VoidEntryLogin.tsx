@@ -24,9 +24,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import { type FormEvent, type PointerEvent, useEffect, useId, useState, useTransition } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import { SignOutButton } from "@/components/SignOutButton";
-import { serverSignOutAction } from "@/app/signout-action";
+import { recordLogoutTimestampAction } from "@/app/signout-action";
 
 type EntryState = "explore" | "login";
 type AuthLoading = "github" | "email" | "signout" | null;
@@ -524,9 +524,11 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                         try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
                         startGuestTransition(async () => {
                           try {
-                            await serverSignOutAction();
+                            await recordLogoutTimestampAction();
+                            await signOut({ redirect: false });
                           } catch {
-                            // Server action may throw redirect error — ignore.
+                            // signOut can throw — the hard navigation below
+                            // still works; proxy stale-JWT check is the safety net.
                           }
                           window.location.href = "/";
                         });
