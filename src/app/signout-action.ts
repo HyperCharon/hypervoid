@@ -7,6 +7,6 @@ import { recordLogout } from "@/lib/session-invalidate";
  * Does NOT clear cookies — the client calls next-auth/react's signOut()
  * which properly handles __Secure- / __Host- prefixed cookies.
  */
-export async function recordLogoutAction(): Promise<void> {
+export async function recordLogoutTimestampAction(): Promise<void> {
   await recordLogout();
 }

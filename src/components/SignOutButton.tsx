@@ -1,13 +1,15 @@
 "use client";
 
 import { useTransition } from "react";
-import { recordLogoutAction } from "@/app/signout-action";
+import { signOut } from "next-auth/react";
+import { recordLogoutTimestampAction } from "@/app/signout-action";
 
 /**
- * Logout button. Records the logout timestamp server-side (for stale-JWT
- * protection), then manually POSTs to NextAuth's signout endpoint to clear
- * all cookies (bypasses next-auth/react's signOut which can throw stream
- * errors in some environments), and finally hard-navigates to /sign-in.
+ * Logout button. Calls next-auth/react's signOut() with redirect:false
+ * to properly clear all cookies (including __Secure- / __Host- prefixed
+ * ones) via POST /api/auth/signout, then hard-navigates to /sign-in.
+ *
+ * Falls back to hard navigation if signOut throws (e.g. stream errors).
  */
 export function SignOutButton({
   className = "",
@@ -20,28 +22,20 @@ export function SignOutButton({
   const [pending, startTransition] = useTransition();
 
   function handleClick() {
-    // Clear guest flag
     try {
       localStorage.removeItem("hypervoid:guest");
     } catch {
       // ignore
     }
     startTransition(async () => {
-      // 1. Record logout timestamp (server-side, for proxy stale-JWT check)
-      await recordLogoutAction();
-      // 2. Clear NextAuth cookies via the signout endpoint directly
       try {
-        const csrfRes = await fetch("/api/auth/csrf");
-        const { csrfToken } = await csrfRes.json();
-        await fetch("/api/auth/signout", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ csrfToken, callbackUrl: "/" }),
-        });
+        await recordLogoutTimestampAction();
+        await signOut({ redirect: false });
       } catch {
-        // ignore — cookies may already be cleared
+        // signOut can throw stream errors in some environments —
+        // the hard navigation below ensures the user still lands
+        // on /sign-in; stale JWTs are caught by the proxy.
       }
-      // 3. Hard navigation so the server sees cleared cookies
       window.location.href = "/sign-in";
     });
   }

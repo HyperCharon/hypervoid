@@ -24,9 +24,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import { type FormEvent, type PointerEvent, useEffect, useId, useState, useTransition } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import { SignOutButton } from "@/components/SignOutButton";
-import { recordGuestLogoutAction } from "@/app/guest-action";
+import { recordLogoutTimestampAction } from "@/app/signout-action";
 
 type EntryState = "explore" | "login";
 type AuthLoading = "github" | "email" | "signout" | null;
@@ -523,21 +523,14 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                       onClick={() => {
                         try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
                         startGuestTransition(async () => {
-                          // 1. Record logout timestamp (server-side, for proxy stale-JWT check)
-                          await recordGuestLogoutAction();
-                          // 2. Clear NextAuth cookies via the signout endpoint directly
                           try {
-                            const csrfRes = await fetch("/api/auth/csrf");
-                            const { csrfToken } = await csrfRes.json();
-                            await fetch("/api/auth/signout", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                              body: new URLSearchParams({ csrfToken, callbackUrl: "/" }),
-                            });
+                            await recordLogoutTimestampAction();
+                            await signOut({ redirect: false });
                           } catch {
-                            // ignore — cookies may already be cleared
+                            // signOut can throw stream errors — the hard
+                            // navigation below still lands on /; stale JWTs
+                            // are caught by the proxy.
                           }
-                          // 3. Hard navigation so the server sees cleared cookies
                           window.location.href = "/";
                         });
                       }}
