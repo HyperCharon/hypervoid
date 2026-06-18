@@ -4,9 +4,12 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { recordLogout } from "@/lib/session-invalidate";
 
+// Mirror NextAuth's AUTH_COOKIE_DOMAIN so cookie-delete targets the same scope.
+const AUTH_COOKIE_DOMAIN = process.env.AUTH_COOKIE_DOMAIN?.trim() || undefined;
+
 /**
  * Enter guest mode: records logout timestamp, clears ALL NextAuth
- * cookies, then redirects to /.
+ * cookies (with the correct domain), then redirects to /.
  */
 export async function enterGuestAction(): Promise<never> {
   const store = await cookies();
@@ -35,7 +38,15 @@ export async function enterGuestAction(): Promise<never> {
 
   for (const name of names) {
     store.delete(name);
-    store.set(name, "", { maxAge: 0, path: "/" });
+    // Explicitly expire with matching path + domain so the browser actually
+    // removes cookies set with AUTH_COOKIE_DOMAIN (cross-subdomain scope).
+    store.set(name, "", {
+      maxAge: 0,
+      path: "/",
+      ...(AUTH_COOKIE_DOMAIN && !name.startsWith("__Host-")
+        ? { domain: AUTH_COOKIE_DOMAIN }
+        : {}),
+    });
   }
 
   redirect("/");

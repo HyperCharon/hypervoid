@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { AdminTopNav } from "@/components/admin/AdminTopNav";
 
 export const metadata: Metadata = {
@@ -8,7 +10,11 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { viewportFit: "cover" };
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  const session = await auth();
+  const user = session?.user as { isAdmin?: boolean } | undefined;
+  if (!user?.isAdmin) redirect("/");
+
   return (
     <div className="relative min-h-dvh overflow-x-hidden bg-background text-foreground">
       <AdminTopNav />

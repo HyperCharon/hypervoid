@@ -47,7 +47,10 @@ export default async function AdminHome() {
   const session = await auth();
   if (!session?.user) redirect("/sign-in");
 
-  const login = (session.user as { login?: string }).login ?? session.user.name ?? "?";
+  const user = session.user as { login?: string; email?: string; isAdmin?: boolean };
+  if (!user.isAdmin) redirect("/");
+
+  const login = user.login ?? session.user.name ?? "?";
 
   const [allPosts, subscriberCount, stats] = await Promise.all([
     listAllPosts(),
