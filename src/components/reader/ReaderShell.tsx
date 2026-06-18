@@ -995,7 +995,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       )}
 
       {/* ── Progress bar ── */}
-      <div className="relative h-0.5 shrink-0 bg-border">
+      <div className={`relative h-0.5 shrink-0 bg-border ${immersive ? "absolute inset-x-0 top-12 z-10" : ""}`}>
         <div className="h-full bg-accent transition-[width] duration-200" style={{ width: `${scrollPct}%` }} />
         <span className="absolute right-2 top-1 font-mono text-[10px] text-muted-soft">{scrollPct}%</span>
       </div>
@@ -1102,6 +1102,8 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
               fontFamily: FONT_FAMILIES[settings.fontFamily],
               letterSpacing: settings.letterSpacing ? `${settings.letterSpacing}em` : undefined,
               ...(isQuick ? {} : { maxWidth: settings.maxWidth }),
+              // In immersive mode, toolbar is absolute — add top padding to prevent content overlap
+              ...(immersive && toolbarVisible ? { paddingTop: "3.5rem" } : {}),
             }}>
             {loading ? (
               <p className="py-20 text-center text-sm text-muted">渲染中…</p>
