@@ -174,26 +174,36 @@ function LargeTextView({ content }: { content: string }) {
   );
 }
 
-/** Renders a single epub chapter. Strips dangerous/external elements. */
+/**
+ * Renders a single epub chapter. Uses DOMParser for safe HTML parsing
+ * instead of regex-based sanitization which can miss edge cases.
+ */
 function EpubChapterView({ html }: { html: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (ref.current) {
-      const safe = html
-        // Remove script/style/link tags entirely
-        .replace(/<script[\s\S]*?<\/script>/gi, "")
-        .replace(/<style[\s\S]*?<\/style>/gi, "")
-        .replace(/<link[^>]*>/gi, "")
-        // Strip event handlers
-        .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
-        // Remove epub-internal links (cause 404s when resolved against page URL)
-        .replace(/href="(?:[^"]*\.xhtml[^"]*|[^"]*\.html[^"]*|[^"]*\.htm[^"]*)"/gi, "")
-        // Remove any remaining srcset (can trigger fetches)
-        .replace(/\ssrcset="[^"]*"/gi, "");
-      ref.current.innerHTML = safe;
-    }
+    if (!ref.current) return;
+    // Parse with DOMParser — much safer than innerHTML with regex cleanup
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    // Remove all script, style, link elements
+    doc.querySelectorAll("script, style, link").forEach(el => el.remove());
+    // Neutralize all links (prevent navigation/fetches)
+    doc.querySelectorAll("a").forEach(a => {
+      a.removeAttribute("href");
+      a.removeAttribute("onclick");
+    });
+    // Remove event handlers from all elements
+    doc.querySelectorAll("*").forEach(el => {
+      for (const attr of Array.from(el.attributes)) {
+        if (attr.name.startsWith("on")) el.removeAttribute(attr.name);
+      }
+    });
+    // Clear srcset to prevent extra fetches
+    doc.querySelectorAll("[srcset]").forEach(el => el.removeAttribute("srcset"));
+    ref.current.textContent = "";
+    ref.current.appendChild(doc.body);
   }, [html]);
-  return <div ref={ref} className="hv-prose max-w-none" />;
+  return <div ref={ref} className="hv-prose max-w-none epub-content" />;
 }
 
 

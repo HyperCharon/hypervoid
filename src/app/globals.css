@@ -1374,6 +1374,9 @@ html[data-reading="large"] article .prose {
   .hv-pill-menu-link:hover { transform: none; }
 }
 
+/* ── Epub Content ─────────────────────────────────────────── */
+.epub-content a { color: inherit; text-decoration: underline; cursor: default; }
+
 /* ── Main Shell ────────────────────────────────────────────── */
 .hv-main-shell {
   position: relative;
