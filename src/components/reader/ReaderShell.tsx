@@ -159,6 +159,24 @@ async function parseEpubFile(file: File): Promise<{ meta: { title: string; autho
   return { meta: { title: data.meta.title, author: data.meta.author, cover: data.meta.cover }, chapters, html: data.fullHtml };
 }
 
+/**
+ * Renders large text files (>5MB) as plain text using textContent.
+ * Avoids expensive HTML escaping and sanitization on huge content.
+ */
+function LargeTextView({ content }: { content: string }) {
+  const ref = useRef<HTMLPreElement>(null);
+  useEffect(() => {
+    if (ref.current) ref.current.textContent = content;
+  }, [content]);
+  return (
+    <pre
+      ref={ref}
+      className="whitespace-pre-wrap break-words font-mono text-sm leading-relaxed"
+      style={{ fontFamily: "inherit" }}
+    />
+  );
+}
+
 /* ── Main Component ──────────────────────────────────────── */
 
 export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
@@ -236,17 +254,26 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
           setLoading(false);
         } else {
           setRawContent(content);
-          setChapters(extractMdChapters(content));
-          try {
-            const h = await Promise.race([
-              renderMd(content),
-              new Promise<string>((_, reject) => setTimeout(() => reject(new Error("渲染超时")), 10000)),
-            ]);
-            if (!cancelled) { setHtmlContent(h); setLoading(false); }
-          } catch {
-            if (!cancelled) {
-              setHtmlContent(`<pre style="white-space:pre-wrap">${content.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>`);
-              setLoading(false);
+          // Large text files (>5MB): skip markdown rendering, display as plain text
+          const LARGE_TEXT = 5 * 1024 * 1024;
+          if (content.length > LARGE_TEXT) {
+            setChapters([]);
+            // For large files, use a marker that the render logic recognizes
+            // to display via <pre> + textContent (avoids expensive HTML escaping)
+            if (!cancelled) { setHtmlContent("__LARGE_TEXT__"); setLoading(false); }
+          } else {
+            setChapters(extractMdChapters(content));
+            try {
+              const h = await Promise.race([
+                renderMd(content),
+                new Promise<string>((_, reject) => setTimeout(() => reject(new Error("渲染超时")), 10000)),
+              ]);
+              if (!cancelled) { setHtmlContent(h); setLoading(false); }
+            } catch {
+              if (!cancelled) {
+                setHtmlContent(`<pre style="white-space:pre-wrap">${content.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>`);
+                setLoading(false);
+              }
             }
           }
         }
@@ -717,6 +744,8 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
             style={{ fontSize: settings.fontSize, lineHeight: isQuick ? 1.8 : settings.lineHeight, ...(isQuick ? {} : { maxWidth: settings.maxWidth }) }}>
             {loading ? (
               <p className="py-20 text-center text-sm text-muted">渲染中…</p>
+            ) : htmlContent === "__LARGE_TEXT__" ? (
+              <LargeTextView content={rawContent} />
             ) : htmlContent ? (
               <div className="hv-prose max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlighted) }} />
             ) : (
