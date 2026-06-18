@@ -7,6 +7,7 @@ import type { PluggableList } from "unified";
 // KaTeX stylesheet — scoped to article pages so the ~50KB of CSS isn't
 // pulled in on /posts, /tags, /home etc. when no math is rendered.
 import "katex/dist/katex.min.css";
+import "remark-github-blockquote-alert/alert.css";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { remarkAlert } from "remark-github-blockquote-alert";

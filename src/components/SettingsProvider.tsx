@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -313,25 +314,46 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setStyle(DEFAULT_STYLE);
   }, [setHue, setBackground, setFont, setFontSize, setWallpaper, setWallpaperCustomUrl, setStyle]);
 
+  const value = useMemo(
+    () => ({
+      hue,
+      background,
+      font,
+      fontSize,
+      wallpaper,
+      wallpaperCustomUrl,
+      style,
+      setHue,
+      setBackground,
+      setFont,
+      setFontSize,
+      setWallpaper,
+      setWallpaperCustomUrl,
+      setStyle,
+      reset,
+    }),
+    [
+      hue,
+      background,
+      font,
+      fontSize,
+      wallpaper,
+      wallpaperCustomUrl,
+      style,
+      setHue,
+      setBackground,
+      setFont,
+      setFontSize,
+      setWallpaper,
+      setWallpaperCustomUrl,
+      setStyle,
+      reset,
+    ],
+  );
+
   return (
     <SettingsContext.Provider
-      value={{
-        hue,
-        background,
-        font,
-        fontSize,
-        wallpaper,
-        wallpaperCustomUrl,
-        style,
-        setHue,
-        setBackground,
-        setFont,
-        setFontSize,
-        setWallpaper,
-        setWallpaperCustomUrl,
-        setStyle,
-        reset,
-      }}
+      value={value}
     >
       {children}
     </SettingsContext.Provider>

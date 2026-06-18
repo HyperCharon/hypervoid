@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { Check, RadioTower } from "lucide-react";
 import { useReadPosts } from "@/lib/use-read-posts";
-import type { Post } from "@/lib/posts";
+import type { PostMeta } from "@/lib/posts";
 
 export function SeriesPostList({
   posts,
   seriesName,
 }: {
-  posts: Post[];
+  posts: PostMeta[];
   seriesName: string;
 }) {
   const readPosts = useReadPosts();

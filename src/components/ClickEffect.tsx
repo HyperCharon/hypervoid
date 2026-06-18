@@ -61,6 +61,10 @@ export function ClickEffect() {
     const loop = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.current = particles.current.filter((p) => p.alpha > 0);
+      if (particles.current.length === 0) {
+        animFrame.current = 0;
+        return;
+      }
       for (const p of particles.current) {
         p.x += p.vx;
         p.y += p.vy;
@@ -80,6 +84,9 @@ export function ClickEffect() {
     const onClick = (e: MouseEvent) => {
       const baseHue = (Date.now() / 30) % 360;
       spawn(e.clientX, e.clientY, baseHue);
+      if (!animFrame.current) {
+        animFrame.current = requestAnimationFrame(loop);
+      }
     };
     window.addEventListener("click", onClick);
 

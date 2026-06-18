@@ -9,6 +9,14 @@ import JSZip from "jszip";
 import { rateLimit } from "@/lib/rate-limit";
 import { sanitizeHtml } from "@/lib/sanitize-html";
 
+function getIp(request: Request): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
 export const runtime = "nodejs";
 export const maxDuration = 60; // 60s timeout for large files
 
@@ -23,7 +31,7 @@ interface EpubChapter {
 
 export async function POST(request: Request) {
   // Rate limit: 10 per minute per IP
-  const rl = await rateLimit("parse-epub", { key: "parse-epub", limit: 10, windowSec: 60 });
+  const rl = await rateLimit(getIp(request), { key: "parse-epub", limit: 10, windowSec: 60 });
   if (!rl.ok) {
     return NextResponse.json({ error: "解析请求过于频繁" }, { status: 429 });
   }

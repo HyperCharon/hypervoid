@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { ArrowRight, ListTree, RadioTower } from "lucide-react";
-import type { Post } from "@/lib/posts";
+import type { Post, PostMeta } from "@/lib/posts";
 import { getPostsBySeries } from "@/lib/posts";
 
 export async function SeriesBanner({ post }: { post: Post }) {
   const seriesName = post.frontmatter.series;
   if (!seriesName) return null;
 
-  const seriesPosts = await getPostsBySeries(seriesName);
+  const seriesPosts: PostMeta[] = await getPostsBySeries(seriesName);
   if (seriesPosts.length <= 1) return null;
 
   const currentIndex = seriesPosts.findIndex((p) => p.slug === post.slug);

@@ -428,7 +428,7 @@ type SeriesSummary = {
 export async function getAllSeries(
   opts: ViewerOpts = {},
 ): Promise<SeriesSummary[]> {
-  const posts = await getAllPosts(opts);
+  const posts = await getAllPostMeta(opts);
   const grouped = new Map<string, { count: number; latest: string }>();
   for (const p of posts) {
     const s = p.frontmatter.series;
@@ -450,8 +450,8 @@ export async function getAllSeries(
 export async function getPostsBySeries(
   name: string,
   opts: ViewerOpts = {},
-): Promise<Post[]> {
-  const all = await getAllPosts(opts);
+): Promise<PostMeta[]> {
+  const all = await getAllPostMeta(opts);
   return all
     .filter((p) => p.frontmatter.series === name)
     .sort((a, b) => {

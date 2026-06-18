@@ -81,6 +81,10 @@ export function SparkleEffect() {
         spawnAt(rect.left + 5, cy);
         spawnAt(rect.right - 5, cy);
       }
+
+      if (!animFrame.current) {
+        animFrame.current = requestAnimationFrame(loop);
+      }
     };
 
     const onMouseUp = () => setTimeout(handleSelection, 0);
@@ -101,6 +105,11 @@ export function SparkleEffect() {
         p.size *= 0.985;
         return p.life > 0;
       });
+
+      if (sparkles.current.length === 0) {
+        animFrame.current = 0;
+        return;
+      }
 
       for (const p of sparkles.current) {
         ctx.save();

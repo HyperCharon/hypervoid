@@ -3,7 +3,6 @@ import { headers } from "next/headers";
 import Script from "next/script";
 import { Geist, JetBrains_Mono, Orbitron } from "next/font/google";
 import "./globals.css";
-import "remark-github-blockquote-alert/alert.css";
 import { Providers } from "@/components/Providers";
 import { auth } from "@/auth";
 import { SiteHeader } from "@/components/SiteHeader";

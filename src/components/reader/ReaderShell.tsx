@@ -206,12 +206,7 @@ function EpubChapterView({ html, chapters, onNavigate }: {
     return map;
   }, [chapters]);
 
-  const safe = useMemo(() => html
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<link[^>]*>/gi, "")
-    .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
-    .replace(/\ssrcset="[^"]*"/gi, ""), [html]);
+  const safe = useMemo(() => sanitizeHtml(html), [html]);
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
