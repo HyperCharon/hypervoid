@@ -895,12 +895,12 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
         {/* Quick mode: minimal controls */}
         {isQuick ? (
           <>
-            <div className="flex items-center gap-0.5">
+            <div className="hidden items-center gap-0.5 sm:flex">
               <button type="button" onClick={() => setSettings(s => ({ ...s, fontSize: Math.max(12, s.fontSize - 1) }))} className="rdr-btn text-xs font-bold">A-</button>
               <span className="w-5 text-center font-mono text-[10px] text-muted">{settings.fontSize}</span>
               <button type="button" onClick={() => setSettings(s => ({ ...s, fontSize: Math.min(28, s.fontSize + 1) }))} className="rdr-btn text-sm font-bold">A+</button>
             </div>
-            <button type="button" onClick={() => setTheme(isDark ? "light" : "dark")} className="rdr-btn">
+            <button type="button" onClick={() => setTheme(isDark ? "light" : "dark")} className="rdr-btn hidden sm:inline-flex">
               {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
             {chapters.length > 0 && (
@@ -1087,7 +1087,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       <div className="flex min-h-0 flex-1">
         {/* TOC sidebar (novel mode, desktop) */}
         {!isQuick && settings.tocOpen && chapters.length > 0 && (
-          <aside className="hidden w-64 shrink-0 overflow-y-auto border-r border-border p-3 lg:block scrollbar-thin sticky top-24">
+          <aside className={`hidden w-64 shrink-0 overflow-y-auto border-r border-border p-3 lg:block scrollbar-thin sticky top-0 ${immersive ? "pt-14" : "pt-6"}`}>
             <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-muted-soft">目录</p>
             <nav className="flex flex-col gap-0.5">
               {chapters.map((ch, i) => (
@@ -1121,7 +1121,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
               fontFamily: FONT_FAMILIES[settings.fontFamily],
               letterSpacing: settings.letterSpacing ? `${settings.letterSpacing}em` : undefined,
               ...(isQuick ? {} : { maxWidth: settings.maxWidth }),
-              ...(immersive && toolbarVisible ? { paddingTop: "3rem" } : {}),
+              ...(immersive && toolbarVisible ? { paddingTop: "2.75rem" } : {}),
             }}>
             {loading ? (
               <p className="py-20 text-center text-sm text-muted">渲染中…</p>
