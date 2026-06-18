@@ -34,6 +34,7 @@ interface Chapter {
   title: string;
   level: number;
   startLine: number; // for md: line number, for epub: chapter index
+  href?: string; // epub: original file path (e.g. "OEBPS/ch1.xhtml")
 }
 
 interface BookMeta {
@@ -146,7 +147,7 @@ async function renderMd(src: string): Promise<string> {
 // Client-side epub parsing limit — browser can handle 200MB+ with epubjs
 const EPUB_CLIENT_LIMIT = 200 * 1024 * 1024;
 
-async function parseEpubFile(file: File): Promise<{ meta: { title: string; author: string; cover: string | null }; chapters: { id: string; title: string; level: number; html: string }[] }> {
+async function parseEpubFile(file: File): Promise<{ meta: { title: string; author: string; cover: string | null }; chapters: { id: string; title: string; level: number; html: string; href: string }[] }> {
   if (file.size > EPUB_CLIENT_LIMIT) {
     throw new Error(`文件过大 (${fmtSize(file.size)})，上限 ${fmtSize(EPUB_CLIENT_LIMIT)}。`);
   }
@@ -176,18 +177,59 @@ function LargeTextView({ content }: { content: string }) {
 
 /**
  * Renders a single epub chapter. Strips dangerous elements via regex.
- * Uses dangerouslySetInnerHTML (no useEffect) for stability.
+ * Intercepts internal epub links and resolves them to chapter navigation.
  */
-function EpubChapterView({ html }: { html: string }) {
+function EpubChapterView({ html, chapters, onNavigate }: {
+  html: string;
+  chapters: Chapter[];
+  onNavigate: (idx: number) => void;
+}) {
+  // Build href → chapter index map
+  const hrefMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (let i = 0; i < chapters.length; i++) {
+      const h = chapters[i].href;
+      if (h) {
+        map.set(h, i);
+        // Also map just the filename (e.g. "ch1.xhtml" from "OEBPS/ch1.xhtml")
+        const parts = h.split("/");
+        if (parts.length > 1) map.set(parts[parts.length - 1], i);
+      }
+    }
+    return map;
+  }, [chapters]);
+
   const safe = useMemo(() => html
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
     .replace(/<link[^>]*>/gi, "")
     .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
-    .replace(/\shref="[^"]*\.xhtml[^"]*"/gi, "")
-    .replace(/\shref="[^"]*\.html[^"]*"/gi, "")
     .replace(/\ssrcset="[^"]*"/gi, ""), [html]);
-  return <div className="hv-prose max-w-none epub-content" dangerouslySetInnerHTML={{ __html: safe }} />;
+
+  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const anchor = target.closest("a");
+    if (!anchor) return;
+    const href = anchor.getAttribute("href");
+    if (!href) return;
+    // Skip external links and anchors
+    if (href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:")) return;
+    // Strip fragment identifier
+    const path = href.split("#")[0];
+    const idx = hrefMap.get(path);
+    if (idx !== undefined) {
+      e.preventDefault();
+      onNavigate(idx);
+    }
+  }, [hrefMap, onNavigate]);
+
+  return (
+    <div
+      className="hv-prose max-w-none epub-content"
+      dangerouslySetInnerHTML={{ __html: safe }}
+      onClick={handleClick}
+    />
+  );
 }
 
 
@@ -484,7 +526,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
           const data = await parseEpubFile(file);
           console.log(`[epub] parsed ${data.chapters.length} chapters, saving...`);
           // Save chapter metadata to localStorage
-          const chapterMeta = data.chapters.map((ch, i) => ({ id: ch.id, title: ch.title, level: ch.level, startLine: i }));
+          const chapterMeta = data.chapters.map((ch, i) => ({ id: ch.id, title: ch.title, level: ch.level, startLine: i, href: ch.href }));
           saveChapters(id, chapterMeta);
           // Save all chapter HTML in a single IndexedDB transaction (fast + reliable)
           await saveAllChapterHtmls(id, data.chapters);
@@ -882,7 +924,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
             ) : isEpubActive ? (
               // Epub: render current chapter HTML (lightweight sanitize, no DOMPurify)
               currentChapterHtml ? (
-                <EpubChapterView html={currentChapterHtml} />
+                <EpubChapterView html={currentChapterHtml} chapters={chapters} onNavigate={loadEpubChapter} />
               ) : (
                 <p className="py-20 text-center text-sm text-muted">无法加载内容</p>
               )

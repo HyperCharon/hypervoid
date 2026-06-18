@@ -11,6 +11,8 @@ export interface EpubChapter {
   title: string;
   html: string;
   level: number;
+  /** Original file path in the epub (e.g. "OEBPS/chapter1.xhtml") */
+  href: string;
 }
 
 export interface EpubMeta {
@@ -188,6 +190,7 @@ export async function parseEpub(arrayBuffer: ArrayBuffer): Promise<EpubData> {
         title: chapterTitle,
         html: bodyHtml,
         level: 1,
+        href: manifestItem.href,
       });
     } catch {
       // skip failed chapters
