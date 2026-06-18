@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 import {
   BookOpen,
   Bookmark,
@@ -978,7 +979,7 @@ export function NovelReader() {
             ) : htmlContent ? (
               <div
                 className="hv-prose max-w-none"
-                dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlightedHtml) }}
               />
             ) : (
               <p className="py-20 text-center text-muted">无法加载内容</p>

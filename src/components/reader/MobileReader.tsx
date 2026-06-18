@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 import {
   ChevronLeft,
   ChevronRight,
@@ -364,7 +365,7 @@ export function MobileReader() {
       <div ref={contentRef} onScroll={saveScrollPosition} className="flex-1 overflow-y-auto overscroll-contain">
         <div className="px-4 py-5" style={{ fontSize, lineHeight: 1.8 }}>
           {htmlContent ? (
-            <div className="hv-prose max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+            <div className="hv-prose max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(htmlContent) }} />
           ) : (
             <p className="py-20 text-center text-sm text-muted">加载中…</p>
           )}

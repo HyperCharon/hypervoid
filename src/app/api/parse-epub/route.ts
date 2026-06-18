@@ -7,6 +7,7 @@
 import { NextResponse } from "next/server";
 import JSZip from "jszip";
 import { rateLimit } from "@/lib/rate-limit";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 export const runtime = "nodejs";
 export const maxDuration = 60; // 60s timeout for large files
@@ -146,6 +147,9 @@ export async function POST(request: Request) {
           body = body.replaceAll(`src="${orig}"`, `src="${dataUrl}"`);
         }
 
+        // Sanitize to strip <script>, event handlers, etc.
+        body = sanitizeHtml(body);
+
         chapters.push({ id: `epub-ch-${i}`, title: chapterTitle, html: body, level: 1 });
         allHtmlParts.push(`<section data-chapter="${i}" data-line="${i}"><h1>${chapterTitle}</h1>${body}</section>`);
       } catch {
@@ -157,10 +161,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "epub 中没有找到可解析的章节" }, { status: 400 });
     }
 
+    const fullHtml = sanitizeHtml(allHtmlParts.join("\n<hr class='epub-divider' />\n"));
+
     return NextResponse.json({
       meta,
       chapters,
-      fullHtml: allHtmlParts.join("\n<hr class='epub-divider' />\n"),
+      fullHtml,
     });
   } catch (e) {
     console.error("[parse-epub]", e);

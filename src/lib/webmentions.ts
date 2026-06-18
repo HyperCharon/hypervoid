@@ -170,6 +170,18 @@ export async function verifySource(
     return { ok: false, reason: "source URL not fetchable" };
   }
 
+  // SSRF protection: reject private/internal hosts
+  try {
+    const hostname = new URL(source).hostname;
+    const PRIVATE_HOST_RE =
+      /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|169\.254\.|::1|fc[0-9a-f]{2}:|fe[89ab][0-9a-f]:)/i;
+    if (PRIVATE_HOST_RE.test(hostname)) {
+      return { ok: false, reason: "source URL is a private/internal host" };
+    }
+  } catch {
+    return { ok: false, reason: "invalid source URL" };
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 5000);
   let response: Response;

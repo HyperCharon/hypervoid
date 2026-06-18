@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth, signIn, signOut, ADMIN_LOGIN } from "@/auth";
+import { auth, signIn, signOut, ADMIN_LOGIN, requireAdmin } from "@/auth";
 import {
   deleteMessage,
   hideMessage,
@@ -57,17 +57,13 @@ export async function postGuestbookAction(formData: FormData) {
 }
 
 export async function hideGuestbookAction(id: string) {
-  const session = await auth();
-  const login = (session?.user as { login?: string } | undefined)?.login;
-  if (login !== ADMIN_LOGIN) throw new Error("Forbidden");
+  await requireAdmin();
   await hideMessage(id);
   revalidatePath("/guestbook");
 }
 
 export async function deleteGuestbookAction(id: string) {
-  const session = await auth();
-  const login = (session?.user as { login?: string } | undefined)?.login;
-  if (login !== ADMIN_LOGIN) throw new Error("Forbidden");
+  await requireAdmin();
   await deleteMessage(id);
   revalidatePath("/guestbook");
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 import {
   BookOpen,
   Bookmark,
@@ -719,7 +720,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
             {loading ? (
               <p className="py-20 text-center text-sm text-muted">渲染中…</p>
             ) : htmlContent ? (
-              <div className="hv-prose max-w-none" dangerouslySetInnerHTML={{ __html: highlighted }} />
+              <div className="hv-prose max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlighted) }} />
             ) : (
               <p className="py-20 text-center text-sm text-muted">无法加载内容</p>
             )}
