@@ -60,6 +60,8 @@ interface BookmarkEntry {
 interface ReaderSettings {
   fontSize: number;
   lineHeight: number;
+  fontFamily: "sans" | "serif" | "mono";
+  letterSpacing: number;
   theme: "normal" | "sepia" | "eye-care";
   maxWidth: number;
   tocOpen: boolean;
@@ -68,10 +70,18 @@ interface ReaderSettings {
 const DEFAULT_SETTINGS: ReaderSettings = {
   fontSize: 17,
   lineHeight: 1.8,
+  fontFamily: "sans",
+  letterSpacing: 0,
   theme: "normal",
   maxWidth: 860,
   tocOpen: true,
 };
+
+const FONT_FAMILIES = {
+  sans: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+  serif: "'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', Georgia, serif",
+  mono: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+} as const;
 
 /* ── Storage keys ────────────────────────────────────────── */
 
@@ -256,11 +266,15 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [fullscreen, setFullscreen] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [currentChapterHtml, setCurrentChapterHtml] = useState("");
+  const [immersive, setImmersive] = useState(false);
+  const [wakeLock, setWakeLock] = useState(false);
+  const [toolbarVisible, setToolbarVisible] = useState(true);
+  const [autoScroll, setAutoScroll] = useState(false);
+  const [autoScrollSpeed, setAutoScrollSpeed] = useState(1.5);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -609,6 +623,109 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
     return () => window.removeEventListener("keydown", h);
   }, [isQuick, activeId, navCh, addBm]);
 
+  // ── Wake Lock (prevent screen sleep while reading) ──
+  useEffect(() => {
+    if (!wakeLock || !activeId) return;
+    let lock: WakeLockSentinel | null = null;
+    const acquire = async () => {
+      try {
+        if ("wakeLock" in navigator) {
+          lock = await navigator.wakeLock.request("screen");
+          lock.addEventListener("release", () => setWakeLock(false));
+        }
+      } catch { setWakeLock(false); }
+    };
+    acquire();
+    const onVis = () => { if (document.visibilityState === "visible") acquire(); };
+    document.addEventListener("visibilitychange", onVis);
+    return () => { document.removeEventListener("visibilitychange", onVis); lock?.release(); };
+  }, [wakeLock, activeId]);
+
+  // ── Immersive mode (Browser Fullscreen API) ──
+  const toggleImmersive = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+        setImmersive(true);
+      } else {
+        await document.exitFullscreen();
+        setImmersive(false);
+      }
+    } catch { /* iOS or restricted */ }
+  }, []);
+
+  useEffect(() => {
+    const onChange = () => setImmersive(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  // ── Auto-scroll ──
+  useEffect(() => {
+    if (!autoScroll || !activeId || !contentRef.current) return;
+    let raf = 0;
+    const tick = () => {
+      if (contentRef.current) {
+        contentRef.current.scrollBy(0, autoScrollSpeed);
+        // Stop at bottom
+        const el = contentRef.current;
+        if (el.scrollTop + el.clientHeight >= el.scrollHeight - 2) {
+          setAutoScroll(false);
+          return;
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    // Pause on user interaction
+    const pause = () => setAutoScroll(false);
+    const el = contentRef.current;
+    el.addEventListener("wheel", pause, { once: true });
+    el.addEventListener("touchstart", pause, { once: true });
+    return () => { cancelAnimationFrame(raf); el.removeEventListener("wheel", pause); el.removeEventListener("touchstart", pause); };
+  }, [autoScroll, autoScrollSpeed, activeId]);
+
+  // ── Tap-zone navigation + swipe for chapter switching ──
+  const touchStartRef = useRef<{ x: number; y: number; t: number } | null>(null);
+
+  const onContentTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY, t: Date.now() };
+  }, []);
+
+  const onContentTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - touchStartRef.current.x;
+    const dy = touch.clientY - touchStartRef.current.y;
+    const dt = Date.now() - touchStartRef.current.t;
+    touchStartRef.current = null;
+
+    // Swipe: horizontal > vertical, distance > 60px, time < 400ms
+    if (Math.abs(dx) > Math.abs(dy) * 1.5 && Math.abs(dx) > 60 && dt < 400) {
+      if (dx > 0) navCh(-1); // swipe right = previous
+      else navCh(1); // swipe left = next
+    }
+  }, [navCh]);
+
+  const onContentClick = useCallback((e: React.MouseEvent) => {
+    // Don't handle taps on interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest("a, button, input, textarea, select, [role='button']")) return;
+
+    const x = e.clientX / window.innerWidth;
+    if (x < 0.33) {
+      // Left zone: scroll up
+      contentRef.current?.scrollBy({ top: -window.innerHeight * 0.85, behavior: "smooth" });
+    } else if (x > 0.67) {
+      // Right zone: scroll down
+      contentRef.current?.scrollBy({ top: window.innerHeight * 0.85, behavior: "smooth" });
+    } else {
+      // Center: toggle toolbar
+      setToolbarVisible(v => !v);
+    }
+  }, []);
+
   // ── Theme classes ──
   const themeCls = settings.theme === "sepia"
     ? "bg-[#f8f0e3] text-[#5b4636] dark:bg-[#2b2520] dark:text-[#e3d3b8]"
@@ -734,14 +851,14 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
      ══════════════════════════════════════════════════════════ */
 
   return (
-    <div className={`relative flex flex-col ${fullscreen ? "fixed inset-0 z-50" : ""} ${isQuick ? themeCls : themeCls}`}
-      style={fullscreen ? undefined : { height: "calc(100svh - 4rem)", minHeight: "calc(100vh - 4rem)" }}
+    <div className={`relative flex flex-col ${immersive ? "fixed inset-0 z-50" : ""} ${themeCls}`}
+      style={immersive ? undefined : { height: "calc(100svh - 4rem)", minHeight: "calc(100vh - 4rem)" }}
       onDragOver={e => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setDragOver(true); } }}
       onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false); }}
       onDrop={e => { e.preventDefault(); setDragOver(false); importFiles(e.dataTransfer.files); }}>
 
-      {/* ── Toolbar ── */}
-      <div className="flex shrink-0 items-center gap-0.5 border-b border-border px-1.5 py-1 sm:px-3 sm:py-1.5">
+      {/* ── Toolbar (auto-hide in immersive) ── */}
+      <div className={`flex shrink-0 items-center gap-0.5 border-b border-border px-1.5 py-1 transition-transform duration-200 sm:px-3 sm:py-1.5 ${!toolbarVisible && immersive ? "-translate-y-full" : ""}`}>
         <button type="button" onClick={() => setActiveId(null)} className="rdr-btn-text shrink-0" title="返回书库">
           <ChevronLeft className="h-4 w-4" /><span className="hidden sm:inline">书库</span>
         </button>
@@ -783,11 +900,6 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
               <Search className="h-4 w-4" />
             </button>
             <button type="button" onClick={addBm} className="rdr-btn" title="书签"><Bookmark className="h-4 w-4" /></button>
-            {bookmarks.length > 0 && (
-              <button type="button" onClick={() => setBmOpen(!bmOpen)} className={`rdr-btn hidden sm:inline-flex ${bmOpen ? "active" : ""}`} title={`书签 (${bookmarks.length})`}>
-                <span className="text-[10px] font-bold">{bookmarks.length}</span>
-              </button>
-            )}
             {chapters.length > 0 && (
               <>
                 <button type="button" onClick={() => setTocOpen(!tocOpen)} className={`rdr-btn lg:hidden ${tocOpen ? "active" : ""}`} title="目录">
@@ -798,11 +910,17 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
                 </button>
               </>
             )}
+            <button type="button" onClick={() => setAutoScroll(s => !s)} className={`rdr-btn ${autoScroll ? "active" : ""}`} title="自动滚动">
+              <span className="text-[10px] font-bold">{autoScroll ? "⏸" : "▶"}</span>
+            </button>
+            <button type="button" onClick={() => setWakeLock(w => !w)} className={`rdr-btn ${wakeLock ? "active" : ""}`} title="屏幕常亮">
+              <span className="text-[10px]">🔆</span>
+            </button>
             <button type="button" onClick={() => setSettingsOpen(!settingsOpen)} className={`rdr-btn ${settingsOpen ? "active" : ""}`} title="设置">
               <Settings className="h-4 w-4" />
             </button>
-            <button type="button" onClick={() => setFullscreen(!fullscreen)} className="rdr-btn hidden sm:inline-flex" title="全屏">
-              {fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            <button type="button" onClick={toggleImmersive} className="rdr-btn" title={immersive ? "退出沉浸" : "沉浸模式"}>
+              {immersive ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </button>
           </>
         )}
@@ -833,6 +951,20 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
               <input type="range" min={14} max={24} value={settings.lineHeight * 10} onChange={e => setSettings(s => ({ ...s, lineHeight: +e.target.value / 10 }))} className="accent-accent flex-1 sm:w-28 sm:flex-none" />
               <span className="w-6 font-mono text-xs">{settings.lineHeight.toFixed(1)}</span>
             </div>
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-muted">字体</span>
+              {(["sans", "serif", "mono"] as const).map(f => (
+                <button key={f} type="button" onClick={() => setSettings(s => ({ ...s, fontFamily: f }))}
+                  className={`rounded-md px-2 py-1 text-xs transition ${settings.fontFamily === f ? "bg-accent/15 text-accent" : "text-muted hover:text-foreground"}`}>
+                  {f === "sans" ? "黑体" : f === "serif" ? "宋体" : "等宽"}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted">字距</span>
+              <input type="range" min={-2} max={10} value={settings.letterSpacing * 100} onChange={e => setSettings(s => ({ ...s, letterSpacing: +e.target.value / 100 }))} className="accent-accent flex-1 sm:w-20 sm:flex-none" />
+              <span className="w-8 font-mono text-xs">{settings.letterSpacing.toFixed(2)}</span>
+            </div>
             <label className="hidden items-center gap-2 sm:flex">
               <span className="text-xs text-muted">宽度</span>
               <input type="range" min={520} max={1100} step={40} value={settings.maxWidth} onChange={e => setSettings(s => ({ ...s, maxWidth: +e.target.value }))} className="accent-accent w-28" />
@@ -846,6 +978,13 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
                 </button>
               ))}
             </div>
+            {autoScroll && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted">滚动速度</span>
+                <input type="range" min={5} max={50} value={autoScrollSpeed * 10} onChange={e => setAutoScrollSpeed(+e.target.value / 10)} className="accent-accent flex-1 sm:w-24 sm:flex-none" />
+                <span className="w-6 font-mono text-xs">{autoScrollSpeed.toFixed(1)}</span>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -942,9 +1081,23 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
         )}
 
         {/* Content */}
-        <div ref={contentRef} onScroll={onScroll} className="flex-1 overflow-y-auto overscroll-contain">
+        <div
+          ref={contentRef}
+          onScroll={onScroll}
+          onClick={onContentClick}
+          onTouchStart={onContentTouchStart}
+          onTouchEnd={onContentTouchEnd}
+          className="flex-1 overflow-y-auto overscroll-contain"
+          style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+        >
           <div className={`${isQuick ? "px-4 py-5" : "reader-content mx-auto px-3 py-5 sm:px-8 sm:py-8"}`}
-            style={{ fontSize: settings.fontSize, lineHeight: isQuick ? 1.8 : settings.lineHeight, ...(isQuick ? {} : { maxWidth: settings.maxWidth }) }}>
+            style={{
+              fontSize: settings.fontSize,
+              lineHeight: isQuick ? 1.8 : settings.lineHeight,
+              fontFamily: FONT_FAMILIES[settings.fontFamily],
+              letterSpacing: settings.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+              ...(isQuick ? {} : { maxWidth: settings.maxWidth }),
+            }}>
             {loading ? (
               <p className="py-20 text-center text-sm text-muted">渲染中…</p>
             ) : isEpubActive ? (
