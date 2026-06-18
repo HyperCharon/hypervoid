@@ -115,13 +115,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   // When AUTH_COOKIE_DOMAIN is set, scope the session cookie to the
   // registrable domain so cv./tools. subdomains share the admin's login.
-  // Only the session token uses __Secure- prefix + domain; other cookies
-  // (CSRF, callback URL, etc.) use Auth.js defaults (no prefix).
+  // Always use plain cookie name (no __Secure- prefix) so signOut()
+  // can reliably clear it. The Secure flag is set in production.
   ...(AUTH_COOKIE_DOMAIN
     ? {
         cookies: {
           sessionToken: {
-            name: `${USE_SECURE_COOKIES ? "__Secure-" : ""}authjs.session-token`,
+            name: "authjs.session-token",
             options: {
               httpOnly: true,
               sameSite: "lax" as const,
