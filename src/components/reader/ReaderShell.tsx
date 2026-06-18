@@ -610,7 +610,12 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       if (e.key === "f" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 50); }
       if (e.key === "Escape") {
         setSearchOpen(false); setSettingsOpen(false); setBmOpen(false); setTocOpen(false);
-        if (immersive) { document.exitFullscreen().catch(() => {}); setImmersive(false); setToolbarVisible(true); }
+        if (immersive) {
+          document.exitFullscreen().catch(() => {});
+          setImmersive(false);
+          setToolbarVisible(true);
+          document.documentElement.dataset.fullscreenRoute = "false";
+        }
       }
       if (e.key === "[") navCh(-1);
       if (e.key === "]") navCh(1);
@@ -650,15 +655,22 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       if (!document.fullscreenElement) {
         await document.documentElement.requestFullscreen();
         setImmersive(true);
+        document.documentElement.dataset.fullscreenRoute = "true";
+        setToolbarVisible(true);
       } else {
         await document.exitFullscreen();
         setImmersive(false);
+        document.documentElement.dataset.fullscreenRoute = "false";
       }
     } catch { /* iOS or restricted */ }
   }, []);
 
   useEffect(() => {
-    const onChange = () => setImmersive(!!document.fullscreenElement);
+    const onChange = () => {
+      const isFs = !!document.fullscreenElement;
+      setImmersive(isFs);
+      document.documentElement.dataset.fullscreenRoute = isFs ? "true" : "false";
+    };
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
@@ -901,10 +913,10 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
               <span className="w-5 text-center font-mono text-[10px] text-muted">{settings.fontSize}</span>
               <button type="button" onClick={() => setSettings(s => ({ ...s, fontSize: Math.min(28, s.fontSize + 1) }))} className="rdr-btn text-sm font-bold">A</button>
             </div>
-            <button type="button" onClick={() => { setSearchOpen(!searchOpen); setSearchQ(""); }} className={`rdr-btn ${searchOpen ? "active" : ""}`} title="搜索">
+            <button type="button" onClick={() => { setSearchOpen(!searchOpen); setSearchQ(""); }} className={`rdr-btn hidden sm:inline-flex ${searchOpen ? "active" : ""}`} title="搜索">
               <Search className="h-4 w-4" />
             </button>
-            <button type="button" onClick={addBm} className="rdr-btn" title="书签"><Bookmark className="h-4 w-4" /></button>
+            <button type="button" onClick={addBm} className="rdr-btn hidden sm:inline-flex" title="书签"><Bookmark className="h-4 w-4" /></button>
             {chapters.length > 0 && (
               <>
                 <button type="button" onClick={() => setTocOpen(!tocOpen)} className={`rdr-btn lg:hidden ${tocOpen ? "active" : ""}`} title="目录">
@@ -924,7 +936,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
             <button type="button" onClick={() => setSettingsOpen(!settingsOpen)} className={`rdr-btn ${settingsOpen ? "active" : ""}`} title="设置">
               <Settings className="h-4 w-4" />
             </button>
-            <button type="button" onClick={toggleImmersive} className="rdr-btn" title={immersive ? "退出沉浸" : "沉浸模式"}>
+            <button type="button" onClick={toggleImmersive} className="rdr-btn hidden sm:inline-flex" title={immersive ? "退出沉浸" : "沉浸模式"}>
               {immersive ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </button>
           </>
