@@ -174,14 +174,22 @@ function LargeTextView({ content }: { content: string }) {
   );
 }
 
-/** Renders a single epub chapter. Lightweight script-strip instead of DOMPurify. */
+/** Renders a single epub chapter. Strips dangerous/external elements. */
 function EpubChapterView({ html }: { html: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (ref.current) {
       const safe = html
+        // Remove script/style/link tags entirely
         .replace(/<script[\s\S]*?<\/script>/gi, "")
-        .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+        .replace(/<style[\s\S]*?<\/style>/gi, "")
+        .replace(/<link[^>]*>/gi, "")
+        // Strip event handlers
+        .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+        // Remove epub-internal links (cause 404s when resolved against page URL)
+        .replace(/href="(?:[^"]*\.xhtml[^"]*|[^"]*\.html[^"]*|[^"]*\.htm[^"]*)"/gi, "")
+        // Remove any remaining srcset (can trigger fetches)
+        .replace(/\ssrcset="[^"]*"/gi, "");
       ref.current.innerHTML = safe;
     }
   }, [html]);
