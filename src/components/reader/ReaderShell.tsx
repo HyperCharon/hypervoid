@@ -925,12 +925,6 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
                 </button>
               </>
             )}
-            <button type="button" onClick={() => setAutoScroll(s => !s)} className={`rdr-btn hidden sm:inline-flex ${autoScroll ? "active" : ""}`} title="自动滚动">
-              <span className="text-[10px] font-bold">{autoScroll ? "⏸" : "▶"}</span>
-            </button>
-            <button type="button" onClick={() => setWakeLock(w => !w)} className={`rdr-btn hidden sm:inline-flex ${wakeLock ? "active" : ""}`} title="屏幕常亮">
-              <span className="text-[10px]">🔆</span>
-            </button>
             <button type="button" onClick={() => setSettingsOpen(!settingsOpen)} className={`rdr-btn ${settingsOpen ? "active" : ""}`} title="设置">
               <Settings className="h-4 w-4" />
             </button>
