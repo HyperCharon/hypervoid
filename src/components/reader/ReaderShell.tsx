@@ -854,8 +854,8 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
      ══════════════════════════════════════════════════════════ */
 
   return (
-    <div className={`relative flex flex-col ${immersive ? "fixed inset-0 z-50" : ""} ${themeCls}`}
-      style={immersive ? undefined : { height: "calc(100svh - 4rem)", minHeight: "calc(100vh - 4rem)" }}
+    <div className={`relative flex flex-col ${immersive ? "fixed inset-0 z-50 overflow-hidden" : ""} ${themeCls}`}
+      style={immersive ? { height: "100vh", width: "100vw" } : { height: "calc(100svh - 4rem)", minHeight: "calc(100vh - 4rem)" }}
       onDragOver={e => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setDragOver(true); } }}
       onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false); }}
       onDrop={e => { e.preventDefault(); setDragOver(false); importFiles(e.dataTransfer.files); }}>
@@ -1090,7 +1090,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
           onClick={onContentClick}
           onTouchStart={onContentTouchStart}
           onTouchEnd={onContentTouchEnd}
-          className="flex-1 overflow-y-auto overscroll-contain"
+          className="min-h-0 flex-1 overflow-y-auto"
           style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
           <div className={`${isQuick ? "px-4 py-5" : "reader-content mx-auto px-3 py-5 sm:px-8 sm:py-8"}`}
