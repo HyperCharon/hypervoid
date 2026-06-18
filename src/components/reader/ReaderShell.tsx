@@ -176,22 +176,18 @@ function LargeTextView({ content }: { content: string }) {
 
 /**
  * Renders a single epub chapter. Strips dangerous elements via regex.
+ * Uses dangerouslySetInnerHTML (no useEffect) for stability.
  */
 function EpubChapterView({ html }: { html: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!ref.current) return;
-    const safe = html
-      .replace(/<script[\s\S]*?<\/script>/gi, "")
-      .replace(/<style[\s\S]*?<\/style>/gi, "")
-      .replace(/<link[^>]*>/gi, "")
-      .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
-      .replace(/\shref="[^"]*\.xhtml[^"]*"/gi, "")
-      .replace(/\shref="[^"]*\.html[^"]*"/gi, "")
-      .replace(/\ssrcset="[^"]*"/gi, "");
-    ref.current.innerHTML = safe;
-  }, [html]);
-  return <div ref={ref} className="hv-prose max-w-none epub-content" />;
+  const safe = useMemo(() => html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<link[^>]*>/gi, "")
+    .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/\shref="[^"]*\.xhtml[^"]*"/gi, "")
+    .replace(/\shref="[^"]*\.html[^"]*"/gi, "")
+    .replace(/\ssrcset="[^"]*"/gi, ""), [html]);
+  return <div className="hv-prose max-w-none epub-content" dangerouslySetInnerHTML={{ __html: safe }} />;
 }
 
 
@@ -409,7 +405,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
 
   // Load a specific epub chapter from IndexedDB (with old-format fallback)
   const loadEpubChapter = useCallback(async (idx: number) => {
-    if (!activeId || idx < 0 || idx >= chapters.length) return;
+    if (!activeId || idx < 0 || idx >= chapters.length || loading) return;
     setCurrentChapterIndex(idx);
     setCurrentChapterHtml("");
     setLoading(true);
@@ -448,7 +444,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
     try { localStorage.setItem(K_POSITION + activeId, String(idx)); } catch {}
     // Scroll to top
     contentRef.current?.scrollTo(0, 0);
-  }, [activeId, chapters.length]);
+  }, [activeId, chapters.length, loading]);
 
   const navCh = useCallback((dir: number) => {
     if (chapters.length === 0) return;
