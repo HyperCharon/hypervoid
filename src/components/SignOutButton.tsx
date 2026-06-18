@@ -1,17 +1,18 @@
 "use client";
 
-import { recordLogoutTimestampAction } from "@/app/signout-action";
+import { useTransition } from "react";
+import { serverSignOutAction } from "@/app/signout-action";
 
 /**
  * Logout button.
  *
- * 1. Records the logout timestamp server-side (for proxy stale-JWT check).
- * 2. POSTs to NextAuth's /api/auth/signout endpoint directly — bypasses
- *    next-auth/react's signOut() which can throw stream errors.
- * 3. Hard-navigates to /sign-in.
+ * Calls a server action that:
+ * 1. Records the logout timestamp (for proxy stale-JWT protection).
+ * 2. Calls NextAuth's server-side signOut() to clear all session cookies
+ *    via Set-Cookie headers (handles __Secure- / __Host- prefixes).
  *
- * No startTransition — all operations fire-and-forget so nothing blocks
- * the hard navigation. The proxy's stale-JWT check is the safety net.
+ * Then hard-navigates to /sign-in. Falls back to navigation if the
+ * server action throws (proxy stale-JWT check is the safety net).
  */
 export function SignOutButton({
   className = "",
@@ -21,33 +22,31 @@ export function SignOutButton({
   className?: string;
   children?: React.ReactNode;
 } & React.HTMLAttributes<HTMLElement>) {
+  const [pending, startTransition] = useTransition();
+
   function handleClick() {
     try {
       localStorage.removeItem("hypervoid:guest");
     } catch {
       // ignore
     }
-    // Fire-and-forget: record timestamp + clear cookies.
-    // Don't await — let the hard navigation proceed immediately.
-    recordLogoutTimestampAction().catch(() => {});
-    fetch("/api/auth/csrf")
-      .then((r) => r.json())
-      .then(({ csrfToken }) =>
-        fetch("/api/auth/signout", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ csrfToken }),
-        }),
-      )
-      .catch(() => {});
-    // Hard navigation — proxy rejects stale JWTs even if cookies persist.
-    window.location.href = "/sign-in";
+    startTransition(async () => {
+      try {
+        await serverSignOutAction();
+      } catch {
+        // Server action may throw redirect error — ignore.
+        // The hard navigation below ensures the user leaves the page;
+        // stale JWTs are caught by the proxy.
+      }
+      window.location.href = "/sign-in";
+    });
   }
 
   return (
     <button
       type="button"
       onClick={handleClick}
+      disabled={pending}
       className={className}
       {...rest}
     >

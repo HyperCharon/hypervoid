@@ -1,12 +1,18 @@
 "use server";
 
+import { signOut } from "@/auth";
 import { recordLogout } from "@/lib/session-invalidate";
 
 /**
- * Record the logout timestamp so the proxy can reject stale JWTs.
- * Does NOT clear cookies — the client calls next-auth/react's signOut()
- * which properly handles __Secure- / __Host- prefixed cookies.
+ * Complete server-side logout:
+ * 1. Record the logout timestamp (for proxy stale-JWT check).
+ * 2. Call NextAuth's server-side signOut() which directly clears all
+ *    session cookies via Set-Cookie headers (bypasses HTTP fetch,
+ *    bypasses CSRF, handles __Secure- / __Host- prefixes correctly).
+ *
+ * Does NOT redirect — the client handles navigation after this returns.
  */
-export async function recordLogoutTimestampAction(): Promise<void> {
+export async function serverSignOutAction(): Promise<void> {
   await recordLogout();
+  await signOut({ redirect: false });
 }
