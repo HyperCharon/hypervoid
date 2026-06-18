@@ -406,6 +406,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   // Load a specific epub chapter from IndexedDB (with old-format fallback)
   const loadEpubChapter = useCallback(async (idx: number) => {
     if (!activeId || idx < 0 || idx >= chapters.length || loading) return;
+    // Set all state at once to minimize re-renders
     setCurrentChapterIndex(idx);
     setCurrentChapterHtml("");
     setLoading(true);
@@ -414,7 +415,6 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
         loadChapterHtml(activeId, idx),
         new Promise<null>((r) => setTimeout(() => r(null), 10000)),
       ]);
-      console.log(`[epub] loadChapterHtml(${idx}): ${chHtml ? chHtml.length + ' chars' : 'null'}`);
 
       // Fallback: old monolithic format
       if (!chHtml) {
@@ -435,15 +435,17 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
         }
       }
 
+      // Batch all final state updates
       setCurrentChapterHtml(chHtml ?? "");
+      setLoading(false);
+      // Save chapter index as position
+      try { localStorage.setItem(K_POSITION + activeId, String(idx)); } catch {}
+      // Scroll to top
+      contentRef.current?.scrollTo(0, 0);
     } catch {
       setCurrentChapterHtml("");
+      setLoading(false);
     }
-    setLoading(false);
-    // Save chapter index as position
-    try { localStorage.setItem(K_POSITION + activeId, String(idx)); } catch {}
-    // Scroll to top
-    contentRef.current?.scrollTo(0, 0);
   }, [activeId, chapters.length, loading]);
 
   const navCh = useCallback((dir: number) => {
