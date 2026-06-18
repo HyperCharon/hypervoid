@@ -11,7 +11,6 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { UmamiScript } from "@/components/UmamiScript";
 import { AnnouncementWrapper } from "@/components/AnnouncementWrapper";
 import { Backdrop } from "@/components/Backdrop";
-import { BannerStrip } from "@/components/BannerStrip";
 import { SettingsProvider } from "@/components/SettingsProvider";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { siteConfig } from "@/lib/site-config";
@@ -175,7 +174,6 @@ export default async function RootLayout({
               <div className="hv-chrome-only contents">
                 <AnnouncementWrapper />
                 <SiteHeader cvVisible={cvVisible} hasSession={hasSession} />
-                <BannerStrip />
               </div>
               <main id="main-content" tabIndex={-1} className="page-fade hv-main-shell w-full flex-1">
                 {children}
