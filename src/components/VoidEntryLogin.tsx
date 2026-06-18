@@ -26,7 +26,6 @@ import {
 import { type FormEvent, type PointerEvent, useEffect, useId, useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
 import { SignOutButton } from "@/components/SignOutButton";
-import { recordLogoutTimestampAction } from "@/app/signout-action";
 
 type EntryState = "explore" | "login";
 type AuthLoading = "github" | "email" | "signout" | null;
@@ -523,18 +522,7 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                       onClick={() => {
                         try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
                         startGuestTransition(async () => {
-                          try {
-                            await recordLogoutTimestampAction();
-                          } catch { /* ignore */ }
-                          try {
-                            const { csrfToken } = await fetch("/api/auth/csrf").then((r) => r.json());
-                            await fetch("/api/auth/signout", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                              body: new URLSearchParams({ csrfToken, callbackUrl: "/" }),
-                              redirect: "manual",
-                            });
-                          } catch { /* ignore */ }
+                          try { localStorage.setItem("hypervoid:guest", "1"); } catch {}
                           window.location.href = "/";
                         });
                       }}
