@@ -219,15 +219,14 @@ function EpubChapterView({ html, chapters, onNavigate }: {
     if (!anchor) return;
     const href = anchor.getAttribute("href");
     if (!href) return;
-    // Skip external links and anchors
-    if (href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:")) return;
-    // Strip fragment identifier
+    // Allow external links and anchors
+    if (href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+    // Prevent ALL internal epub links by default (avoid 404)
+    e.preventDefault();
+    // Try to navigate to matching chapter
     const path = href.split("#")[0];
     const idx = hrefMap.get(path);
-    if (idx !== undefined) {
-      e.preventDefault();
-      onNavigate(idx);
-    }
+    if (idx !== undefined) onNavigate(idx);
   }, [hrefMap, onNavigate]);
 
   return (
