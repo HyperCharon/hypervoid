@@ -821,7 +821,7 @@ function FeaturedClock() {
       });
     };
     tick();
-    const iv = setInterval(tick, 50);
+    const iv = setInterval(tick, 1000);
     return () => clearInterval(iv);
   }, []);
 

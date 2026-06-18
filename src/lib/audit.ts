@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, like } from "drizzle-orm";
+import { and, desc, eq, like, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db/client";
 import { auth } from "@/auth";
 
@@ -67,26 +67,33 @@ export async function getAuditFacets(): Promise<{
   actionPrefixes: string[];
   targetTypes: string[];
 }> {
-  const rows = await getDb()
-    .select({
-      actor: schema.auditLog.actor,
-      action: schema.auditLog.action,
-      targetType: schema.auditLog.targetType,
-    })
-    .from(schema.auditLog)
-    .limit(5000);
-  const actors = new Set<string>();
+  // Use SQL DISTINCT to avoid fetching thousands of rows into JS.
+  const [actorRows, targetRows] = await Promise.all([
+    getDb()
+      .selectDistinct({ actor: schema.auditLog.actor })
+      .from(schema.auditLog)
+      .orderBy(schema.auditLog.actor),
+    getDb()
+      .selectDistinct({ targetType: schema.auditLog.targetType })
+      .from(schema.auditLog)
+      .where(sql`${schema.auditLog.targetType} IS NOT NULL`)
+      .orderBy(schema.auditLog.targetType),
+  ]);
+
+  // Action prefixes need JS-side extraction (split on ".").
+  const actionRows = await getDb()
+    .selectDistinct({ action: schema.auditLog.action })
+    .from(schema.auditLog);
+
   const actionPrefixes = new Set<string>();
-  const targetTypes = new Set<string>();
-  for (const r of rows) {
-    actors.add(r.actor);
+  for (const r of actionRows) {
     const prefix = r.action.split(".")[0];
     if (prefix) actionPrefixes.add(prefix);
-    if (r.targetType) targetTypes.add(r.targetType);
   }
+
   return {
-    actors: [...actors].sort(),
+    actors: actorRows.map((r) => r.actor),
     actionPrefixes: [...actionPrefixes].sort(),
-    targetTypes: [...targetTypes].sort(),
+    targetTypes: targetRows.map((r) => r.targetType!),
   };
 }

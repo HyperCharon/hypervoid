@@ -1,5 +1,6 @@
 import {
   boolean,
+  index,
   integer,
   jsonb,
   pgEnum,
@@ -36,7 +37,10 @@ export const authAccounts = pgTable(
     id_token: text("id_token"),
     session_state: text("session_state"),
   },
-  (t) => [primaryKey({ columns: [t.provider, t.providerAccountId] })],
+  (t) => [
+    primaryKey({ columns: [t.provider, t.providerAccountId] }),
+    index("auth_accounts_user_id_idx").on(t.userId),
+  ],
 );
 
 export const authVerificationTokens = pgTable(
@@ -66,35 +70,43 @@ export const announcementSlot = pgEnum("announcement_slot", [
   "article_top",
 ]);
 
-export const posts = pgTable("posts", {
-  slug: text("slug").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description"),
-  content: text("content").notNull(),
-  category: text("category"),
-  tags: jsonb("tags").$type<string[]>().notNull().default([]),
-  cover: text("cover"),
-  summary: text("summary"),
-  pinned: boolean("pinned").notNull().default(false),
-  status: postStatus("status").notNull().default("draft"),
-  visibility: postVisibility("visibility").notNull().default("public"),
-  series: text("series"),
-  seriesOrder: integer("series_order"),
-  /**
-   * Precomputed length of `content` (CJK-aware estimate). Stored so list
-   * pages can show "X 字" + reading time without SELECTing the full
-   * content column. Backfilled by setup-admin-tables.ts on first run.
-   */
-  wordCount: integer("word_count").notNull().default(0),
-  publishAt: timestamp("publish_at", { withTimezone: true }),
-  notifiedAt: timestamp("notified_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const posts = pgTable(
+  "posts",
+  {
+    slug: text("slug").primaryKey(),
+    title: text("title").notNull(),
+    description: text("description"),
+    content: text("content").notNull(),
+    category: text("category"),
+    tags: jsonb("tags").$type<string[]>().notNull().default([]),
+    cover: text("cover"),
+    summary: text("summary"),
+    pinned: boolean("pinned").notNull().default(false),
+    status: postStatus("status").notNull().default("draft"),
+    visibility: postVisibility("visibility").notNull().default("public"),
+    series: text("series"),
+    seriesOrder: integer("series_order"),
+    /**
+     * Precomputed length of `content` (CJK-aware estimate). Stored so list
+     * pages can show "X 字" + reading time without SELECTing the full
+     * content column. Backfilled by setup-admin-tables.ts on first run.
+     */
+    wordCount: integer("word_count").notNull().default(0),
+    publishAt: timestamp("publish_at", { withTimezone: true }),
+    notifiedAt: timestamp("notified_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("posts_status_visibility_publish_at_idx").on(t.status, t.visibility, t.publishAt),
+    index("posts_pinned_publish_at_idx").on(t.pinned, t.publishAt),
+    index("posts_category_idx").on(t.category),
+  ],
+);
 
 export const postViews = pgTable("post_views", {
   slug: text("slug").primaryKey(),
@@ -273,17 +285,24 @@ export const redirects = pgTable("redirects", {
 });
 
 /** Append-only audit log of admin actions */
-export const auditLog = pgTable("audit_log", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  actor: text("actor").notNull(),
-  action: text("action").notNull(),
-  targetType: text("target_type"),
-  targetId: text("target_id"),
-  details: jsonb("details").$type<Record<string, unknown>>(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const auditLog = pgTable(
+  "audit_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    actor: text("actor").notNull(),
+    action: text("action").notNull(),
+    targetType: text("target_type"),
+    targetId: text("target_id"),
+    details: jsonb("details").$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("audit_log_created_at_idx").on(t.createdAt),
+    index("audit_log_actor_idx").on(t.actor),
+  ],
+);
 
 /**
  * Curated resource library — shared links, software, tools. Grouped by
@@ -386,23 +405,30 @@ export const aiCustomModels = pgTable("ai_custom_models", {
  *   verified → hidden   (admin moderation)
  * Only `verified` (and not hidden) rows are shown publicly.
  */
-export const webmentions = pgTable("webmentions", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  source: text("source").notNull(),
-  target: text("target").notNull(),
-  targetSlug: text("target_slug"),
-  status: text("status").notNull().default("pending"),
-  type: text("type").notNull().default("mention"),
-  content: text("content"),
-  authorName: text("author_name"),
-  authorUrl: text("author_url"),
-  authorPhoto: text("author_photo"),
-  hidden: boolean("hidden").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  verifiedAt: timestamp("verified_at", { withTimezone: true }),
-});
+export const webmentions = pgTable(
+  "webmentions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    source: text("source").notNull(),
+    target: text("target").notNull(),
+    targetSlug: text("target_slug"),
+    status: text("status").notNull().default("pending"),
+    type: text("type").notNull().default("mention"),
+    content: text("content"),
+    authorName: text("author_name"),
+    authorUrl: text("author_url"),
+    authorPhoto: text("author_photo"),
+    hidden: boolean("hidden").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    verifiedAt: timestamp("verified_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("webmentions_target_slug_status_idx").on(t.targetSlug, t.status),
+    index("webmentions_source_target_idx").on(t.source, t.target),
+  ],
+);
 
 /**
  * Crawl results for outbound links in published posts. status: HTTP code
