@@ -175,33 +175,21 @@ function LargeTextView({ content }: { content: string }) {
 }
 
 /**
- * Renders a single epub chapter. Uses DOMParser for safe HTML parsing
- * instead of regex-based sanitization which can miss edge cases.
+ * Renders a single epub chapter. Strips dangerous elements via regex.
  */
 function EpubChapterView({ html }: { html: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!ref.current) return;
-    // Parse with DOMParser — much safer than innerHTML with regex cleanup
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-    // Remove all script, style, link elements
-    doc.querySelectorAll("script, style, link").forEach(el => el.remove());
-    // Neutralize all links (prevent navigation/fetches)
-    doc.querySelectorAll("a").forEach(a => {
-      a.removeAttribute("href");
-      a.removeAttribute("onclick");
-    });
-    // Remove event handlers from all elements
-    doc.querySelectorAll("*").forEach(el => {
-      for (const attr of Array.from(el.attributes)) {
-        if (attr.name.startsWith("on")) el.removeAttribute(attr.name);
-      }
-    });
-    // Clear srcset to prevent extra fetches
-    doc.querySelectorAll("[srcset]").forEach(el => el.removeAttribute("srcset"));
-    ref.current.textContent = "";
-    ref.current.appendChild(doc.body);
+    const safe = html
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[\s\S]*?<\/style>/gi, "")
+      .replace(/<link[^>]*>/gi, "")
+      .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+      .replace(/\shref="[^"]*\.xhtml[^"]*"/gi, "")
+      .replace(/\shref="[^"]*\.html[^"]*"/gi, "")
+      .replace(/\ssrcset="[^"]*"/gi, "");
+    ref.current.innerHTML = safe;
   }, [html]);
   return <div ref={ref} className="hv-prose max-w-none epub-content" />;
 }
