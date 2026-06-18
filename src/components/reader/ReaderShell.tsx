@@ -251,6 +251,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
   const [curChTitle, setCurChTitle] = useState<string | null>(null);
   const [curChIdx, setCurChIdx] = useState(-1);
   const [tocOpen, setTocOpen] = useState(false);
+  const [tocSearch, setTocSearch] = useState("");
   const [bmOpen, setBmOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
@@ -716,7 +717,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
                     </div>
                   </button>
                   <button type="button" onClick={() => deleteBook(book.id)}
-                    className="hidden shrink-0 p-1 text-muted-soft hover:text-red-400 group-hover:block" title="移除">
+                    className="shrink-0 rounded-md p-1.5 text-muted-soft transition hover:bg-red-500/10 hover:text-red-400 sm:hidden sm:p-1 sm:group-hover:block" title="移除">
                     <X className="h-4 w-4" aria-hidden />
                   </button>
                 </div>
@@ -878,17 +879,42 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       {tocOpen && chapters.length > 0 && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setTocOpen(false)} />
-          <div className="absolute bottom-0 left-0 right-0 max-h-[60vh] overflow-y-auto rounded-t-2xl border-t border-border bg-background p-4">
-            <p className="mb-3 font-mono text-[11px] uppercase tracking-wider text-muted-soft">目录</p>
-            <nav className="flex flex-col gap-0.5">
-              {chapters.map((ch, i) => (
-                <button key={ch.id} type="button" onClick={() => {
-                  if (isEpubActive) { loadEpubChapter(i); } else { scrollToCh(ch); }
-                  setTocOpen(false);
-                }}
-                  className={`truncate rounded px-3 py-2.5 text-left text-sm transition ${i === (isEpubActive ? currentChapterIndex : curChIdx) ? "bg-accent/10 font-semibold text-accent" : "text-muted hover:bg-card-hover hover:text-foreground"}`}
-                  style={{ paddingLeft: (ch.level - 1) * 16 + 12 }}>{ch.title}</button>
-              ))}
+          <div className="absolute bottom-0 left-0 right-0 flex max-h-[80vh] flex-col rounded-t-2xl border-t border-border bg-background">
+            <div className="shrink-0 px-4 pt-4 pb-2">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="font-mono text-[11px] uppercase tracking-wider text-muted-soft">目录 · {chapters.length} 章</p>
+                <button type="button" onClick={() => setTocOpen(false)} className="rounded-md p-1 text-muted hover:text-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              {chapters.length > 10 && (
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-soft" />
+                  <input
+                    type="text"
+                    placeholder="搜索章节…"
+                    value={tocSearch}
+                    onChange={e => setTocSearch(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-card py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-soft focus:border-accent focus:outline-none"
+                  />
+                </div>
+              )}
+            </div>
+            <nav className="flex-1 overflow-y-auto px-2 pb-4 scrollbar-thin">
+              {chapters
+                .filter(ch => !tocSearch.trim() || ch.title.toLowerCase().includes(tocSearch.toLowerCase()))
+                .map((ch, i) => {
+                  const realIdx = chapters.indexOf(ch);
+                  return (
+                    <button key={ch.id} type="button" onClick={() => {
+                      if (isEpubActive) { loadEpubChapter(realIdx); } else { scrollToCh(ch); }
+                      setTocOpen(false);
+                      setTocSearch("");
+                    }}
+                      className={`w-full truncate rounded-lg px-3 py-3 text-left text-sm transition ${realIdx === (isEpubActive ? currentChapterIndex : curChIdx) ? "bg-accent/10 font-semibold text-accent" : "text-muted active:bg-card-hover hover:text-foreground"}`}
+                      style={{ paddingLeft: (ch.level - 1) * 16 + 12 }}>{ch.title}</button>
+                  );
+                })}
             </nav>
           </div>
         </div>
