@@ -10,15 +10,19 @@
 import { cookies } from "next/headers";
 
 const LOGOUT_COOKIE = "hv-logout-at";
+const AUTH_COOKIE_DOMAIN = process.env.AUTH_COOKIE_DOMAIN?.trim() || undefined;
+const USE_SECURE_COOKIES = process.env.NODE_ENV === "production";
 
 /** Record the current time as the logout timestamp. */
 export async function recordLogout(): Promise<void> {
   const store = await cookies();
   store.set(LOGOUT_COOKIE, String(Date.now()), {
     path: "/",
-    httpOnly: false, // middleware needs to read it
+    httpOnly: false, // proxy needs to read it
     sameSite: "lax",
+    secure: USE_SECURE_COOKIES,
     maxAge: 60 * 60 * 24 * 30, // 30 days
+    ...(AUTH_COOKIE_DOMAIN ? { domain: AUTH_COOKIE_DOMAIN } : {}),
   });
 }
 

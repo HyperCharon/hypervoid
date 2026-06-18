@@ -169,9 +169,9 @@ async function routeToolsSubdomain(req: NextRequest): Promise<NextResponse | nul
   // is domain-wide (AUTH_COOKIE_DOMAIN), set on the main domain at sign-in.
   const session = await auth();
   const user = session?.user as
-    | { login?: string | null; isAdmin?: boolean | null }
+    | { login?: string | null; email?: string | null; isAdmin?: boolean | null }
     | undefined;
-  const allowed = user?.isAdmin === true || user?.login === ADMIN_LOGIN;
+  const allowed = (user?.isAdmin === true || user?.login === ADMIN_LOGIN) && verifyAdminIdentity(user);
   if (!allowed) {
     // Sign-in must happen on the main domain (the GitHub OAuth callback is
     // registered there); the domain-wide cookie then unlocks this subdomain.

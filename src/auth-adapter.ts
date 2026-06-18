@@ -38,8 +38,18 @@ export function HypervoidAuthAdapter(): Adapter {
           emailVerified: user.emailVerified ?? null,
           image: user.image ?? null,
         })
+        .onConflictDoNothing({ target: schema.authUsers.email })
         .returning();
 
+      // If the email already existed (concurrent OAuth callback), fetch it.
+      if (!created) {
+        const existing = await getDb()
+          .select()
+          .from(schema.authUsers)
+          .where(eq(schema.authUsers.email, user.email!))
+          .limit(1);
+        return toAdapterUser(existing[0]);
+      }
       return toAdapterUser(created);
     },
 

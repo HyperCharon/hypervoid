@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/auth";
 import { setAiModel } from "@/lib/ai-config";
 import {
   deleteCustomModel,
@@ -10,12 +10,6 @@ import {
 } from "@/lib/ai-custom-models";
 import { setProviderQuota } from "@/lib/ai-quota";
 import { recordAudit } from "@/lib/audit";
-
-async function requireAdmin() {
-  const session = await auth();
-  const user = session?.user as { isAdmin?: boolean } | undefined;
-  if (!user?.isAdmin) throw new Error("Not authorized");
-}
 
 export async function updateModelAction(form: FormData): Promise<void> {
   await requireAdmin();

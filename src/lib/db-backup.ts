@@ -76,7 +76,7 @@ export async function createBackup(): Promise<DbBackupRow> {
   const pathname = `backups/hypervoid-${ts}-${randomUUID().slice(0, 8)}.json`;
 
   const result = await put(pathname, body, {
-    access: "public",
+    access: "private",
     contentType: "application/json",
     addRandomSuffix: false,
     cacheControlMaxAge: 0,
