@@ -854,8 +854,10 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
      ══════════════════════════════════════════════════════════ */
 
   return (
-    <div className={`relative flex flex-col ${immersive ? "fixed inset-0 z-50 overflow-hidden" : ""} ${themeCls}`}
-      style={immersive ? { height: "100vh", width: "100vw" } : { height: "calc(100svh - 4rem)", minHeight: "calc(100vh - 4rem)" }}
+    <div className={`rdr-shell relative flex flex-col ${immersive ? "fixed inset-0 z-50 overflow-hidden" : "w-full"} ${themeCls}`}
+      style={immersive
+        ? { height: "100dvh", width: "100vw" }
+        : { height: "calc(100dvh - 56px)", minHeight: "calc(100vh - 56px)" }}
       onDragOver={e => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setDragOver(true); } }}
       onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false); }}
       onDrop={e => { e.preventDefault(); setDragOver(false); importFiles(e.dataTransfer.files); }}>
@@ -863,7 +865,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       {/* ── Toolbar (absolute overlay in immersive, auto-hide) ── */}
       <div className={`flex shrink-0 items-center gap-0.5 border-b border-border px-1.5 py-1 transition-all duration-200 sm:px-3 sm:py-1.5 ${immersive ? "absolute inset-x-0 top-0 z-10 bg-background/90 backdrop-blur" : ""} ${immersive && !toolbarVisible ? "-translate-y-full opacity-0" : ""}`}>
         <button type="button" onClick={() => setActiveId(null)} className="rdr-btn-text shrink-0" title="返回书库">
-          <ChevronLeft className="h-4 w-4" /><span className="hidden sm:inline">书库</span>
+          <ChevronLeft className="h-4 w-4" />
         </button>
 
         <div className="mx-0.5 min-w-0 flex-1 truncate sm:mx-1">
@@ -913,10 +915,10 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
                 </button>
               </>
             )}
-            <button type="button" onClick={() => setAutoScroll(s => !s)} className={`rdr-btn ${autoScroll ? "active" : ""}`} title="自动滚动">
+            <button type="button" onClick={() => setAutoScroll(s => !s)} className={`rdr-btn hidden sm:inline-flex ${autoScroll ? "active" : ""}`} title="自动滚动">
               <span className="text-[10px] font-bold">{autoScroll ? "⏸" : "▶"}</span>
             </button>
-            <button type="button" onClick={() => setWakeLock(w => !w)} className={`rdr-btn ${wakeLock ? "active" : ""}`} title="屏幕常亮">
+            <button type="button" onClick={() => setWakeLock(w => !w)} className={`rdr-btn hidden sm:inline-flex ${wakeLock ? "active" : ""}`} title="屏幕常亮">
               <span className="text-[10px]">🔆</span>
             </button>
             <button type="button" onClick={() => setSettingsOpen(!settingsOpen)} className={`rdr-btn ${settingsOpen ? "active" : ""}`} title="设置">
@@ -1120,7 +1122,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
           </div>
 
           {/* Bottom nav */}
-          <div className="flex items-center justify-between border-t border-border px-4 py-4 sm:px-8">
+          <div className="flex items-center justify-between border-t border-border px-4 py-4 sm:px-8" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom, 0px))" }}>
             {chapters.length > 1 ? (
               <>
                 <button type="button" onClick={() => navCh(-1)} disabled={isEpubActive && currentChapterIndex === 0}

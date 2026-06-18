@@ -1377,6 +1377,16 @@ html[data-reading="large"] article .prose {
 /* ── Epub Content ─────────────────────────────────────────── */
 .epub-content a { color: inherit; text-decoration: underline; cursor: default; }
 
+/* ── Reader: break out of main-shell padding on mobile ───── */
+@media (max-width: 639px) {
+  .rdr-shell {
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+    width: calc(100% + 1.5rem);
+    max-width: none;
+  }
+}
+
 /* ── Main Shell ────────────────────────────────────────────── */
 .hv-main-shell {
   position: relative;
