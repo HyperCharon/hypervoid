@@ -723,20 +723,25 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
     }
   }, [navCh]);
 
+  const lastTapRef = useRef<{ zone: string; t: number }>({ zone: "", t: 0 });
+
   const onContentClick = useCallback((e: React.MouseEvent) => {
-    // Don't handle taps on interactive elements
     const target = e.target as HTMLElement;
     if (target.closest("a, button, input, textarea, select, [role='button']")) return;
 
     const x = e.clientX / window.innerWidth;
-    if (x < 0.33) {
-      // Left zone: scroll up
-      contentRef.current?.scrollBy({ top: -window.innerHeight * 0.85, behavior: "smooth" });
-    } else if (x > 0.67) {
-      // Right zone: scroll down
-      contentRef.current?.scrollBy({ top: window.innerHeight * 0.85, behavior: "smooth" });
+    const zone = x < 0.33 ? "left" : x > 0.67 ? "right" : "center";
+    const now = Date.now();
+    const isDoubleTap = zone === lastTapRef.current.zone && now - lastTapRef.current.t < 350;
+    lastTapRef.current = { zone, t: now };
+
+    const scrollAmount = window.innerHeight * (isDoubleTap ? 1.5 : 0.85);
+
+    if (zone === "left") {
+      contentRef.current?.scrollBy({ top: -scrollAmount, behavior: "smooth" });
+    } else if (zone === "right") {
+      contentRef.current?.scrollBy({ top: scrollAmount, behavior: "smooth" });
     } else {
-      // Center: toggle toolbar
       setToolbarVisible(v => !v);
     }
   }, []);
@@ -866,7 +871,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
      ══════════════════════════════════════════════════════════ */
 
   return (
-    <div className={`rdr-shell relative flex flex-col ${immersive ? "fixed inset-0 z-50 overflow-hidden" : "w-full"} ${themeCls}`}
+    <div className={`rdr-shell relative flex flex-col overflow-hidden ${immersive ? "fixed inset-0 z-50" : "w-full"} ${themeCls}`}
       style={immersive
         ? { height: "100dvh", width: "100vw" }
         : { height: "calc(100dvh - 56px)", minHeight: "calc(100vh - 56px)" }}
@@ -875,7 +880,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       onDrop={e => { e.preventDefault(); setDragOver(false); importFiles(e.dataTransfer.files); }}>
 
       {/* ── Toolbar (absolute overlay in immersive, auto-hide) ── */}
-      <div className={`flex shrink-0 items-center gap-0.5 border-b border-border px-1.5 py-1 transition-all duration-200 sm:px-3 sm:py-1.5 ${immersive ? "absolute inset-x-0 top-0 z-10 bg-background/90 backdrop-blur" : ""} ${immersive && !toolbarVisible ? "-translate-y-full opacity-0" : ""}`}>
+      <div className={`flex shrink-0 items-center gap-0.5 overflow-hidden border-b border-border px-1.5 py-1 transition-all duration-200 sm:px-3 sm:py-1.5 ${immersive ? "absolute inset-x-0 top-0 z-10 bg-background/90 backdrop-blur" : ""} ${immersive && !toolbarVisible ? "-translate-y-full opacity-0" : ""}`}>
         <button type="button" onClick={() => setActiveId(null)} className="rdr-btn-text shrink-0" title="返回书库">
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -1080,7 +1085,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
       <div className="flex min-h-0 flex-1">
         {/* TOC sidebar (novel mode, desktop) */}
         {!isQuick && settings.tocOpen && chapters.length > 0 && (
-          <aside className="hidden w-64 shrink-0 overflow-y-auto border-r border-border p-3 lg:block scrollbar-thin">
+          <aside className="hidden w-64 shrink-0 overflow-y-auto border-r border-border p-3 lg:block scrollbar-thin sticky top-24">
             <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-muted-soft">目录</p>
             <nav className="flex flex-col gap-0.5">
               {chapters.map((ch, i) => (
@@ -1107,15 +1112,14 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
           className="min-h-0 flex-1 overflow-y-auto"
           style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
-          <div className={`${isQuick ? "px-4 py-5" : "reader-content mx-auto px-3 py-5 sm:px-8 sm:py-8"}`}
+          <div className={`${isQuick ? "px-4 py-5" : "reader-content mx-auto px-3 py-4 sm:px-8 sm:py-8"}`}
             style={{
               fontSize: settings.fontSize,
               lineHeight: isQuick ? 1.8 : settings.lineHeight,
               fontFamily: FONT_FAMILIES[settings.fontFamily],
               letterSpacing: settings.letterSpacing ? `${settings.letterSpacing}em` : undefined,
               ...(isQuick ? {} : { maxWidth: settings.maxWidth }),
-              // In immersive mode, toolbar is absolute — add top padding to prevent content overlap
-              ...(immersive && toolbarVisible ? { paddingTop: "3.5rem" } : {}),
+              ...(immersive && toolbarVisible ? { paddingTop: "3rem" } : {}),
             }}>
             {loading ? (
               <p className="py-20 text-center text-sm text-muted">渲染中…</p>

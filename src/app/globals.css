@@ -976,11 +976,11 @@ html[data-reading="large"] article .prose {
 .dark .rdr-btn { color: rgba(255,255,255,0.6); }
 .dark .rdr-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
 .dark .rdr-btn.active { color: var(--accent-soft); }
-/* Mobile: larger touch targets */
+/* Mobile: compact touch targets — 36px is the minimum for comfortable tapping */
 @media (max-width: 639px) {
   .rdr-btn {
-    width: 2.75rem;
-    height: 2.75rem;
+    width: 2.25rem;
+    height: 2.25rem;
   }
 }
 /* Reader text button */
@@ -1001,9 +1001,9 @@ html[data-reading="large"] article .prose {
 .rdr-btn-text:hover { color: var(--foreground); background: color-mix(in srgb, var(--foreground) 5%, transparent); }
 @media (max-width: 639px) {
   .rdr-btn-text {
-    height: 2.75rem;
-    padding: 0 0.75rem;
-    font-size: 0.8125rem;
+    height: 2.25rem;
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
   }
 }
 /* Reader progress bar */
