@@ -893,7 +893,7 @@ export function ReaderShell({ isAdmin = false }: { isAdmin?: boolean } = {}) {
         </div>
 
         {/* Right buttons — scrollable if overflow */}
-        <div className="flex shrink-0 items-center gap-0.5 overflow-x-auto scrollbar-none">
+        <div className="flex min-w-0 shrink items-center gap-0.5 overflow-x-auto scrollbar-none">
 
         {/* Quick mode: minimal controls */}
         {isQuick ? (
