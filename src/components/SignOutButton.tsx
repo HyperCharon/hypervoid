@@ -1,14 +1,13 @@
 "use client";
 
 import { useTransition } from "react";
-import { signOut } from "next-auth/react";
 import { recordLogoutAction } from "@/app/signout-action";
 
 /**
  * Logout button. Records the logout timestamp server-side (for stale-JWT
- * protection), then calls next-auth/react's signOut() which properly clears
- * all cookies (including __Secure- / __Host- prefixed ones) via POST
- * /api/auth/signout, and finally hard-navigates to /sign-in.
+ * protection), then manually POSTs to NextAuth's signout endpoint to clear
+ * all cookies (bypasses next-auth/react's signOut which can throw stream
+ * errors in some environments), and finally hard-navigates to /sign-in.
  */
 export function SignOutButton({
   className = "",
@@ -30,8 +29,18 @@ export function SignOutButton({
     startTransition(async () => {
       // 1. Record logout timestamp (server-side, for proxy stale-JWT check)
       await recordLogoutAction();
-      // 2. Clear NextAuth cookies via the proper endpoint
-      await signOut({ redirect: false });
+      // 2. Clear NextAuth cookies via the signout endpoint directly
+      try {
+        const csrfRes = await fetch("/api/auth/csrf");
+        const { csrfToken } = await csrfRes.json();
+        await fetch("/api/auth/signout", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ csrfToken, callbackUrl: "/" }),
+        });
+      } catch {
+        // ignore — cookies may already be cleared
+      }
       // 3. Hard navigation so the server sees cleared cookies
       window.location.href = "/sign-in";
     });

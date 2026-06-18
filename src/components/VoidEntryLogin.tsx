@@ -24,7 +24,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { type FormEvent, type PointerEvent, useEffect, useId, useState, useTransition } from "react";
-import { signIn, signOut } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { SignOutButton } from "@/components/SignOutButton";
 import { recordGuestLogoutAction } from "@/app/guest-action";
 
@@ -525,8 +525,18 @@ export function VoidEntryLogin({ emailEnabled, currentUser, redirectTo = "/", er
                         startGuestTransition(async () => {
                           // 1. Record logout timestamp (server-side, for proxy stale-JWT check)
                           await recordGuestLogoutAction();
-                          // 2. Clear NextAuth cookies via the proper endpoint
-                          await signOut({ redirect: false });
+                          // 2. Clear NextAuth cookies via the signout endpoint directly
+                          try {
+                            const csrfRes = await fetch("/api/auth/csrf");
+                            const { csrfToken } = await csrfRes.json();
+                            await fetch("/api/auth/signout", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                              body: new URLSearchParams({ csrfToken, callbackUrl: "/" }),
+                            });
+                          } catch {
+                            // ignore — cookies may already be cleared
+                          }
                           // 3. Hard navigation so the server sees cleared cookies
                           window.location.href = "/";
                         });
